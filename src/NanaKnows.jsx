@@ -468,11 +468,11 @@ export default function NanaKnows() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your bust / chest ({lenU})</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder="e.g. 38" />
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder="e.g. 38" />
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>How do you like it to fit?</span>
-              <select style={inputStyle} className="px-3 py-2.5 text-sm nk-focus" value={easeIdx} onChange={(e) => setEaseIdx(Number(e.target.value))}>
+              <select style={inputStyle} className="mt-auto px-3 py-2.5 text-sm nk-focus" value={easeIdx} onChange={(e) => setEaseIdx(Number(e.target.value))}>
                 {easeOptions.map((o, i) => (
                   <option key={i} value={i}>{o.label}</option>
                 ))}
@@ -480,7 +480,7 @@ export default function NanaKnows() {
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your swatch gauge, optional ({gaugeLabel})</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder="e.g. 19" />
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder="e.g. 19" />
             </label>
           </div>
         </section>
