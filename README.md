@@ -1,4 +1,4 @@
-# Nana Knows 🧶
+# Nana Knows 👵 🧶
 
 Tell Nana Purl about your pattern, your yarn, and yourself. She tells you what size to make, whether your stash will stretch, and what your gauge is up to.
 
