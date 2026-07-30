@@ -17,11 +17,38 @@ const C = {
 };
 
 /* ---------- helpers ---------- */
-const parseList = (t) =>
+/* Turn a free-typed list into numbers.
+   Commas mean three different things depending on who is typing: "32, 36" is a
+   list, "91,5" is 91.5 to a European knitter, and "1,100" is a thousands mark.
+   A comma before a space always breaks the list, so split on those first, then
+   work out what any comma left inside a single number is doing. */
+const parseList = (t) => {
+  const out = [];
   String(t || "")
-    .split(/[^0-9.]+/)
-    .map(parseFloat)
-    .filter((n) => isFinite(n) && n > 0);
+    .replace(/,(?=\s)/g, " ")
+    .split(/[;\s]+/)
+    .filter(Boolean)
+    .forEach((token) => {
+      const commas = (token.match(/,/g) || []).length;
+      let parts;
+      if (commas >= 2) {
+        parts = token.split(","); // "32,36,40" typed without spaces
+      } else if (commas === 1) {
+        parts = [
+          /,\d{3}(?!\d)/.test(token)
+            ? token.replace(",", "") // "1,100" -> 1100
+            : token.replace(",", "."), // "91,5"  -> 91.5
+        ];
+      } else {
+        parts = [token];
+      }
+      parts.forEach((p) => {
+        const n = parseFloat(p.replace(/[^0-9.]/g, ""));
+        if (isFinite(n) && n > 0) out.push(n);
+      });
+    });
+  return out;
+};
 
 const r1 = (n) => Math.round(n * 10) / 10;
 
