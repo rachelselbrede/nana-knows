@@ -52,6 +52,19 @@ const parseList = (t) => {
 
 const r1 = (n) => Math.round(n * 10) / 10;
 
+/* Unit conversion, used when someone flips the in/cm switch after typing.
+   Gauge is deliberately left alone: patterns quote "per 4 in" and "per 10 cm"
+   as the same swatch, and the maths only ever uses gauge as a ratio anyway. */
+const convertOne = (value, f) => {
+  const n = parseFloat(String(value).replace(",", "."));
+  return isFinite(n) && n > 0 ? String(r1(f(n))) : value;
+};
+
+const convertList = (text, f) => {
+  const nums = parseList(text);
+  return nums.length ? nums.map((n) => r1(f(n))).join(", ") : text;
+};
+
 /* ---------- tiny granny square icon ---------- */
 function GrannySquare({ size = 18 }) {
   return (
@@ -206,6 +219,33 @@ export default function NanaKnows() {
   const yarnU = inch ? "yds" : "m";
   const gaugeLabel = inch ? "stitches per 4 in" : "stitches per 10 cm";
   const tool = craft === "knit" ? "needle" : "hook";
+
+  /* Flipping units has to carry the numbers over, or a 38 in bust silently
+     becomes a 38 cm one and Nana confidently recommends the wrong size. */
+  const switchUnits = (next) => {
+    if (next === units) return;
+    const toMetric = next === "cm";
+    const len = (n) => (toMetric ? n * 2.54 : n / 2.54);
+    const yarn = (n) => (toMetric ? n * 0.9144 : n / 0.9144);
+    setSizesText(convertList(sizesText, len));
+    setYardsText(convertList(yardsText, yarn));
+    setBust(convertOne(bust, len));
+    setPerSkein(convertOne(perSkein, yarn));
+    setResults(null); // old advice is in the old units
+    setUnits(next);
+  };
+
+  const ph = {
+    gauge: "e.g. 18",
+    sizes: inch ? "e.g. 32, 36, 40, 44, 48, 52" : "e.g. 81, 91, 102, 112, 122, 132",
+    yards: inch
+      ? "e.g. 900, 1000, 1100, 1250, 1400, 1550"
+      : "e.g. 825, 915, 1005, 1145, 1280, 1420",
+    bust: inch ? "e.g. 38" : "e.g. 96",
+    myGauge: "e.g. 19",
+    perSkein: inch ? "e.g. 220" : "e.g. 200",
+    skeins: "e.g. 5",
+  };
 
   const easeOptions = [
     { label: `Snug (${inch ? "-2 in" : "-5 cm"})`, v: inch ? -2 : -5 },
@@ -466,8 +506,8 @@ export default function NanaKnows() {
           <Toggle value="knit" current={craft} set={setCraft}>Knitting</Toggle>
           <Toggle value="crochet" current={craft} set={setCraft}>Crochet</Toggle>
           <span className="mx-1" style={{ color: C.line }}>|</span>
-          <Toggle value="in" current={units} set={setUnits}>in / yds</Toggle>
-          <Toggle value="cm" current={units} set={setUnits}>cm / m</Toggle>
+          <Toggle value="in" current={units} set={switchUnits}>in / yds</Toggle>
+          <Toggle value="cm" current={units} set={switchUnits}>cm / m</Toggle>
         </div>
 
         {/* card: pattern */}
@@ -479,15 +519,15 @@ export default function NanaKnows() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Pattern gauge ({gaugeLabel})</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder="e.g. 18" />
+              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Finished sizes, smallest to largest ({lenU})</span>
-              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder="e.g. 32, 36, 40, 44, 48, 52" />
+              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
             </label>
             <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span style={labelStyle}>Yarn needed per size, same order ({yarnU})</span>
-              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder="e.g. 900, 1000, 1100, 1250, 1400, 1550" />
+              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
             </label>
           </div>
         </section>
@@ -501,7 +541,7 @@ export default function NanaKnows() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your bust / chest ({lenU})</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder="e.g. 38" />
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>How do you like it to fit?</span>
@@ -513,7 +553,7 @@ export default function NanaKnows() {
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your swatch gauge, optional ({gaugeLabel})</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder="e.g. 19" />
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
             </label>
           </div>
         </section>
@@ -527,11 +567,11 @@ export default function NanaKnows() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>{yarnU} per skein</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder="e.g. 220" />
+              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
             </label>
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Skeins you have</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder="e.g. 5" />
+              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
             </label>
           </div>
         </section>
