@@ -390,6 +390,12 @@ export default function NanaKnows() {
         .nk-pop { animation: nkpop .4s ease-out both; }
         @keyframes nkpop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
         @media (prefers-reduced-motion: reduce) { .nk-bob, .nk-pop { animation: none; } }
+        .nk-link {
+          text-decoration: underline; text-decoration-thickness: 2px;
+          text-underline-offset: 3px; text-decoration-color: ${C.line};
+          transition: color .15s ease, text-decoration-color .15s ease;
+        }
+        .nk-link:hover { color: ${C.rose}; text-decoration-color: ${C.rose}; }
         .nk-focus:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
           outline: 3px solid ${C.butter}; outline-offset: 2px;
         }
@@ -569,6 +575,17 @@ export default function NanaKnows() {
         </div>
         <p className="text-xs" style={{ color: "#8A755F" }}>
           Nana Knows is free forever. Your numbers stay in your own notebook, never sold, never shared. Made with love and leftover yarn.
+        </p>
+        <p className="text-xs mt-3">
+          <a
+            href="https://github.com/rachelselbrede/nana-knows/issues"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="nk-focus nk-link font-bold rounded"
+            style={{ color: C.roseDark }}
+          >
+            Tell Nana what to learn next
+          </a>
         </p>
       </footer>
     </div>
