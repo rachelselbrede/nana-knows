@@ -30,6 +30,23 @@ The live site appears at: `https://<your-username>.github.io/nana-knows/`
 
 Note: `base` in `vite.config.js` is set to `/nana-knows/` and must match the repo name. If you later use a custom domain, change `base` to `/`.
 
+## Someday
+
+Ideas worth doing, not built yet. Nothing here is promised, and none of it should
+break the "no backend, nothing collected" rule.
+
+- **Shareable result links** — encode the inputs in the URL query string so a
+  knitter can send Nana's answer to a friend, or bookmark a project, without any
+  server storing it.
+- **Row gauge support** — right now gauge math is stitches-per-inch only, which
+  covers width. Row gauge would let Nana check length too: sleeve and body
+  measurements, and how far a pattern's row counts will actually get you.
+- **Multiple saved projects** — "remember my numbers" currently holds one set.
+  Saving several named projects (still in localStorage) would let someone keep a
+  sweater and a blanket going at once.
+
+Got another idea? Open an issue: "Tell Nana what to learn next" in the footer.
+
 ## Privacy
 
 Nana collects nothing. There is no backend, no analytics, and no cookies. Saved numbers live only in the visitor's own browser.
