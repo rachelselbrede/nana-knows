@@ -9,6 +9,7 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - Recommends which pattern size to make from your body measurement plus your preferred ease
 - Checks whether the yarn in your basket covers that size, with a 10% just-in-case cushion
 - Adjusts for your personal gauge, so the size you follow matches what actually comes off your needles or hook
+- Checks row gauge too, so you know whether the pattern's row counts will land at the length it intended
 - "Nana, remember my numbers" saves your details in your own browser (localStorage) and nowhere else
 
 ## Run it locally
@@ -38,9 +39,6 @@ break the "no backend, nothing collected" rule.
 - **Shareable result links** — encode the inputs in the URL query string so a
   knitter can send Nana's answer to a friend, or bookmark a project, without any
   server storing it.
-- **Row gauge support** — right now gauge math is stitches-per-inch only, which
-  covers width. Row gauge would let Nana check length too: sleeve and body
-  measurements, and how far a pattern's row counts will actually get you.
 - **Multiple saved projects** — "remember my numbers" currently holds one set.
   Saving several named projects (still in localStorage) would let someone keep a
   sweater and a blanket going at once.

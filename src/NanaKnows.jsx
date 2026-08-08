@@ -199,12 +199,14 @@ export default function NanaKnows() {
   const [craft, setCraft] = useState("knit");
 
   const [patternGauge, setPatternGauge] = useState("");
+  const [patternRowGauge, setPatternRowGauge] = useState("");
   const [sizesText, setSizesText] = useState("");
   const [yardsText, setYardsText] = useState("");
 
   const [bust, setBust] = useState("");
   const [easeIdx, setEaseIdx] = useState(2);
   const [myGauge, setMyGauge] = useState("");
+  const [myRowGauge, setMyRowGauge] = useState("");
 
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
@@ -218,6 +220,9 @@ export default function NanaKnows() {
   const lenU = inch ? "in" : "cm";
   const yarnU = inch ? "yds" : "m";
   const gaugeLabel = inch ? "stitches per 4 in" : "stitches per 10 cm";
+  const rowGaugeLabel = inch ? "rows per 4 in" : "rows per 10 cm";
+  /* The swatch both gauges are quoted over: 4 in, or 10 cm. */
+  const swatchSpan = inch ? 4 : 10;
   const tool = craft === "knit" ? "needle" : "hook";
 
   /* Flipping units has to carry the numbers over, or a 38 in bust silently
@@ -237,6 +242,8 @@ export default function NanaKnows() {
 
   const ph = {
     gauge: "e.g. 18",
+    rowGauge: "e.g. 24",
+    myRowGauge: "e.g. 26",
     sizes: inch ? "e.g. 32, 36, 40, 44, 48, 52" : "e.g. 81, 91, 102, 112, 122, 132",
     yards: inch
       ? "e.g. 900, 1000, 1100, 1250, 1400, 1550"
@@ -283,6 +290,7 @@ export default function NanaKnows() {
         if (d.bust) setBust(d.bust);
         if (typeof d.easeIdx === "number") setEaseIdx(d.easeIdx);
         if (d.myGauge) setMyGauge(d.myGauge);
+        if (d.myRowGauge) setMyRowGauge(d.myRowGauge);
         if (d.perSkein) setPerSkein(d.perSkein);
         if (d.skeins) setSkeins(d.skeins);
         setSaveMsg("Nana remembered you from last time.");
@@ -296,7 +304,7 @@ export default function NanaKnows() {
     try {
       localStorage.setItem(
         "nana-notebook",
-        JSON.stringify({ units, craft, bust, easeIdx, myGauge, perSkein, skeins })
+        JSON.stringify({ units, craft, bust, easeIdx, myGauge, myRowGauge, perSkein, skeins })
       );
       setSaveMsg("Written in Nana's notebook. Saved just for you, in this browser.");
     } catch (e) {
@@ -409,8 +417,34 @@ export default function NanaKnows() {
       gaugeTone = "warn";
     }
 
+    /* length check
+       Stitch gauge only ever answers "how wide". Row gauge is what decides
+       whether a body or a sleeve ends up the length the pattern intended, and
+       it is the gauge knitters most often skip swatching for. */
+    const prg = parseFloat(patternRowGauge);
+    const urg = parseFloat(myRowGauge);
+    let rowMsg = "";
+    let rowTone = "ok";
+    if (!isFinite(prg) || prg <= 0) {
+      rowMsg = `Pop in the pattern's row gauge (${rowGaugeLabel}) and Nana can check your lengths as well as your widths. It is the one most of us skip, dear.`;
+      rowTone = "ask";
+    } else if (!isFinite(urg) || urg <= 0) {
+      rowMsg = `Count the rows in your swatch too (${rowGaugeLabel}) and Nana will tell you how long the pattern's rows will really come out.`;
+      rowTone = "ask";
+    } else if (Math.abs(urg - prg) < 0.25) {
+      rowMsg = `Your rows match the pattern too (${urg} vs ${prg} ${rowGaugeLabel}). Work the lengths as written and they will come out right.`;
+    } else {
+      /* Per 100 rows, because patterns quote row counts, not inches. */
+      const intended = r1((100 / prg) * swatchSpan);
+      const yours = r1((100 / urg) * swatchSpan);
+      const needed = Math.round((100 * urg) / prg);
+      const tighter = urg > prg;
+      rowMsg = `Your rows are ${tighter ? "tighter" : "looser"} than the pattern's (${urg} vs ${prg} ${rowGaugeLabel}). Where it says work 100 rows, you would reach about ${yours} ${lenU} instead of ${intended} ${lenU} — so work about ${needed} rows to arrive at the same length. Measure your body and sleeves as you go rather than trusting the row count alone, and you will be fine.`;
+      rowTone = "warn";
+    }
+
     setProverb(proverbs[Math.floor(Math.random() * proverbs.length)]);
-    setResults({ sizeMsg, yarnMsg, yarnTone, gaugeMsg, gaugeTone });
+    setResults({ sizeMsg, yarnMsg, yarnTone, gaugeMsg, gaugeTone, rowMsg, rowTone });
     setTimeout(() => {
       if (resultsRef.current) resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 60);
@@ -519,9 +553,13 @@ export default function NanaKnows() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Pattern gauge ({gaugeLabel})</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
             </label>
             <label className="flex flex-col gap-1.5">
+              <span style={labelStyle}>Pattern row gauge, optional ({rowGaugeLabel})</span>
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
+            </label>
+            <label className="flex flex-col gap-1.5 sm:col-span-2">
               <span style={labelStyle}>Finished sizes, smallest to largest ({lenU})</span>
               <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
             </label>
@@ -538,7 +576,7 @@ export default function NanaKnows() {
             <GrannySquare />
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>You, dear</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your bust / chest ({lenU})</span>
               <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
@@ -554,6 +592,10 @@ export default function NanaKnows() {
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>Your swatch gauge, optional ({gaugeLabel})</span>
               <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span style={labelStyle}>Your swatch row gauge, optional ({rowGaugeLabel})</span>
+              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
             </label>
           </div>
         </section>
@@ -618,6 +660,7 @@ export default function NanaKnows() {
               <AdviceCard color={C.rose} title="The right size">{results.sizeMsg}</AdviceCard>
               <AdviceCard color={C.butter} title="Your yarn basket" tone={results.yarnTone === "warn" ? "warn" : "ok"}>{results.yarnMsg}</AdviceCard>
               <AdviceCard color={C.sage} title="Your tension" tone={results.gaugeTone === "warn" ? "warn" : "ok"}>{results.gaugeMsg}</AdviceCard>
+              <AdviceCard color={C.sageDark} title="Your length" tone={results.rowTone === "warn" ? "warn" : "ok"}>{results.rowMsg}</AdviceCard>
             </div>
           )}
         </div>
@@ -631,6 +674,7 @@ export default function NanaKnows() {
             <p><strong>Size:</strong> your body measurement plus your chosen ease gives a target. Nana picks the pattern size whose finished measurement lands closest to it. If you gave her your own gauge, she first adjusts each size to how it would really come out in your hands.</p>
             <p><strong>Yarn:</strong> she reads the yardage for your size, adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.</p>
             <p><strong>Tension:</strong> finished width is stitch count divided by gauge. If your gauge differs from the pattern's, the same instructions produce a different size, so she does that arithmetic for you.</p>
+            <p><strong>Length:</strong> stitch gauge only ever decides how wide a thing comes out. Row gauge decides how long. Nana works out how far the pattern's row counts would actually take you, and how many rows you would need instead to land at the length it intended.</p>
           </div>
         </details>
       </main>
