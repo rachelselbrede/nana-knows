@@ -90,6 +90,15 @@ export default {
     forget: "Olvídame",
   },
 
+  copy: {
+    button: "Copiar el consejo de Nana",
+    print: "Imprimir",
+    heading: "Nana Knows — su consejo para este proyecto",
+    done: "Copiado. Pégalo en tus notas de Ravelry o donde quieras.",
+    failed:
+      "Nana no pudo alcanzar el portapapeles, mi vida. Mejor selecciona las tarjetas y cópialas a mano.",
+  },
+
   save: {
     remembered: "Nana te recordó de la vez pasada.",
     written: "Anotado en el cuaderno de Nana. Guardado solo para ti, en este navegador.",

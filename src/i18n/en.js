@@ -91,6 +91,15 @@ export default {
     forget: "Forget me",
   },
 
+  copy: {
+    button: "Copy Nana's advice",
+    print: "Print",
+    heading: "Nana Knows — her advice for this project",
+    done: "Copied. Paste it into your Ravelry notes or wherever you like.",
+    failed:
+      "Nana could not reach the clipboard, dear. Select the cards and copy them by hand instead.",
+  },
+
   save: {
     remembered: "Nana remembered you from last time.",
     written: "Written in Nana's notebook. Saved just for you, in this browser.",

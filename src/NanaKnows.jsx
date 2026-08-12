@@ -218,6 +218,7 @@ export default function NanaKnows() {
   const [results, setResults] = useState(null);
   const [proverb, setProverb] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
+  const [copyMsg, setCopyMsg] = useState("");
   const resultsRef = useRef(null);
 
   const inch = units === "in";
@@ -296,6 +297,39 @@ export default function NanaKnows() {
     }
     setSaveMsg(t("save.forgotten"));
   };
+
+  /* Turn the four advice cards into plain text Nana's visitor can paste into a
+     Ravelry project note. Built from the same messages shown on screen. */
+  const copyAdvice = async () => {
+    if (!results || results.error) return;
+    const text = [
+      t("copy.heading"),
+      "",
+      proverb ? `“${proverb}”` : "",
+      "",
+      t("advice.size"),
+      results.sizeMsg,
+      "",
+      t("advice.yarn"),
+      results.yarnMsg,
+      "",
+      t("advice.tension"),
+      results.gaugeMsg,
+      "",
+      t("advice.length"),
+      results.rowMsg,
+    ]
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyMsg(t("copy.done"));
+    } catch (e) {
+      setCopyMsg(t("copy.failed"));
+    }
+  };
+
+  const printAdvice = () => window.print();
 
   const askNana = () => {
     const pg = parseFloat(patternGauge);
@@ -511,12 +545,23 @@ export default function NanaKnows() {
         }
         input::placeholder, textarea::placeholder { color: #B9A68F; }
         summary { cursor: pointer; }
+        /* Print just Nana's advice, so it can go in a project bag. The form,
+           toggles, buttons and footer drop away; the header keeps her face. */
+        @media print {
+          .nk-noprint { display: none !important; }
+          body { background: #FFFFFF !important; }
+          .nk-results, .nk-results * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .nk-pop { animation: none !important; }
+        }
       `}</style>
 
       {/* header */}
       <header className="max-w-2xl mx-auto px-5 pt-8 pb-2">
         {/* language switch */}
-        <div className="flex justify-end mb-2">
+        <div className="nk-noprint flex justify-end mb-2">
           <div
             role="group"
             aria-label={t("lang.toggleLabel")}
@@ -577,7 +622,7 @@ export default function NanaKnows() {
 
       <main className="max-w-2xl mx-auto px-5 py-7 flex flex-col gap-5">
         {/* toggles */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="nk-noprint flex flex-wrap items-center gap-2">
           <Toggle value="knit" current={craft} set={setCraft}>{t("toggle.knitting")}</Toggle>
           <Toggle value="crochet" current={craft} set={setCraft}>{t("toggle.crochet")}</Toggle>
           <span className="mx-1" style={{ color: C.line }}>|</span>
@@ -586,7 +631,7 @@ export default function NanaKnows() {
         </div>
 
         {/* card: pattern */}
-        <section className="rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
           <div className="flex items-center gap-2 mb-4">
             <GrannySquare />
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.pattern")}</h2>
@@ -612,7 +657,7 @@ export default function NanaKnows() {
         </section>
 
         {/* card: you */}
-        <section className="rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
           <div className="flex items-center gap-2 mb-4">
             <GrannySquare />
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.you")}</h2>
@@ -642,7 +687,7 @@ export default function NanaKnows() {
         </section>
 
         {/* card: yarn basket */}
-        <section className="rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
           <div className="flex items-center gap-2 mb-4">
             <GrannySquare />
             <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.basket")}</h2>
@@ -663,14 +708,14 @@ export default function NanaKnows() {
         <button
           type="button"
           onClick={askNana}
-          className="nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
+          className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
           style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: "#FFF", boxShadow: `0 4px 0 ${C.roseDark}` }}
         >
           {t("button.ask")}
         </button>
 
         {/* remember me */}
-        <div className="flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
+        <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
           <button type="button" onClick={rememberMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
             {t("remember.save")}
           </button>
@@ -681,7 +726,7 @@ export default function NanaKnows() {
         </div>
 
         {/* results */}
-        <div ref={resultsRef} aria-live="polite">
+        <div ref={resultsRef} className="nk-results" aria-live="polite">
           {results && results.error && (
             <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
               <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
@@ -702,12 +747,21 @@ export default function NanaKnows() {
               <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarnTone === "warn" ? "warn" : "ok"}>{results.yarnMsg}</AdviceCard>
               <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gaugeTone === "warn" ? "warn" : "ok"}>{results.gaugeMsg}</AdviceCard>
               <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.rowTone === "warn" ? "warn" : "ok"}>{results.rowMsg}</AdviceCard>
+              <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
+                  {t("copy.button")}
+                </button>
+                <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
+                  {t("copy.print")}
+                </button>
+                {copyMsg && <span style={{ color: "#8A755F" }}>{copyMsg}</span>}
+              </div>
             </div>
           )}
         </div>
 
         {/* how the math works */}
-        <details className="rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+        <details className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
           <summary className="nk-focus font-bold" style={{ fontFamily: "'Fraunces', serif", fontSize: 18 }}>
             {t("math.summary")}
           </summary>
@@ -721,7 +775,7 @@ export default function NanaKnows() {
       </main>
 
       {/* footer */}
-      <footer className="max-w-2xl mx-auto px-5 pb-10 pt-2 text-center" style={{ fontFamily: "'Nunito', sans-serif" }}>
+      <footer className="nk-noprint max-w-2xl mx-auto px-5 pb-10 pt-2 text-center" style={{ fontFamily: "'Nunito', sans-serif" }}>
         <div className="flex justify-center gap-2 mb-3" aria-hidden="true">
           <GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} />
         </div>
