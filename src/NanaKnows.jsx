@@ -79,53 +79,63 @@ function GrannySquare({ size = 18 }) {
 }
 
 /* ---------- how-to-measure diagram ----------
-   A little camisole torso with a soft tape wrapped around the bust:
-   the band behind the body is dashed, the band in front is a solid rose
-   line with tick marks and a buckle. Same flat, rounded art as Nana. */
-function MeasureBust({ size = 128, label }) {
+   A flat-lay sweater — crew neck, two sleeves, ribbed hem and cuffs —
+   with a soft tape measure wrapped around the bust. The tape drapes past
+   the sides so it reads as going around to the back, and it carries tick
+   marks and a little metal end tab. Same flat, rounded art as Nana. */
+function MeasureBust({ size = 132, label }) {
   return (
     <svg
       width={size}
-      height={size * 1.12}
-      viewBox="0 0 120 134"
+      height={size * 1.07}
+      viewBox="0 0 140 150"
       role="img"
       aria-label={label}
     >
-      {/* straps */}
-      <path d="M46 24 L44 12" stroke={C.sage} strokeWidth="5" strokeLinecap="round" />
-      <path d="M74 24 L76 12" stroke={C.sage} strokeWidth="5" strokeLinecap="round" />
-      {/* torso / camisole */}
+      {/* sweater body + sleeves */}
       <path
-        d="M40 22 Q60 32 80 22 L92 42 L80 50 L80 118 Q60 126 40 118 L40 50 L28 42 Z"
+        d="M58 24 L44 30 L14 60 L18 72 L40 62 L36 128 L36 138 L104 138 L104 128 L100 62 L122 72 L126 60 L96 30 L82 24 Q70 34 58 24 Z"
         fill={C.sage}
+        stroke={C.sageDark}
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
-      {/* neckline scoop */}
-      <path d="M46 24 Q60 40 74 24 Q60 32 46 24 Z" fill={C.oat} />
-      {/* measuring tape — back band, dashed and tucked behind */}
-      <path
-        d="M32 76 Q60 68 88 76"
-        fill="none"
-        stroke={C.line}
-        strokeWidth="7"
-        strokeLinecap="round"
-        strokeDasharray="2 6"
-      />
-      {/* measuring tape — front band, solid rose across the fullest part */}
-      <path
-        d="M32 76 Q60 92 88 76"
-        fill="none"
-        stroke={C.rose}
-        strokeWidth="7"
-        strokeLinecap="round"
-      />
-      {/* tick marks along the front band */}
-      <g stroke={C.card} strokeWidth="1.6" strokeLinecap="round">
-        <line x1="47" y1="82" x2="47" y2="86" />
-        <line x1="60" y1="84" x2="60" y2="88" />
-        <line x1="73" y1="82" x2="73" y2="86" />
+      {/* ribbed crew neckline */}
+      <path d="M58 24 Q70 34 82 24" fill="none" stroke={C.oat} strokeWidth="5" strokeLinecap="round" />
+      <path d="M58 24 Q70 34 82 24" fill="none" stroke={C.sageDark} strokeWidth="1.5" strokeLinecap="round" />
+      {/* ribbed hem */}
+      <path d="M36 129 L104 129" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <g stroke={C.sageDark} strokeWidth="1.4" strokeLinecap="round" opacity="0.65">
+        <line x1="46" y1="130" x2="46" y2="137" />
+        <line x1="58" y1="130" x2="58" y2="137" />
+        <line x1="70" y1="130" x2="70" y2="137" />
+        <line x1="82" y1="130" x2="82" y2="137" />
+        <line x1="94" y1="130" x2="94" y2="137" />
       </g>
-      {/* buckle */}
-      <rect x="84" y="71" width="10" height="9" rx="2" fill={C.roseDark} />
+      {/* ribbed cuffs */}
+      <path d="M14.5 61 L18.5 72" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
+      <path d="M125.5 61 L121.5 72" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
+
+      {/* tape measure wrapping the bust, draping past the sides to the back */}
+      <path
+        d="M20 72 Q70 84 120 72 L120 82 Q70 94 20 82 Z"
+        fill={C.rose}
+        stroke={C.roseDark}
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      {/* measurement ticks */}
+      <g stroke={C.oat} strokeWidth="1.5" strokeLinecap="round">
+        <line x1="34" y1="76" x2="34" y2="82" />
+        <line x1="46" y1="78" x2="46" y2="84" />
+        <line x1="58" y1="80" x2="58" y2="86" />
+        <line x1="70" y1="81" x2="70" y2="87" />
+        <line x1="82" y1="80" x2="82" y2="86" />
+        <line x1="94" y1="78" x2="94" y2="84" />
+        <line x1="106" y1="76" x2="106" y2="82" />
+      </g>
+      {/* metal end tab where the tape meets */}
+      <rect x="112" y="69" width="13" height="9" rx="2" fill={C.roseDark} transform="rotate(9 118 73)" />
     </svg>
   );
 }
