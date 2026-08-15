@@ -78,6 +78,58 @@ function GrannySquare({ size = 18 }) {
   );
 }
 
+/* ---------- how-to-measure diagram ----------
+   A little camisole torso with a soft tape wrapped around the bust:
+   the band behind the body is dashed, the band in front is a solid rose
+   line with tick marks and a buckle. Same flat, rounded art as Nana. */
+function MeasureBust({ size = 128, label }) {
+  return (
+    <svg
+      width={size}
+      height={size * 1.12}
+      viewBox="0 0 120 134"
+      role="img"
+      aria-label={label}
+    >
+      {/* straps */}
+      <path d="M46 24 L44 12" stroke={C.sage} strokeWidth="5" strokeLinecap="round" />
+      <path d="M74 24 L76 12" stroke={C.sage} strokeWidth="5" strokeLinecap="round" />
+      {/* torso / camisole */}
+      <path
+        d="M40 22 Q60 32 80 22 L92 42 L80 50 L80 118 Q60 126 40 118 L40 50 L28 42 Z"
+        fill={C.sage}
+      />
+      {/* neckline scoop */}
+      <path d="M46 24 Q60 40 74 24 Q60 32 46 24 Z" fill={C.oat} />
+      {/* measuring tape — back band, dashed and tucked behind */}
+      <path
+        d="M32 76 Q60 68 88 76"
+        fill="none"
+        stroke={C.line}
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeDasharray="2 6"
+      />
+      {/* measuring tape — front band, solid rose across the fullest part */}
+      <path
+        d="M32 76 Q60 92 88 76"
+        fill="none"
+        stroke={C.rose}
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      {/* tick marks along the front band */}
+      <g stroke={C.card} strokeWidth="1.6" strokeLinecap="round">
+        <line x1="47" y1="82" x2="47" y2="86" />
+        <line x1="60" y1="84" x2="60" y2="88" />
+        <line x1="73" y1="82" x2="73" y2="86" />
+      </g>
+      {/* buckle */}
+      <rect x="84" y="71" width="10" height="9" rx="2" fill={C.roseDark} />
+    </svg>
+  );
+}
+
 /* ---------- Nana Purl herself ---------- */
 function Nana({ size = 150, bob = true, label = "Nana Purl, a smiling grandma holding a ball of yarn" }) {
   return (
@@ -799,6 +851,25 @@ export default function NanaKnows() {
               <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
             </label>
           </div>
+          <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
+            <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
+              {t("measure.summary")}
+            </summary>
+            <div className="px-4 pb-4 flex flex-col sm:flex-row gap-4 items-start">
+              <div className="shrink-0 mx-auto sm:mx-0">
+                <MeasureBust label={t("measure.alt")} />
+              </div>
+              <div className="text-sm" style={{ color: C.espresso }}>
+                <p className="mb-2">{t("measure.intro")}</p>
+                <ol className="list-decimal pl-5 flex flex-col gap-1.5">
+                  {t("measure.steps").map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ol>
+                <p className="mt-3" style={{ color: C.sageDark }}>{t("measure.tip")}</p>
+              </div>
+            </div>
+          </details>
         </section>
 
         {/* card: yarn basket */}

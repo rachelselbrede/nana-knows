@@ -109,6 +109,21 @@ export default {
     note: "Ese enlace lleva tus números. Compártelo solo con quien tú le contarías.",
   },
 
+  measure: {
+    summary: "¿Cómo me mido?",
+    intro:
+      "Tu busto o pecho es el número en el que se apoyan todos los demás, mija. Quítate las capas gruesas, pasa una cinta métrica suave alrededor de la parte más ancha y sigue estos pasos.",
+    alt: "Una cinta métrica suave alrededor de la parte más ancha del busto, nivelada en todo el contorno",
+    steps: [
+      "Usa el sostén o la prenda que llevarás debajo de la pieza terminada, para que el ajuste sea como en la vida real.",
+      "Pasa la cinta por la parte más ancha del busto, normalmente a la altura de los pezones.",
+      "Mantén la cinta nivelada, ajustada pero sin apretar, y paralela al piso en todo el contorno.",
+      "Suelta el aire con calma y lee el número donde se junta la cinta, sin jalarla.",
+      "Mídete dos veces. Si los números no coinciden, usa el mayor y confía en él.",
+    ],
+    tip: "¿No tienes quien te ayude ni un espejo de cuerpo entero? Mide un suéter que ya te quede bien, extendido en plano, y duplica el ancho del pecho.",
+  },
+
   save: {
     remembered: "Nana te recordó de la vez pasada.",
     written: "Anotado en el cuaderno de Nana. Guardado solo para ti, en este navegador.",
