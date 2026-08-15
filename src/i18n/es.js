@@ -99,6 +99,16 @@ export default {
       "Nana no pudo alcanzar el portapapeles, mi vida. Mejor selecciona las tarjetas y cópialas a mano.",
   },
 
+  share: {
+    button: "Copiar un enlace con estos números",
+    copied:
+      "Enlace copiado. Envíaselo a alguien y Nana lo recibirá con los mismísimos números.",
+    failed:
+      "Nana puso el enlace en tu barra de direcciones, mi vida. Cópialo de ahí para compartir.",
+    loaded: "Nana abrió esto desde un enlace compartido.",
+    note: "Ese enlace lleva tus números. Compártelo solo con quien tú le contarías.",
+  },
+
   save: {
     remembered: "Nana te recordó de la vez pasada.",
     written: "Anotado en el cuaderno de Nana. Guardado solo para ti, en este navegador.",

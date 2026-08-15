@@ -219,6 +219,7 @@ export default function NanaKnows() {
   const [proverb, setProverb] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
   const [copyMsg, setCopyMsg] = useState("");
+  const [pendingAutoRun, setPendingAutoRun] = useState(false);
   const resultsRef = useRef(null);
 
   const inch = units === "in";
@@ -256,8 +257,35 @@ export default function NanaKnows() {
 
   const proverbs = t(craft === "knit" ? "proverbs.knit" : "proverbs.crochet");
 
-  /* load Nana's notebook if it exists (stored only in this browser) */
+  /* The project fields Nana can carry in a shared link, keyed short to keep
+     URLs tidy. Everything stays client-side: the link itself is the storage. */
+  const SHARE_TEXT_KEYS = {
+    pg: "patternGauge",
+    prg: "patternRowGauge",
+    s: "sizesText",
+    y: "yardsText",
+    b: "bust",
+    mg: "myGauge",
+    mrg: "myRowGauge",
+    ps: "perSkein",
+    sk: "skeins",
+  };
+
+  /* Does the URL carry a shared project (anything beyond ?lang)? */
+  const hasSharedParams = () => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return [...p.keys()].some((k) => k !== "lang");
+    } catch (e) {
+      return false;
+    }
+  };
+
+  /* load Nana's notebook if it exists (stored only in this browser).
+     A shared link takes precedence, so skip the saved notebook when one is
+     present rather than mixing someone else's numbers with your own. */
   useEffect(() => {
+    if (hasSharedParams()) return;
     try {
       const saved = localStorage.getItem("nana-notebook");
       if (saved) {
@@ -277,6 +305,40 @@ export default function NanaKnows() {
     }
   }, []);
 
+  /* Fill the form from a shared link, if one brought us here. When it carries
+     enough to compute (sizes + measurement), ask Nana straight away so the
+     visitor lands on her advice. */
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      if (![...p.keys()].some((k) => k !== "lang")) return;
+      if (p.get("u")) setUnits(p.get("u") === "cm" ? "cm" : "in");
+      if (p.get("c")) setCraft(p.get("c") === "crochet" ? "crochet" : "knit");
+      if (p.get("e") != null && p.get("e") !== "") {
+        const e = Number(p.get("e"));
+        if (Number.isInteger(e) && e >= 0 && e <= 4) setEaseIdx(e);
+      }
+      const setter = {
+        patternGauge: setPatternGauge,
+        patternRowGauge: setPatternRowGauge,
+        sizesText: setSizesText,
+        yardsText: setYardsText,
+        bust: setBust,
+        myGauge: setMyGauge,
+        myRowGauge: setMyRowGauge,
+        perSkein: setPerSkein,
+        skeins: setSkeins,
+      };
+      Object.entries(SHARE_TEXT_KEYS).forEach(([key, field]) => {
+        const v = p.get(key);
+        if (v != null && v !== "") setter[field](v);
+      });
+      if (p.get("s") && p.get("b")) setPendingAutoRun(true);
+    } catch (e) {
+      /* malformed link; leave the form blank */
+    }
+  }, []);
+
   const rememberMe = () => {
     try {
       localStorage.setItem(
@@ -286,6 +348,50 @@ export default function NanaKnows() {
       setSaveMsg(t("save.written"));
     } catch (e) {
       setSaveMsg(t("save.notHandy"));
+    }
+  };
+
+  /* Build a link that carries the current inputs. Keeps ?lang, includes units
+     and craft so numbers are never misread, and skips empty fields. */
+  const buildShareUrl = () => {
+    const url = new URL(window.location.href);
+    const fresh = new URLSearchParams();
+    const lang = url.searchParams.get("lang");
+    if (lang) fresh.set("lang", lang);
+    fresh.set("u", units);
+    fresh.set("c", craft);
+    if (easeIdx !== 2) fresh.set("e", String(easeIdx));
+    const values = {
+      pg: patternGauge,
+      prg: patternRowGauge,
+      s: sizesText,
+      y: yardsText,
+      b: bust,
+      mg: myGauge,
+      mrg: myRowGauge,
+      ps: perSkein,
+      sk: skeins,
+    };
+    Object.entries(values).forEach(([k, v]) => {
+      if (v != null && String(v).trim() !== "") fresh.set(k, v);
+    });
+    url.search = fresh.toString();
+    return url.toString();
+  };
+
+  const shareLink = async () => {
+    const url = buildShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setSaveMsg(t("share.copied"));
+    } catch (e) {
+      /* No clipboard access: drop the link in the address bar to copy by hand. */
+      try {
+        window.history.replaceState({}, "", url);
+      } catch (_) {
+        /* ignore */
+      }
+      setSaveMsg(t("share.failed"));
     }
   };
 
@@ -486,6 +592,15 @@ export default function NanaKnows() {
       if (resultsRef.current) resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 60);
   };
+
+  /* A shared link filled the form; run Nana once the inputs have settled. */
+  useEffect(() => {
+    if (!pendingAutoRun) return;
+    setPendingAutoRun(false);
+    askNana();
+    setSaveMsg(t("share.loaded"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAutoRun]);
 
   /* ---------- shared field styles ---------- */
   const labelStyle = {
@@ -722,8 +837,14 @@ export default function NanaKnows() {
           <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: "#A08B74" }}>
             {t("remember.forget")}
           </button>
+          <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
+            {t("share.button")}
+          </button>
           {saveMsg && <span style={{ color: "#8A755F" }}>{saveMsg}</span>}
         </div>
+        <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#A08B74" }}>
+          {t("share.note")}
+        </p>
 
         {/* results */}
         <div ref={resultsRef} className="nk-results" aria-live="polite">

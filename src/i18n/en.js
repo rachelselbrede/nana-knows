@@ -100,6 +100,15 @@ export default {
       "Nana could not reach the clipboard, dear. Select the cards and copy them by hand instead.",
   },
 
+  share: {
+    button: "Copy a link to these numbers",
+    copied:
+      "Link copied. Send it to a friend and Nana will greet them with the very same numbers.",
+    failed: "Nana put the link in your address bar, dear. Copy it from there to share.",
+    loaded: "Nana opened this from a shared link.",
+    note: "That link carries your numbers. Share it only with folks you would tell them to.",
+  },
+
   save: {
     remembered: "Nana remembered you from last time.",
     written: "Written in Nana's notebook. Saved just for you, in this browser.",
