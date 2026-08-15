@@ -94,7 +94,7 @@ function MeasureBust({ size = 132, label }) {
     >
       {/* sweater body + sleeves */}
       <path
-        d="M58 24 L44 30 L14 60 L18 72 L40 62 L36 128 L36 138 L104 138 L104 128 L100 62 L122 72 L126 60 L96 30 L82 24 Q70 34 58 24 Z"
+        d="M58 24 L44 30 L10 72 L16 84 L40 66 L36 128 L36 138 L104 138 L104 128 L100 66 L124 84 L130 72 L96 30 L82 24 Q70 34 58 24 Z"
         fill={C.sage}
         stroke={C.sageDark}
         strokeWidth="2"
@@ -113,12 +113,12 @@ function MeasureBust({ size = 132, label }) {
         <line x1="94" y1="130" x2="94" y2="137" />
       </g>
       {/* ribbed cuffs */}
-      <path d="M14.5 61 L18.5 72" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
-      <path d="M125.5 61 L121.5 72" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
+      <path d="M10.5 72.5 L16.5 84" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
+      <path d="M129.5 72.5 L123.5 84" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
 
-      {/* tape measure wrapping the bust, draping past the sides to the back */}
+      {/* tape measure wrapping the bust, within the chest of the sweater */}
       <path
-        d="M20 72 Q70 84 120 72 L120 82 Q70 94 20 82 Z"
+        d="M44 74 Q70 82 96 74 L96 83 Q70 91 44 83 Z"
         fill={C.rose}
         stroke={C.roseDark}
         strokeWidth="1.2"
@@ -126,16 +126,15 @@ function MeasureBust({ size = 132, label }) {
       />
       {/* measurement ticks */}
       <g stroke={C.oat} strokeWidth="1.5" strokeLinecap="round">
-        <line x1="34" y1="76" x2="34" y2="82" />
-        <line x1="46" y1="78" x2="46" y2="84" />
-        <line x1="58" y1="80" x2="58" y2="86" />
-        <line x1="70" y1="81" x2="70" y2="87" />
-        <line x1="82" y1="80" x2="82" y2="86" />
-        <line x1="94" y1="78" x2="94" y2="84" />
-        <line x1="106" y1="76" x2="106" y2="82" />
+        <line x1="50" y1="77" x2="50" y2="83" />
+        <line x1="58" y1="78" x2="58" y2="84" />
+        <line x1="66" y1="79" x2="66" y2="85" />
+        <line x1="74" y1="79" x2="74" y2="85" />
+        <line x1="82" y1="78" x2="82" y2="84" />
+        <line x1="90" y1="77" x2="90" y2="83" />
       </g>
       {/* metal end tab where the tape meets */}
-      <rect x="112" y="69" width="13" height="9" rx="2" fill={C.roseDark} transform="rotate(9 118 73)" />
+      <rect x="84" y="71" width="11" height="8" rx="2" fill={C.roseDark} transform="rotate(8 89 75)" />
     </svg>
   );
 }
