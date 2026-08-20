@@ -1,0 +1,20 @@
+name: Tests
+
+# Deploy runs the same suite before publishing. This workflow is what makes a
+# pull request tell you whether Nana's sums still add up, before it is merged.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm test
