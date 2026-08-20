@@ -33,6 +33,14 @@ export default {
     crochet: "Crochet",
     inYds: "in / yds",
     cmM: "cm / m",
+    craftLabel: "Labor",
+    unitsLabel: "Unidades",
+  },
+
+  echo: {
+    read: ({ list }) => `Nana leyó: ${list}.`,
+    range: " Tomó el guion como dos números distintos.",
+    thousands: " Leyó una coma como separador de miles.",
   },
 
   label: {
@@ -147,6 +155,11 @@ export default {
     size: {
       main: ({ best, lenU, b, easeLabel, target }) =>
         `Teje la talla ${best}, la que tiene una medida terminada de ${best} ${lenU}. Tú mides ${b} ${lenU} y elegiste ${easeLabel}, así que estás buscando unos ${target} ${lenU} de contorno.`,
+      /* Cuando Nana ya ajustó por la muestra, la etiqueta de la talla y la
+         medida terminada son dos números distintos, y decir solo el primero
+         contradiría la tarjeta de tensión de más abajo. */
+      mainAdjusted: ({ best, actual, lenU, b, easeLabel, target }) =>
+        `Sigue la talla ${best}. Con tu muestra, esas instrucciones te salen cerca de ${actual} ${lenU} de contorno, aunque el patrón llame a esa talla ${best} ${lenU}. Tú mides ${b} ${lenU} y elegiste ${easeLabel}, así que buscas unos ${target} ${lenU}.`,
       runnerUp: ({ runnerUp }) =>
         ` La talla ${runnerUp} también anda cerquita. Cuando dudes entre dos, ve más chica para telas elásticas y ceñidas, y más grande para caída y para poder abrigarte debajo.`,
     },
@@ -175,13 +188,10 @@ export default {
         `Teje una muestrita y dile a Nana tus ${gaugeLabel}. Es la diferencia entre un suéter y una sorpresa.`,
       match: ({ ug, pg, gaugeLabel, best }) =>
         `Tu tensión coincide preciosa con la del patrón (${ug} contra ${pg} ${gaugeLabel}). Sigue los números de la talla ${best} tal como están. Qué manos tan lindas, mi vida.`,
-      off: ({ tighter, ug, pg, gaugeLabel, best, actual, lenU, craft }) => {
-        const knit = craft === "knit";
-        const tool = knit ? "aguja" : "ganchillo";
-        const article = knit ? "una" : "un";
-        const bigger = knit ? "más grande" : "más grande";
-        const smaller = knit ? "más pequeña" : "más pequeño";
-        return `Tus puntos quedan un poquito ${tighter ? "más apretados" : "más flojos"} que los del patrón (${ug} contra ${pg} ${gaugeLabel}), así que las instrucciones de la talla ${best} te saldrían cerca de ${actual} ${lenU} en tus manos. Nana ya eligió tu talla teniendo eso en cuenta. Si prefieres calcar el patrón exacto, prueba con ${article} ${tool} ${tighter ? bigger : smaller} y vuelve a hacer la muestra.`;
+      off: ({ tighter, ug, pg, gaugeLabel, best, actual, lenU, craft, toolSizes }) => {
+        const tool = craft === "knit" ? "aguja" : "ganchillo";
+        const sizes = toolSizes === 1 ? "una talla" : `como ${toolSizes} tallas`;
+        return `Tus puntos quedan un poquito ${tighter ? "más apretados" : "más flojos"} que los del patrón (${ug} contra ${pg} ${gaugeLabel}), así que las instrucciones de la talla ${best} te saldrían cerca de ${actual} ${lenU} en tus manos. Nana ya eligió tu talla teniendo eso en cuenta. Si prefieres calcar el patrón exacto, ${tighter ? "sube" : "baja"} ${sizes} de ${tool} y vuelve a hacer la muestra.`;
       },
     },
 

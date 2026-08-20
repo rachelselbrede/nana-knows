@@ -1,14 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import { useI18n } from "./i18n/index.jsx";
+import {
+  parseNumberList,
+  parseList,
+  convertOne,
+  convertList,
+  inchesToCm,
+  cmToInches,
+  yardsToMetres,
+  metresToYards,
+  gaugePer4inToPer10cm,
+  gaugePer10cmToPer4in,
+  r1,
+} from "./lib/parse.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows } from "./lib/advice.js";
 
 /* ---------- Nana's palette ---------- */
 const C = {
   oat: "#FBF6EC",
   card: "#FFFDF9",
   rose: "#D4718C",
-  roseDark: "#B25571",
+  roseDark: "#AF546F",
   sage: "#7E9B76",
-  sageDark: "#5F7C58",
+  sageDark: "#5C7956",
   butter: "#E9B44C",
   espresso: "#3E2F25",
   line: "#E4D5C3",
@@ -17,54 +31,9 @@ const C = {
   cheek: "#F2AAB2",
 };
 
-/* ---------- helpers ---------- */
-/* Turn a free-typed list into numbers.
-   Commas mean three different things depending on who is typing: "32, 36" is a
-   list, "91,5" is 91.5 to a European knitter, and "1,100" is a thousands mark.
-   A comma before a space always breaks the list, so split on those first, then
-   work out what any comma left inside a single number is doing. */
-const parseList = (t) => {
-  const out = [];
-  String(t || "")
-    .replace(/,(?=\s)/g, " ")
-    .split(/[;\s]+/)
-    .filter(Boolean)
-    .forEach((token) => {
-      const commas = (token.match(/,/g) || []).length;
-      let parts;
-      if (commas >= 2) {
-        parts = token.split(","); // "32,36,40" typed without spaces
-      } else if (commas === 1) {
-        parts = [
-          /,\d{3}(?!\d)/.test(token)
-            ? token.replace(",", "") // "1,100" -> 1100
-            : token.replace(",", "."), // "91,5"  -> 91.5
-        ];
-      } else {
-        parts = [token];
-      }
-      parts.forEach((p) => {
-        const n = parseFloat(p.replace(/[^0-9.]/g, ""));
-        if (isFinite(n) && n > 0) out.push(n);
-      });
-    });
-  return out;
-};
-
-const r1 = (n) => Math.round(n * 10) / 10;
-
-/* Unit conversion, used when someone flips the in/cm switch after typing.
-   Gauge is deliberately left alone: patterns quote "per 4 in" and "per 10 cm"
-   as the same swatch, and the maths only ever uses gauge as a ratio anyway. */
-const convertOne = (value, f) => {
-  const n = parseFloat(String(value).replace(",", "."));
-  return isFinite(n) && n > 0 ? String(r1(f(n))) : value;
-};
-
-const convertList = (text, f) => {
-  const nums = parseList(text);
-  return nums.length ? nums.map((n) => r1(f(n))).join(", ") : text;
-};
+/* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
+   where they are pure and covered by tests. See src/lib/parse.js for why the
+   comma is such hard work, and src/lib/advice.js for the sizing maths. */
 
 /* ---------- tiny granny square icon ---------- */
 function GrannySquare({ size = 18 }) {
@@ -276,8 +245,11 @@ export default function NanaKnows() {
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
 
+  /* `results` holds numbers and decision kinds, never finished sentences. The
+     wording is produced during render, so switching language or craft after
+     asking re-words Nana's advice instead of stranding it in the old one. */
   const [results, setResults] = useState(null);
-  const [proverb, setProverb] = useState("");
+  const [proverbIdx, setProverbIdx] = useState(0);
   const [saveMsg, setSaveMsg] = useState("");
   const [copyMsg, setCopyMsg] = useState("");
   const [pendingAutoRun, setPendingAutoRun] = useState(false);
@@ -292,21 +264,46 @@ export default function NanaKnows() {
   const swatchSpan = inch ? 4 : 10;
 
   /* Flipping units has to carry the numbers over, or a 38 in bust silently
-     becomes a 38 cm one and Nana confidently recommends the wrong size. */
+     becomes a 38 cm one and Nana confidently recommends the wrong size.
+     Gauge moves too: the label changes from "per 4 in" to "per 10 cm", and
+     those are not the same swatch (4 in is 10.16 cm), so the number owes the
+     knitter the same courtesy as every other field. */
   const switchUnits = (next) => {
     if (next === units) return;
     const toMetric = next === "cm";
-    const len = (n) => (toMetric ? n * 2.54 : n / 2.54);
-    const yarn = (n) => (toMetric ? n * 0.9144 : n / 0.9144);
+    const len = toMetric ? inchesToCm : cmToInches;
+    const yarn = toMetric ? yardsToMetres : metresToYards;
+    const gauge = toMetric ? gaugePer4inToPer10cm : gaugePer10cmToPer4in;
     setSizesText(convertList(sizesText, len));
     setYardsText(convertList(yardsText, yarn));
     setBust(convertOne(bust, len));
     setPerSkein(convertOne(perSkein, yarn));
+    setPatternGauge(convertOne(patternGauge, gauge));
+    setMyGauge(convertOne(myGauge, gauge));
+    setPatternRowGauge(convertOne(patternRowGauge, gauge));
+    setMyRowGauge(convertOne(myRowGauge, gauge));
     setResults(null); // old advice is in the old units
     setUnits(next);
   };
 
   const ph = t("ph", { inch });
+
+  /* Show the knitter what Nana made of her typing. Commas and dashes are
+     genuinely ambiguous — "32,36" could be two sizes or one odd decimal — and
+     no heuristic gets every case. Echoing the reading back turns a wrong guess
+     into something visible and correctable, which is worth more than a cleverer
+     guess would be. Only speaks up once there is something to say. */
+  const ParseEcho = ({ text }) => {
+    const { values, issues } = parseNumberList(text);
+    if (values.length === 0) return null;
+    if (values.length === 1 && issues.length === 0) return null;
+    return (
+      <span className="text-xs" style={{ color: C.sageDark }}>
+        {t("echo.read", { list: values.join(", ") })}
+        {issues.map((i) => t(`echo.${i}`)).join("")}
+      </span>
+    );
+  };
 
   /* Labels come from the dictionary; the ease values stay here since they are
      arithmetic, not text. */
@@ -475,16 +472,16 @@ export default function NanaKnows() {
       proverb ? `“${proverb}”` : "",
       "",
       t("advice.size"),
-      results.sizeMsg,
+      sizeText(),
       "",
       t("advice.yarn"),
-      results.yarnMsg,
+      yarnText(),
       "",
       t("advice.tension"),
-      results.gaugeMsg,
+      gaugeText(),
       "",
       t("advice.length"),
-      results.rowMsg,
+      rowText(),
     ]
       .join("\n")
       .replace(/\n{3,}/g, "\n\n");
@@ -499,159 +496,120 @@ export default function NanaKnows() {
   const printAdvice = () => window.print();
 
   const askNana = () => {
-    const pg = parseFloat(patternGauge);
-    const ug = parseFloat(myGauge);
     const b = parseFloat(bust);
     const sizes = parseList(sizesText);
     const yards = parseList(yardsText);
-    const per = parseFloat(perSkein);
-    const cnt = parseFloat(skeins);
     const ease = easeOptions[easeIdx].v;
     const closeGap = inch ? 1 : 2.5;
 
-    if (!sizes.length || !isFinite(b) || b <= 0) {
-      setResults({ error: t("result.error") });
+    const size = adviseSize({
+      sizes,
+      bust: b,
+      ease,
+      patternGauge,
+      myGauge,
+      closeGap,
+    });
+
+    if (!size) {
+      setResults({ error: true });
       return;
     }
 
-    const target = b + ease;
-    const haveUserGauge = isFinite(ug) && ug > 0 && isFinite(pg) && pg > 0;
-
-    /* pick the best size */
-    const fitOf = (s) => (haveUserGauge ? (s * pg) / ug : s);
-    let bestIdx = 0;
-    sizes.forEach((s, i) => {
-      if (Math.abs(fitOf(s) - target) < Math.abs(fitOf(sizes[bestIdx]) - target)) bestIdx = i;
-    });
-    const best = sizes[bestIdx];
-
-    /* is a neighbor size nearly as good? */
-    let runnerUp = null;
-    sizes.forEach((s, i) => {
-      if (i === bestIdx) return;
-      const d = Math.abs(fitOf(s) - target) - Math.abs(fitOf(best) - target);
-      if (d >= 0 && d <= closeGap) {
-        if (runnerUp === null || Math.abs(s - best) < Math.abs(runnerUp - best)) runnerUp = s;
-      }
+    /* Everything the advice was worked out from is kept alongside it, so that
+       editing a field afterwards does not quietly rewrite advice already on
+       screen. Only the wording is left to render time. */
+    setProverbIdx(Math.floor(Math.random() * proverbs.length));
+    setResults({
+      error: false,
+      inch,
+      bust: b,
+      easeIdx,
+      size,
+      yarn: adviseYarn({ yards, sizes, bestIdx: size.bestIdx, perSkein, skeins }),
+      gauge: adviseGauge({ patternGauge, myGauge, best: size.best }),
+      row: adviseRows({ patternRowGauge, myRowGauge, swatchSpan }),
     });
 
-    let sizeMsg = t("result.size.main", {
-      best,
-      lenU,
-      b,
-      easeLabel: easeOptions[easeIdx].label.toLowerCase(),
-      target: r1(target),
-    });
-    if (runnerUp !== null) {
-      sizeMsg += t("result.size.runnerUp", { runnerUp });
-    }
+    const jump = () => {
+      if (!resultsRef.current) return;
+      const gentle = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      resultsRef.current.scrollIntoView({
+        behavior: gentle ? "auto" : "smooth",
+        block: "start",
+      });
+    };
+    setTimeout(jump, 60);
+  };
 
-    /* yarn check */
-    let yarnMsg = "";
-    let yarnTone = "ok";
-    if (!yards.length) {
-      yarnMsg = t("result.yarn.needSizes");
-      yarnTone = "ask";
-    } else if (yards.length <= bestIdx) {
-      yarnMsg = t("result.yarn.listShort");
-      yarnTone = "warn";
-    } else if (!isFinite(per) || per <= 0 || !isFinite(cnt) || cnt <= 0) {
-      yarnMsg = t("result.yarn.askBasket", { need: yards[bestIdx], yarnU });
-      yarnTone = "ask";
-    } else {
-      const need = yards[bestIdx];
-      const buffered = Math.ceil(need * 1.1);
-      const have = per * cnt;
-      if (have >= buffered) {
-        yarnMsg = t("result.yarn.allSet", { have: r1(have), best, need, buffered, yarnU });
-      } else if (have >= need) {
-        yarnMsg = t("result.yarn.justCovers", { have: r1(have), need, buffered, yarnU });
-        yarnTone = "warn";
-      } else {
-        const short = buffered - have;
-        const moreSkeins = Math.ceil(short / per);
-        yarnMsg = t("result.yarn.short", {
-          have: r1(have),
-          need,
-          buffered,
-          shortAmt: Math.ceil(short),
-          moreSkeins,
-          yarnU,
+  /* ---------- turning Nana's findings into Nana's words ----------
+     These run during render, which is what lets a language or craft switch
+     re-word advice that has already been given. */
+  const proverb = proverbs[proverbIdx % proverbs.length];
+
+  /* Language and craft are pure wording, so advice already on screen should
+     follow a switch. Units are not: the numbers in `results` were worked out in
+     whichever system was showing when Nana was asked, and 40 in is not 40 cm.
+     So the cards keep the units they were measured in, even after the toggle
+     converts the fields above them. */
+  const said = () => {
+    const wasInch = results.inch;
+    return {
+      lenU: wasInch ? "in" : "cm",
+      yarnU: wasInch ? "yds" : "m",
+      gaugeLabel: t("label.gaugeLabel", { inch: wasInch }),
+      rowGaugeLabel: t("label.rowGaugeLabel", { inch: wasInch }),
+    };
+  };
+
+  const sizeText = () => {
+    const s = results.size;
+    const u = said();
+    const easeLabel = t("ease.labels", { inch: results.inch })[results.easeIdx].toLowerCase();
+    const base = s.gaugeAdjusted && s.actual !== s.best
+      ? t("result.size.mainAdjusted", {
+          best: s.best,
+          actual: s.actual,
+          lenU: u.lenU,
+          b: results.bust,
+          easeLabel,
+          target: s.target,
+        })
+      : t("result.size.main", {
+          best: s.best,
+          lenU: u.lenU,
+          b: results.bust,
+          easeLabel,
+          target: s.target,
         });
-        yarnTone = "warn";
-      }
-      if (yards.length !== sizes.length) {
-        yarnMsg += t("result.yarn.mismatch");
-      }
-    }
+    return s.runnerUp !== null
+      ? base + t("result.size.runnerUp", { runnerUp: s.runnerUp })
+      : base;
+  };
 
-    /* gauge check */
-    let gaugeMsg = "";
-    let gaugeTone = "ok";
-    if (!isFinite(pg) || pg <= 0) {
-      gaugeMsg = t("result.gauge.askPattern", { gaugeLabel });
-      gaugeTone = "ask";
-    } else if (!isFinite(ug) || ug <= 0) {
-      gaugeMsg = t("result.gauge.askYours", { gaugeLabel });
-      gaugeTone = "ask";
-    } else if (Math.abs(ug - pg) < 0.25) {
-      gaugeMsg = t("result.gauge.match", { ug, pg, gaugeLabel, best });
-    } else {
-      const actual = r1((best * pg) / ug);
-      const tighter = ug > pg;
-      gaugeMsg = t("result.gauge.off", {
-        tighter,
-        ug,
-        pg,
-        gaugeLabel,
-        best,
-        actual,
-        lenU,
-        craft,
-      });
-      gaugeTone = "warn";
-    }
+  const yarnText = () => {
+    const y = results.yarn;
+    const body = t(`result.yarn.${y.kind}`, { ...y, best: results.size.best, yarnU: said().yarnU });
+    return y.mismatch ? body + t("result.yarn.mismatch") : body;
+  };
 
-    /* length check
-       Stitch gauge only ever answers "how wide". Row gauge is what decides
-       whether a body or a sleeve ends up the length the pattern intended, and
-       it is the gauge knitters most often skip swatching for. */
-    const prg = parseFloat(patternRowGauge);
-    const urg = parseFloat(myRowGauge);
-    let rowMsg = "";
-    let rowTone = "ok";
-    if (!isFinite(prg) || prg <= 0) {
-      rowMsg = t("result.row.askPattern", { rowGaugeLabel });
-      rowTone = "ask";
-    } else if (!isFinite(urg) || urg <= 0) {
-      rowMsg = t("result.row.askYours", { rowGaugeLabel });
-      rowTone = "ask";
-    } else if (Math.abs(urg - prg) < 0.25) {
-      rowMsg = t("result.row.match", { urg, prg, rowGaugeLabel });
-    } else {
-      /* Per 100 rows, because patterns quote row counts, not inches. */
-      const intended = r1((100 / prg) * swatchSpan);
-      const yours = r1((100 / urg) * swatchSpan);
-      const needed = Math.round((100 * urg) / prg);
-      const tighter = urg > prg;
-      rowMsg = t("result.row.off", {
-        tighter,
-        urg,
-        prg,
-        rowGaugeLabel,
-        yours,
-        intended,
-        lenU,
-        needed,
-      });
-      rowTone = "warn";
-    }
+  const gaugeText = () => {
+    const u = said();
+    return t(`result.gauge.${results.gauge.kind}`, {
+      ...results.gauge,
+      gaugeLabel: u.gaugeLabel,
+      lenU: u.lenU,
+      craft,
+    });
+  };
 
-    setProverb(proverbs[Math.floor(Math.random() * proverbs.length)]);
-    setResults({ sizeMsg, yarnMsg, yarnTone, gaugeMsg, gaugeTone, rowMsg, rowTone });
-    setTimeout(() => {
-      if (resultsRef.current) resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 60);
+  const rowText = () => {
+    const u = said();
+    return t(`result.row.${results.row.kind}`, {
+      ...results.row,
+      rowGaugeLabel: u.rowGaugeLabel,
+      lenU: u.lenU,
+    });
   };
 
   /* A shared link filled the form; run Nana once the inputs have settled. */
@@ -670,7 +628,7 @@ export default function NanaKnows() {
     fontSize: 11,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-    color: "#8A755F",
+    color: "#826E5A",
   };
   const inputStyle = {
     background: "#FFFFFF",
@@ -680,10 +638,14 @@ export default function NanaKnows() {
     fontFamily: "'Nunito', sans-serif",
   };
 
+  /* aria-pressed matters here: the only other clue that you are in crochet
+     rather than knitting mode is the pink fill, which a screen reader cannot
+     see and a colour-blind visitor may not distinguish. */
   const Toggle = ({ value, current, set, children }) => (
     <button
       type="button"
       onClick={() => set(value)}
+      aria-pressed={current === value}
       className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
       style={{
         fontFamily: "'Nunito', sans-serif",
@@ -719,7 +681,7 @@ export default function NanaKnows() {
           background-size: 20px 13px;
           background-repeat: repeat-x;
         }
-        input::placeholder, textarea::placeholder { color: #B9A68F; }
+        input::placeholder, textarea::placeholder { color: #817464; }
         summary { cursor: pointer; }
         /* Print just Nana's advice, so it can go in a project bag. The form,
            toggles, buttons and footer drop away; the header keeps her face. */
@@ -749,24 +711,29 @@ export default function NanaKnows() {
               onClick={() => setLang("en")}
               aria-pressed={lang === "en"}
               aria-label={t("lang.switchToEn")}
+              lang="en"
               className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
               style={{
                 fontFamily: "'Nunito', sans-serif",
-                background: lang === "en" ? C.sage : "transparent",
+                background: lang === "en" ? C.sageDark : "transparent",
                 color: lang === "en" ? "#FFF" : C.sageDark,
               }}
             >
               {t("lang.en")}
             </button>
+            {/* lang="es": the label stays Spanish whichever language the page is
+                in, so say so, or a screen reader reads it with an English
+                accent. The English button is marked the same way. */}
             <button
               type="button"
               onClick={() => setLang("es")}
               aria-pressed={lang === "es"}
               aria-label={t("lang.switchToEs")}
+              lang="es"
               className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
               style={{
                 fontFamily: "'Nunito', sans-serif",
-                background: lang === "es" ? C.sage : "transparent",
+                background: lang === "es" ? C.sageDark : "transparent",
                 color: lang === "es" ? "#FFF" : C.sageDark,
               }}
             >
@@ -799,130 +766,146 @@ export default function NanaKnows() {
       <main className="max-w-2xl mx-auto px-5 py-7 flex flex-col gap-5">
         {/* toggles */}
         <div className="nk-noprint flex flex-wrap items-center gap-2">
-          <Toggle value="knit" current={craft} set={setCraft}>{t("toggle.knitting")}</Toggle>
-          <Toggle value="crochet" current={craft} set={setCraft}>{t("toggle.crochet")}</Toggle>
-          <span className="mx-1" style={{ color: C.line }}>|</span>
-          <Toggle value="in" current={units} set={switchUnits}>{t("toggle.inYds")}</Toggle>
-          <Toggle value="cm" current={units} set={switchUnits}>{t("toggle.cmM")}</Toggle>
+          <div role="group" aria-label={t("toggle.craftLabel")} className="flex gap-2">
+            <Toggle value="knit" current={craft} set={setCraft}>{t("toggle.knitting")}</Toggle>
+            <Toggle value="crochet" current={craft} set={setCraft}>{t("toggle.crochet")}</Toggle>
+          </div>
+          <span className="mx-1" aria-hidden="true" style={{ color: C.line }}>|</span>
+          <div role="group" aria-label={t("toggle.unitsLabel")} className="flex gap-2">
+            <Toggle value="in" current={units} set={switchUnits}>{t("toggle.inYds")}</Toggle>
+            <Toggle value="cm" current={units} set={switchUnits}>{t("toggle.cmM")}</Toggle>
+          </div>
         </div>
 
-        {/* card: pattern */}
-        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-          <div className="flex items-center gap-2 mb-4">
-            <GrannySquare />
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.pattern")}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.patternGauge", { gaugeLabel })}</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.patternRowGauge", { rowGaugeLabel })}</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
-            </label>
-            <label className="flex flex-col gap-1.5 sm:col-span-2">
-              <span style={labelStyle}>{t("field.finishedSizes", { lenU })}</span>
-              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
-            </label>
-            <label className="flex flex-col gap-1.5 sm:col-span-2">
-              <span style={labelStyle}>{t("field.yarnNeeded", { yarnU })}</span>
-              <input style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
-            </label>
-          </div>
-        </section>
-
-        {/* card: you */}
-        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-          <div className="flex items-center gap-2 mb-4">
-            <GrannySquare />
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.you")}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.bust", { lenU })}</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.fit")}</span>
-              <select style={inputStyle} className="mt-auto px-3 py-2.5 text-sm nk-focus" value={easeIdx} onChange={(e) => setEaseIdx(Number(e.target.value))}>
-                {easeOptions.map((o, i) => (
-                  <option key={i} value={i}>{o.label}</option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.swatchGauge", { gaugeLabel })}</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.swatchRowGauge", { rowGaugeLabel })}</span>
-              <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
-            </label>
-          </div>
-          <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
-            <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
-              {t("measure.summary")}
-            </summary>
-            <div className="px-4 pb-4 flex flex-col sm:flex-row gap-4 items-start">
-              <div className="shrink-0 mx-auto sm:mx-0">
-                <MeasureBust label={t("measure.alt")} />
-              </div>
-              <div className="text-sm" style={{ color: C.espresso }}>
-                <p className="mb-2">{t("measure.intro")}</p>
-                <ol className="list-decimal pl-5 flex flex-col gap-1.5">
-                  {t("measure.steps").map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ol>
-                <p className="mt-3" style={{ color: C.sageDark }}>{t("measure.tip")}</p>
-              </div>
-            </div>
-          </details>
-        </section>
-
-        {/* card: yarn basket */}
-        <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-          <div className="flex items-center gap-2 mb-4">
-            <GrannySquare />
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.basket")}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.perSkein", { yarnU })}</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span style={labelStyle}>{t("field.skeinsYouHave")}</span>
-              <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
-            </label>
-          </div>
-        </section>
-
-        {/* ask button */}
-        <button
-          type="button"
-          onClick={askNana}
-          className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: "#FFF", boxShadow: `0 4px 0 ${C.roseDark}` }}
+        {/* Everything from here to the Ask button is one form, so that pressing
+            Enter in any field asks Nana, as a visitor would expect. */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            askNana();
+          }}
+          className="flex flex-col gap-5"
         >
-          {t("button.ask")}
-        </button>
+
+          {/* card: pattern */}
+          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+            <div className="flex items-center gap-2 mb-4">
+              <GrannySquare />
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.pattern")}</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.patternGauge", { gaugeLabel })}</span>
+                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.patternRowGauge", { rowGaugeLabel })}</span>
+                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
+              </label>
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
+                <span style={labelStyle}>{t("field.finishedSizes", { lenU })}</span>
+                <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
+                <ParseEcho text={sizesText} />
+              </label>
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
+                <span style={labelStyle}>{t("field.yarnNeeded", { yarnU })}</span>
+                <input style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
+                <ParseEcho text={yardsText} />
+              </label>
+            </div>
+          </section>
+
+          {/* card: you */}
+          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+            <div className="flex items-center gap-2 mb-4">
+              <GrannySquare />
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.you")}</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.bust", { lenU })}</span>
+                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.fit")}</span>
+                <select style={inputStyle} className="mt-auto px-3 py-2.5 text-sm nk-focus" value={easeIdx} onChange={(e) => setEaseIdx(Number(e.target.value))}>
+                  {easeOptions.map((o, i) => (
+                    <option key={i} value={i}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.swatchGauge", { gaugeLabel })}</span>
+                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.swatchRowGauge", { rowGaugeLabel })}</span>
+                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
+              </label>
+            </div>
+            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
+              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
+                {t("measure.summary")}
+              </summary>
+              <div className="px-4 pb-4 flex flex-col sm:flex-row gap-4 items-start">
+                <div className="shrink-0 mx-auto sm:mx-0">
+                  <MeasureBust label={t("measure.alt")} />
+                </div>
+                <div className="text-sm" style={{ color: C.espresso }}>
+                  <p className="mb-2">{t("measure.intro")}</p>
+                  <ol className="list-decimal pl-5 flex flex-col gap-1.5">
+                    {t("measure.steps").map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ol>
+                  <p className="mt-3" style={{ color: C.sageDark }}>{t("measure.tip")}</p>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          {/* card: yarn basket */}
+          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+            <div className="flex items-center gap-2 mb-4">
+              <GrannySquare />
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.basket")}</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.perSkein", { yarnU })}</span>
+                <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span style={labelStyle}>{t("field.skeinsYouHave")}</span>
+                <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
+              </label>
+            </div>
+          </section>
+
+          {/* ask button */}
+          <button
+            type="submit"
+            className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: "#FFF", boxShadow: `0 4px 0 ${C.roseDark}` }}
+          >
+            {t("button.ask")}
+          </button>
+        </form>
 
         {/* remember me */}
         <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
           <button type="button" onClick={rememberMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
             {t("remember.save")}
           </button>
-          <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: "#A08B74" }}>
+          <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: "#7F6F5C" }}>
             {t("remember.forget")}
           </button>
           <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
             {t("share.button")}
           </button>
-          {saveMsg && <span style={{ color: "#8A755F" }}>{saveMsg}</span>}
+          {saveMsg && <span style={{ color: "#826E5A" }}>{saveMsg}</span>}
         </div>
-        <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#A08B74" }}>
+        <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#7F6F5C" }}>
           {t("share.note")}
         </p>
 
@@ -931,7 +914,7 @@ export default function NanaKnows() {
           {results && results.error && (
             <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
               <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
-              <p className="text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{results.error}</p>
+              <p className="text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{t("result.error")}</p>
             </div>
           )}
           {results && !results.error && (
@@ -944,10 +927,10 @@ export default function NanaKnows() {
                   </p>
                 </div>
               </div>
-              <AdviceCard color={C.rose} title={t("advice.size")}>{results.sizeMsg}</AdviceCard>
-              <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarnTone === "warn" ? "warn" : "ok"}>{results.yarnMsg}</AdviceCard>
-              <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gaugeTone === "warn" ? "warn" : "ok"}>{results.gaugeMsg}</AdviceCard>
-              <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.rowTone === "warn" ? "warn" : "ok"}>{results.rowMsg}</AdviceCard>
+              <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText()}</AdviceCard>
+              <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText()}</AdviceCard>
+              <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText()}</AdviceCard>
+              <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText()}</AdviceCard>
               <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
                   {t("copy.button")}
@@ -955,7 +938,7 @@ export default function NanaKnows() {
                 <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
                   {t("copy.print")}
                 </button>
-                {copyMsg && <span style={{ color: "#8A755F" }}>{copyMsg}</span>}
+                {copyMsg && <span style={{ color: "#826E5A" }}>{copyMsg}</span>}
               </div>
             </div>
           )}
@@ -980,7 +963,7 @@ export default function NanaKnows() {
         <div className="flex justify-center gap-2 mb-3" aria-hidden="true">
           <GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} />
         </div>
-        <p className="text-xs" style={{ color: "#8A755F" }}>
+        <p className="text-xs" style={{ color: "#826E5A" }}>
           {t("footer.privacy")}
         </p>
         <p className="text-xs mt-3">

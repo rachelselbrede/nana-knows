@@ -34,6 +34,14 @@ export default {
     crochet: "Crochet",
     inYds: "in / yds",
     cmM: "cm / m",
+    craftLabel: "Craft",
+    unitsLabel: "Units",
+  },
+
+  echo: {
+    read: ({ list }) => `Nana read: ${list}.`,
+    range: " She took the dash as two separate numbers.",
+    thousands: " She read a comma as a thousands mark.",
   },
 
   label: {
@@ -147,6 +155,11 @@ export default {
     size: {
       main: ({ best, lenU, b, easeLabel, target }) =>
         `Make the size ${best}, the one with a finished measurement of ${best} ${lenU}. You measure ${b} ${lenU} and chose ${easeLabel}, so you are aiming for about ${target} ${lenU} around.`,
+      /* When Nana has adjusted for gauge, the size label and the finished
+         measurement are two different numbers, and saying only the first would
+         contradict the tension card further down. */
+      mainAdjusted: ({ best, actual, lenU, b, easeLabel, target }) =>
+        `Follow the size ${best}. At your gauge those instructions come out about ${actual} ${lenU} around, even though the pattern calls that size ${best} ${lenU}. You measure ${b} ${lenU} and chose ${easeLabel}, so you are aiming for about ${target} ${lenU}.`,
       runnerUp: ({ runnerUp }) =>
         ` The size ${runnerUp} is a close call too. When torn between two, go smaller for stretchy, clingy fabrics and larger for drape and layering.`,
     },
@@ -174,9 +187,12 @@ export default {
         `Work a little swatch and tell Nana your ${gaugeLabel}. It is the difference between a sweater and a surprise.`,
       match: ({ ug, pg, gaugeLabel, best }) =>
         `Your tension matches the pattern beautifully (${ug} vs ${pg} ${gaugeLabel}). Follow the size ${best} numbers as written. Lovely hands, dear.`,
-      off: ({ tighter, ug, pg, gaugeLabel, best, actual, lenU, craft }) => {
+      off: ({ tighter, ug, pg, gaugeLabel, best, actual, lenU, craft, toolSizes }) => {
         const tool = craft === "knit" ? "needle" : "hook";
-        return `Your stitches are a touch ${tighter ? "tighter" : "looser"} than the pattern's (${ug} vs ${pg} ${gaugeLabel}), so the size ${best} instructions would come out near ${actual} ${lenU} in your hands. Nana already picked your size with that in mind. If you would rather match the pattern exactly, try a ${tighter ? "larger" : "smaller"} ${tool} and swatch again.`;
+        const sizes = toolSizes === 1 ? "one size" : `about ${toolSizes} sizes`;
+        /* "in your hands" leads the clause, so an inches reading does not come
+           out as "41.1 in in your hands". */
+        return `Your stitches are a touch ${tighter ? "tighter" : "looser"} than the pattern's (${ug} vs ${pg} ${gaugeLabel}), so in your hands the size ${best} instructions would come out near ${actual} ${lenU}. Nana already picked your size with that in mind. If you would rather match the pattern exactly, go ${tighter ? "up" : "down"} ${sizes} on your ${tool} and swatch again.`;
       },
     },
 
