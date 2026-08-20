@@ -4,3 +4,4 @@ dev-dist
 .DS_Store
 *.log
 .claude/
+.fuse_hidden*
