@@ -35,6 +35,34 @@ const C = {
    where they are pure and covered by tests. See src/lib/parse.js for why the
    comma is such hard work, and src/lib/advice.js for the sizing maths. */
 
+/* The project fields Nana can carry in a shared link, keyed short to keep
+   URLs tidy. Everything stays client-side: the link itself is the storage. */
+const SHARE_TEXT_KEYS = {
+  pg: "patternGauge",
+  prg: "patternRowGauge",
+  s: "sizesText",
+  y: "yardsText",
+  b: "bust",
+  mg: "myGauge",
+  mrg: "myRowGauge",
+  ps: "perSkein",
+  sk: "skeins",
+};
+
+/* Only these params mean "someone shared a project". Anything else — a
+   ?fbclid=, a ?utm_source= stuck on by whichever platform relayed the link —
+   must not be allowed to talk Nana out of opening her notebook. */
+const SHARE_KEYS = new Set(["u", "c", "e", ...Object.keys(SHARE_TEXT_KEYS)]);
+
+const hasSharedParams = () => {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    return [...p.keys()].some((k) => SHARE_KEYS.has(k));
+  } catch (e) {
+    return false;
+  }
+};
+
 /* ---------- tiny granny square icon ---------- */
 function GrannySquare({ size = 18 }) {
   return (
@@ -108,8 +136,11 @@ function MeasureBust({ size = 132, label }) {
   );
 }
 
-/* ---------- Nana Purl herself ---------- */
-function Nana({ size = 150, bob = true, label = "Nana Purl, a smiling grandma holding a ball of yarn" }) {
+/* ---------- Nana Purl herself ----------
+   No default for `label` on purpose: every call site passes t("nana.alt"), and
+   a hardcoded English fallback would let a future call site quietly ship an
+   English aria-label to a Spanish screen reader instead of failing in review. */
+function Nana({ size = 150, bob = true, label }) {
   return (
     <svg
       width={size}
@@ -224,6 +255,52 @@ function AdviceCard({ color, title, children, tone }) {
   );
 }
 
+/* ---------- shared small pieces ----------
+   These live at module scope on purpose. Defined inside the component they
+   would be a brand-new component type every render, so React would tear down
+   and rebuild their DOM instead of updating it — which threw keyboard focus
+   off the craft and unit toggles the moment they were pressed. */
+
+/* aria-pressed matters here: the only other clue that you are in crochet
+   rather than knitting mode is the pink fill, which a screen reader cannot
+   see and a colour-blind visitor may not distinguish. */
+const Toggle = ({ value, current, set, children }) => (
+  <button
+    type="button"
+    onClick={() => set(value)}
+    aria-pressed={current === value}
+    className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
+    style={{
+      fontFamily: "'Nunito', sans-serif",
+      background: current === value ? C.rose : "transparent",
+      color: current === value ? "#FFF" : C.roseDark,
+      border: `2px solid ${current === value ? C.rose : C.line}`,
+    }}
+  >
+    {children}
+  </button>
+);
+
+/* Show the knitter what Nana made of her typing. Commas and dashes are
+   genuinely ambiguous — "32,36" could be two sizes or one odd decimal — and
+   no heuristic gets every case. Echoing the reading back turns a wrong guess
+   into something visible and correctable, which is worth more than a cleverer
+   guess would be. The span stays in the tree even when quiet, so the status
+   region exists before it has anything to announce, and the input points at it
+   with aria-describedby instead of swallowing it into its own label. */
+const ParseEcho = ({ id, text, t }) => {
+  const { values, issues } = parseNumberList(text);
+  const quiet = values.length === 0 || (values.length === 1 && issues.length === 0);
+  return (
+    <span id={id} role="status" className="text-xs" style={{ color: C.sageDark }}>
+      {quiet
+        ? ""
+        : t("echo.read", { list: values.join(", ") }) +
+          issues.map((i) => t(`echo.${i}`)).join("")}
+    </span>
+  );
+};
+
 /* ---------- the app ---------- */
 export default function NanaKnows() {
   const { t, lang, setLang } = useI18n();
@@ -284,26 +361,12 @@ export default function NanaKnows() {
     setMyRowGauge(convertOne(myRowGauge, gauge));
     setResults(null); // old advice is in the old units
     setUnits(next);
+    /* Say so. Eight fields just changed and the advice vanished; to a screen
+       reader, and to anyone glancing away, that was silence. */
+    setSaveMsg(next === "cm" ? "save.redoneCm" : "save.redoneIn");
   };
 
   const ph = t("ph", { inch });
-
-  /* Show the knitter what Nana made of her typing. Commas and dashes are
-     genuinely ambiguous — "32,36" could be two sizes or one odd decimal — and
-     no heuristic gets every case. Echoing the reading back turns a wrong guess
-     into something visible and correctable, which is worth more than a cleverer
-     guess would be. Only speaks up once there is something to say. */
-  const ParseEcho = ({ text }) => {
-    const { values, issues } = parseNumberList(text);
-    if (values.length === 0) return null;
-    if (values.length === 1 && issues.length === 0) return null;
-    return (
-      <span className="text-xs" style={{ color: C.sageDark }}>
-        {t("echo.read", { list: values.join(", ") })}
-        {issues.map((i) => t(`echo.${i}`)).join("")}
-      </span>
-    );
-  };
 
   /* Labels come from the dictionary; the ease values stay here since they are
      arithmetic, not text. */
@@ -315,48 +378,33 @@ export default function NanaKnows() {
 
   const proverbs = t(craft === "knit" ? "proverbs.knit" : "proverbs.crochet");
 
-  /* The project fields Nana can carry in a shared link, keyed short to keep
-     URLs tidy. Everything stays client-side: the link itself is the storage. */
-  const SHARE_TEXT_KEYS = {
-    pg: "patternGauge",
-    prg: "patternRowGauge",
-    s: "sizesText",
-    y: "yardsText",
-    b: "bust",
-    mg: "myGauge",
-    mrg: "myRowGauge",
-    ps: "perSkein",
-    sk: "skeins",
-  };
-
-  /* Does the URL carry a shared project (anything beyond ?lang)? */
-  const hasSharedParams = () => {
-    try {
-      const p = new URLSearchParams(window.location.search);
-      return [...p.keys()].some((k) => k !== "lang");
-    } catch (e) {
-      return false;
-    }
-  };
-
   /* load Nana's notebook if it exists (stored only in this browser).
      A shared link takes precedence, so skip the saved notebook when one is
-     present rather than mixing someone else's numbers with your own. */
+     present rather than mixing someone else's numbers with your own.
+
+     Nothing in the notebook is taken on trust: it may have been written by an
+     older version of the app, or by a hand in the browser console. An easeIdx
+     of 7 would send askNana past the end of the ease list and kill the button;
+     a units value that is neither "in" nor "cm" would leave the toggle
+     unselected and run conversions from a nonsense baseline. The shared-link
+     loader below has always validated; this now matches it. */
   useEffect(() => {
     if (hasSharedParams()) return;
     try {
       const saved = localStorage.getItem("nana-notebook");
       if (saved) {
         const d = JSON.parse(saved);
-        if (d.units) setUnits(d.units);
-        if (d.craft) setCraft(d.craft);
-        if (d.bust) setBust(d.bust);
-        if (typeof d.easeIdx === "number") setEaseIdx(d.easeIdx);
-        if (d.myGauge) setMyGauge(d.myGauge);
-        if (d.myRowGauge) setMyRowGauge(d.myRowGauge);
-        if (d.perSkein) setPerSkein(d.perSkein);
-        if (d.skeins) setSkeins(d.skeins);
-        setSaveMsg(t("save.remembered"));
+        if (d.units === "in" || d.units === "cm") setUnits(d.units);
+        if (d.craft === "knit" || d.craft === "crochet") setCraft(d.craft);
+        if (d.bust) setBust(String(d.bust));
+        if (Number.isInteger(d.easeIdx) && d.easeIdx >= 0 && d.easeIdx <= 4) {
+          setEaseIdx(d.easeIdx);
+        }
+        if (d.myGauge) setMyGauge(String(d.myGauge));
+        if (d.myRowGauge) setMyRowGauge(String(d.myRowGauge));
+        if (d.perSkein) setPerSkein(String(d.perSkein));
+        if (d.skeins) setSkeins(String(d.skeins));
+        setSaveMsg("save.remembered");
       }
     } catch (e) {
       /* nothing saved yet, and that is fine */
@@ -368,8 +416,8 @@ export default function NanaKnows() {
      visitor lands on her advice. */
   useEffect(() => {
     try {
+      if (!hasSharedParams()) return;
       const p = new URLSearchParams(window.location.search);
-      if (![...p.keys()].some((k) => k !== "lang")) return;
       if (p.get("u")) setUnits(p.get("u") === "cm" ? "cm" : "in");
       if (p.get("c")) setCraft(p.get("c") === "crochet" ? "crochet" : "knit");
       if (p.get("e") != null && p.get("e") !== "") {
@@ -403,19 +451,22 @@ export default function NanaKnows() {
         "nana-notebook",
         JSON.stringify({ units, craft, bust, easeIdx, myGauge, myRowGauge, perSkein, skeins })
       );
-      setSaveMsg(t("save.written"));
+      setSaveMsg("save.written");
     } catch (e) {
-      setSaveMsg(t("save.notHandy"));
+      setSaveMsg("save.notHandy");
     }
   };
 
-  /* Build a link that carries the current inputs. Keeps ?lang, includes units
-     and craft so numbers are never misread, and skips empty fields. */
+  /* Build a link that carries the current inputs. Always includes the
+     language: it used to be copied from the URL, which only has ?lang once the
+     toggle has been clicked — so a Spanish speaker whose language came from
+     her browser shared links that opened in English. The i18n hook knows the
+     real answer however it was chosen. Units and craft ride along too, so
+     numbers are never misread, and empty fields are skipped. */
   const buildShareUrl = () => {
     const url = new URL(window.location.href);
     const fresh = new URLSearchParams();
-    const lang = url.searchParams.get("lang");
-    if (lang) fresh.set("lang", lang);
+    fresh.set("lang", lang);
     fresh.set("u", units);
     fresh.set("c", craft);
     if (easeIdx !== 2) fresh.set("e", String(easeIdx));
@@ -441,7 +492,7 @@ export default function NanaKnows() {
     const url = buildShareUrl();
     try {
       await navigator.clipboard.writeText(url);
-      setSaveMsg(t("share.copied"));
+      setSaveMsg("share.copied");
     } catch (e) {
       /* No clipboard access: drop the link in the address bar to copy by hand. */
       try {
@@ -449,7 +500,7 @@ export default function NanaKnows() {
       } catch (_) {
         /* ignore */
       }
-      setSaveMsg(t("share.failed"));
+      setSaveMsg("share.failed");
     }
   };
 
@@ -459,7 +510,7 @@ export default function NanaKnows() {
     } catch (e) {
       /* ignore */
     }
-    setSaveMsg(t("save.forgotten"));
+    setSaveMsg("save.forgotten");
   };
 
   /* Turn the four advice cards into plain text Nana's visitor can paste into a
@@ -469,7 +520,9 @@ export default function NanaKnows() {
     const text = [
       t("copy.heading"),
       "",
-      proverb ? `“${proverb}”` : "",
+      /* The dictionary owns the quotation marks: Spanish advice gets its
+         guillemets in the pasted text, same as on screen. */
+      proverb ? t("copy.proverb", { proverb }) : "",
       "",
       t("advice.size"),
       sizeText(),
@@ -487,9 +540,9 @@ export default function NanaKnows() {
       .replace(/\n{3,}/g, "\n\n");
     try {
       await navigator.clipboard.writeText(text);
-      setCopyMsg(t("copy.done"));
+      setCopyMsg("copy.done");
     } catch (e) {
-      setCopyMsg(t("copy.failed"));
+      setCopyMsg("copy.failed");
     }
   };
 
@@ -535,6 +588,12 @@ export default function NanaKnows() {
 
     const jump = () => {
       if (!resultsRef.current) return;
+      /* Move focus to the results as well as scrolling there: a screen-reader
+         user can then read the four cards at her own pace instead of hearing
+         the whole polite live-region announcement in one breath. The div takes
+         tabIndex={-1}, and the focus ring only draws for keyboard use, so
+         nothing changes visually. */
+      resultsRef.current.focus({ preventScroll: true });
       const gentle = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       resultsRef.current.scrollIntoView({
         behavior: gentle ? "auto" : "smooth",
@@ -619,7 +678,7 @@ export default function NanaKnows() {
     if (!pendingAutoRun) return;
     setPendingAutoRun(false);
     askNana();
-    setSaveMsg(t("share.loaded"));
+    setSaveMsg("share.loaded");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAutoRun]);
 
@@ -640,26 +699,6 @@ export default function NanaKnows() {
     fontFamily: "'Nunito', sans-serif",
   };
 
-  /* aria-pressed matters here: the only other clue that you are in crochet
-     rather than knitting mode is the pink fill, which a screen reader cannot
-     see and a colour-blind visitor may not distinguish. */
-  const Toggle = ({ value, current, set, children }) => (
-    <button
-      type="button"
-      onClick={() => set(value)}
-      aria-pressed={current === value}
-      className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
-      style={{
-        fontFamily: "'Nunito', sans-serif",
-        background: current === value ? C.rose : "transparent",
-        color: current === value ? "#FFF" : C.roseDark,
-        border: `2px solid ${current === value ? C.rose : C.line}`,
-      }}
-    >
-      {children}
-    </button>
-  );
-
   return (
     <div style={{ background: C.oat, minHeight: "100vh", color: C.espresso }}>
       <style>{`
@@ -674,8 +713,13 @@ export default function NanaKnows() {
           transition: color .15s ease, text-decoration-color .15s ease;
         }
         .nk-link:hover { color: ${C.rose}; text-decoration-color: ${C.rose}; }
+        /* The butter ring alone is 1.76:1 against the oat background — nearly
+           invisible to exactly the eyes that lean on it. An espresso ring
+           underneath lifts the pair well past the 3:1 that WCAG asks of focus
+           indicators, and it only ever draws for keyboard focus. */
         .nk-focus:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
           outline: 3px solid ${C.butter}; outline-offset: 2px;
+          box-shadow: 0 0 0 2px ${C.espresso};
         }
         .nk-edge {
           height: 13px;
@@ -798,22 +842,28 @@ export default function NanaKnows() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.patternGauge", { gaugeLabel })}</span>
-                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
               </label>
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.patternRowGauge", { rowGaugeLabel })}</span>
-                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
               </label>
-              <label className="flex flex-col gap-1.5 sm:col-span-2">
-                <span style={labelStyle}>{t("field.finishedSizes", { lenU })}</span>
-                <input style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
-                <ParseEcho text={sizesText} />
-              </label>
-              <label className="flex flex-col gap-1.5 sm:col-span-2">
-                <span style={labelStyle}>{t("field.yarnNeeded", { yarnU })}</span>
-                <input style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
-                <ParseEcho text={yardsText} />
-              </label>
+              {/* The two list fields use htmlFor rather than wrapping, so the
+                  echo sits outside the label: folded inside, its whole running
+                  text becomes part of the input's accessible name and mutates
+                  on every keystroke. aria-describedby is the right channel.
+                  No inputMode here — the iOS decimal pad has no comma key, and
+                  these fields are exactly where commas get typed. */}
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label htmlFor="nk-sizes" style={labelStyle}>{t("field.finishedSizes", { lenU })}</label>
+                <input id="nk-sizes" aria-describedby="nk-sizes-echo" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
+                <ParseEcho id="nk-sizes-echo" text={sizesText} t={t} />
+              </div>
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label htmlFor="nk-yards" style={labelStyle}>{t("field.yarnNeeded", { yarnU })}</label>
+                <input id="nk-yards" aria-describedby="nk-yards-echo" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
+                <ParseEcho id="nk-yards-echo" text={yardsText} t={t} />
+              </div>
             </div>
           </section>
 
@@ -826,7 +876,7 @@ export default function NanaKnows() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.bust", { lenU })}</span>
-                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
               </label>
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.fit")}</span>
@@ -838,11 +888,11 @@ export default function NanaKnows() {
               </label>
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.swatchGauge", { gaugeLabel })}</span>
-                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
               </label>
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.swatchRowGauge", { rowGaugeLabel })}</span>
-                <input inputMode="decimal" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
               </label>
             </div>
             <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
@@ -875,11 +925,11 @@ export default function NanaKnows() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.perSkein", { yarnU })}</span>
-                <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
               </label>
               <label className="flex flex-col gap-1.5">
                 <span style={labelStyle}>{t("field.skeinsYouHave")}</span>
-                <input inputMode="decimal" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
+                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
               </label>
             </div>
           </section>
@@ -905,14 +955,19 @@ export default function NanaKnows() {
           <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
             {t("share.button")}
           </button>
-          {saveMsg && <span style={{ color: "#826E5A" }}>{saveMsg}</span>}
+          {/* Always in the tree so the live region exists before the first
+              message lands — a region that appears with its text is skipped by
+              some screen readers. The span holds a key, not a sentence, so the
+              little confirmations follow a language switch like the advice
+              cards do. */}
+          <span role="status" style={{ color: "#826E5A" }}>{saveMsg ? t(saveMsg) : ""}</span>
         </div>
         <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#7F6F5C" }}>
           {t("share.note")}
         </p>
 
         {/* results */}
-        <div ref={resultsRef} className="nk-results" aria-live="polite">
+        <div ref={resultsRef} tabIndex={-1} className="nk-results" aria-live="polite">
           {results && results.error && (
             <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
               <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
@@ -940,7 +995,7 @@ export default function NanaKnows() {
                 <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
                   {t("copy.print")}
                 </button>
-                {copyMsg && <span style={{ color: "#826E5A" }}>{copyMsg}</span>}
+                <span role="status" style={{ color: "#826E5A" }}>{copyMsg ? t(copyMsg) : ""}</span>
               </div>
             </div>
           )}
@@ -977,6 +1032,7 @@ export default function NanaKnows() {
             style={{ color: C.roseDark }}
           >
             {t("footer.learnNext")}
+            <span className="sr-only"> {t("footer.newTab")}</span>
           </a>
         </p>
       </footer>

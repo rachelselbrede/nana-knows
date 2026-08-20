@@ -104,6 +104,9 @@ export default {
     button: "Copy Nana's advice",
     print: "Print",
     heading: "Nana Knows — her advice for this project",
+    /* Each language owns its quotation marks, so pasted advice matches the
+       screen: curly quotes here, guillemets in Spanish. */
+    proverb: ({ proverb }) => `“${proverb}”`,
     done: "Copied. Paste it into your Ravelry notes or wherever you like.",
     failed:
       "Nana could not reach the clipboard, dear. Select the cards and copy them by hand instead.",
@@ -139,6 +142,8 @@ export default {
     notHandy:
       "Nana's notebook is not handy right now, dear. Your numbers still work for this visit.",
     forgotten: "Nana tore out the page. All forgotten.",
+    redoneIn: "Nana redid your numbers in inches and yards, dear.",
+    redoneCm: "Nana redid your numbers in centimetres and metres, dear.",
   },
 
   advice: {
@@ -248,5 +253,6 @@ export default {
     privacy:
       "Nana Knows is free forever. Your numbers stay in your own notebook, never sold, never shared. Made with love and leftover yarn.",
     learnNext: "Tell Nana what to learn next",
+    newTab: "(opens in a new tab)",
   },
 };

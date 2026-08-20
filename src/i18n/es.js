@@ -103,6 +103,7 @@ export default {
     button: "Copiar el consejo de Nana",
     print: "Imprimir",
     heading: "Nana Knows — su consejo para este proyecto",
+    proverb: ({ proverb }) => `«${proverb}»`,
     done: "Copiado. Pégalo en tus notas de Ravelry o donde quieras.",
     failed:
       "Nana no pudo alcanzar el portapapeles, mi vida. Mejor selecciona las tarjetas y cópialas a mano.",
@@ -139,6 +140,8 @@ export default {
     notHandy:
       "El cuaderno de Nana no está a la mano ahora, mi vida. Tus números siguen sirviendo para esta visita.",
     forgotten: "Nana arrancó la hoja. Todo olvidado.",
+    redoneIn: "Nana pasó tus números a pulgadas y yardas, mi vida.",
+    redoneCm: "Nana pasó tus números a centímetros y metros, mi vida.",
   },
 
   advice: {
@@ -247,5 +250,6 @@ export default {
     privacy:
       "Nana Knows es gratis para siempre. Tus números se quedan en tu propio cuaderno, nunca se venden, nunca se comparten. Hecho con cariño y lana sobrante.",
     learnNext: "Dile a Nana qué aprender después",
+    newTab: "(se abre en una pestaña nueva)",
   },
 };
