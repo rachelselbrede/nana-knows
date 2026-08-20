@@ -721,6 +721,11 @@ export default function NanaKnows() {
           outline: 3px solid ${C.butter}; outline-offset: 2px;
           box-shadow: 0 0 0 2px ${C.espresso};
         }
+        /* The results container takes focus programmatically so a screen
+           reader starts where the answer starts. That focus is for the reading
+           order, not the eye — without this, the browser draws its default
+           ring around all four cards. */
+        .nk-results:focus, .nk-results:focus-visible { outline: none; box-shadow: none; }
         .nk-edge {
           height: 13px;
           background-image: radial-gradient(circle at 10px 0px, ${C.rose} 9px, transparent 10px);
