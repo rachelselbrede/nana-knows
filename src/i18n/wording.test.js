@@ -161,7 +161,8 @@ for (const lang of LANGS) {
     test("the parse echo, for each thing the parser might have assumed", () => {
       const text = say(lang, "echo.read", { list: "32, 36, 40" })
         + say(lang, "echo.range")
-        + say(lang, "echo.thousands");
+        + say(lang, "echo.thousands")
+        + say(lang, "echo.fraction");
       assertSentence(text, `${lang} echo`);
     });
 

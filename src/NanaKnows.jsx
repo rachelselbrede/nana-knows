@@ -3,6 +3,7 @@ import { useI18n } from "./i18n/index.jsx";
 import {
   parseNumberList,
   parseList,
+  parseOne,
   convertOne,
   convertList,
   inchesToCm,
@@ -11,7 +12,6 @@ import {
   metresToYards,
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
-  r1,
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows } from "./lib/advice.js";
 
@@ -496,7 +496,9 @@ export default function NanaKnows() {
   const printAdvice = () => window.print();
 
   const askNana = () => {
-    const b = parseFloat(bust);
+    /* parseOne, not parseFloat: a metric knitter's "91,5" is ninety-one and a
+       half, and parseFloat would stop at the comma and read ninety-one. */
+    const b = parseOne(bust);
     const sizes = parseList(sizesText);
     const yards = parseList(yardsText);
     const ease = easeOptions[easeIdx].v;

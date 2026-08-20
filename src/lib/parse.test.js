@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   parseNumberList,
   parseList,
+  parseOne,
   convertOne,
   convertList,
   inchesToCm,
@@ -77,6 +78,39 @@ describe("parseNumberList: the comma, which means three different things", () =>
   test("a comma before a space always breaks the list", () => {
     assert.deepEqual(parseList("1, 100"), [1, 100]);
   });
+
+  test('"97,102,107,112" is a cm size list, not two enormous numbers', () => {
+    /* This is exactly what a metric size run looks like typed on a phone with
+       no spaces. It used to match the thousands rule and become [97102, 107112]
+       because only one lead had to be short; now every lead must be. */
+    assert.deepEqual(parseList("97,102,107,112"), [97, 102, 107, 112]);
+  });
+});
+
+describe("parseNumberList: fractions, the way knitters actually write halves", () => {
+  test('"36 1/2" is thirty-six and a half', () => {
+    /* toNumber used to strip the slash and read "1/2" as 12 — so the echo said
+       "Nana read: 36, 12" and the knitter was one glance from a size 12. */
+    const r = parseNumberList("36 1/2");
+    assert.deepEqual(r.values, [36.5]);
+    assert.deepEqual(r.issues, ["fraction"]);
+  });
+
+  test('"36½" the unicode way', () => {
+    assert.deepEqual(parseList("36½"), [36.5]);
+  });
+
+  test('"36 ½" with a space before the half', () => {
+    assert.deepEqual(parseList("36 ½"), [36.5]);
+  });
+
+  test("a fraction folds into the list around it", () => {
+    assert.deepEqual(parseList("32, 36 1/2, 40"), [32, 36.5, 40]);
+  });
+
+  test("a lone fraction stands on its own", () => {
+    assert.deepEqual(parseList("1/2"), [0.5]);
+  });
 });
 
 describe("parseNumberList: ranges", () => {
@@ -92,6 +126,25 @@ describe("parseNumberList: ranges", () => {
 
   test("a range is reported so the interface can say what it assumed", () => {
     assert.deepEqual(parseNumberList("32-36").issues, ["range"]);
+  });
+
+  test('"32-36-40" breaks at every dash, not just the first', () => {
+    /* Three sizes pasted with dashes used to fail the two-number range test,
+       fall through to toNumber, and come out as 323640 — the very number the
+       range rule was written to prevent. */
+    const r = parseNumberList("32-36-40");
+    assert.deepEqual(r.values, [32, 36, 40]);
+    assert.deepEqual(r.issues, ["range"]);
+  });
+
+  test('"91,5-95,5" is a European range, not three splinters', () => {
+    /* The comma-decimal variant used to skip the range rule, split at the
+       commas, and produce [91, 595, 5] with no flag at all. */
+    assert.deepEqual(parseList("91,5-95,5"), [91.5, 95.5]);
+  });
+
+  test('"1,100-1,250" reads its thousands marks before its dash', () => {
+    assert.deepEqual(parseList("1,100-1,250"), [1100, 1250]);
   });
 });
 
@@ -146,8 +199,28 @@ describe("unit conversion", () => {
     assert.equal(convertOne("", inchesToCm), "");
   });
 
-  test("text Nana cannot read is left exactly as typed", () => {
-    assert.equal(convertOne("about 38", inchesToCm), "about 38");
+  test("one number inside hedging words still converts", () => {
+    /* "about 38" used to be left exactly as typed — which sounds respectful
+       until the label under it flips to cm and the 38 quietly becomes a
+       38 cm reading. If the field holds exactly one number, the number must
+       follow the units. */
+    assert.equal(convertOne("about 38", inchesToCm), "96.5");
+  });
+
+  test("text with no single number in it is left exactly as typed", () => {
+    assert.equal(convertOne("soon", inchesToCm), "soon");
+    assert.equal(convertOne("32, 36", inchesToCm), "32, 36");
+  });
+
+  test('"1,100" converts as eleven hundred, not one point one', () => {
+    /* The old convertOne swapped the comma for a dot and turned a
+       thousands-marked skein count into 1.1 — a destructive edit of the
+       knitter's own field on a unit flip. */
+    assert.equal(convertOne("1,100", yardsToMetres), "1005.8");
+  });
+
+  test('"91,5" converts as ninety-one and a half', () => {
+    assert.equal(convertOne("91,5", cmToInches), "36");
   });
 
   test("a whole list converts and comes back comma separated", () => {
@@ -156,6 +229,35 @@ describe("unit conversion", () => {
 
   test("yards to metres", () => {
     assert.equal(convertOne("1000", yardsToMetres), "914.4");
+  });
+});
+
+describe("parseOne: fields that should hold exactly one number", () => {
+  test("a plain number", () => {
+    assert.equal(parseOne("38"), 38);
+  });
+
+  test("a European decimal keeps its half", () => {
+    /* parseFloat("17,5") stops at the comma and returns 17, which cost a
+       Spanish knitter half a stitch of gauge. parseOne knows the comma rules. */
+    assert.equal(parseOne("17,5"), 17.5);
+  });
+
+  test("a thousands mark reads as thousands", () => {
+    assert.equal(parseOne("1,100"), 1100);
+  });
+
+  test("a fraction reads as its decimal", () => {
+    assert.equal(parseOne("36 1/2"), 36.5);
+  });
+
+  test("empty and unreadable fields are null", () => {
+    assert.equal(parseOne(""), null);
+    assert.equal(parseOne("soon"), null);
+  });
+
+  test("two numbers are not one", () => {
+    assert.equal(parseOne("32, 36"), null);
   });
 });
 

@@ -41,6 +41,7 @@ export default {
     read: ({ list }) => `Nana leyó: ${list}.`,
     range: " Tomó el guion como dos números distintos.",
     thousands: " Leyó una coma como separador de miles.",
+    fraction: " Convirtió una fracción en su decimal.",
   },
 
   label: {

@@ -10,11 +10,14 @@
      ask   Nana needs another number before she can say
      warn  something is off, or short, and wants attention */
 
-import { r1 } from "./parse.js";
+import { r1, parseOne } from "./parse.js";
 
+/* Fields arrive as raw text, and the text can say "17,5" and mean seventeen
+   and a half. parseOne knows the comma rules; parseFloat does not, and would
+   quietly hand back 17. */
 const num = (v) => {
-  const n = typeof v === "number" ? v : parseFloat(v);
-  return isFinite(n) && n > 0 ? n : null;
+  if (typeof v === "number") return isFinite(v) && v > 0 ? v : null;
+  return parseOne(v);
 };
 
 /* ---------- which size to make ----------
@@ -32,7 +35,9 @@ export function adviseSize({ sizes, bust, ease, patternGauge, myGauge, closeGap 
   const gaugeAdjusted = pg !== null && ug !== null;
   const realWidth = (s) => (gaugeAdjusted ? (s * pg) / ug : s);
 
-  const target = b + ease;
+  /* Number(), not num(): ease is legitimately zero or negative. The guard is
+     against a stray string sneaking in and turning b + ease into "382". */
+  const target = b + (Number(ease) || 0);
   const missBy = (s) => Math.abs(realWidth(s) - target);
 
   let bestIdx = 0;
@@ -43,13 +48,16 @@ export function adviseSize({ sizes, bust, ease, patternGauge, myGauge, closeGap 
 
   /* Is a second size nearly as good? Rank the rest by how much worse they fit,
      not by how near they are in inches — with unevenly spaced size ranges those
-     are different questions, and the knitter is asking the first one. */
+     are different questions, and the knitter is asking the first one. A pattern
+     that repeats a measurement must not have that same number offered back as
+     its own runner-up. */
+  const gap = num(closeGap) ?? 0;
   let runnerUp = null;
   let runnerUpMiss = Infinity;
   sizes.forEach((s, i) => {
-    if (i === bestIdx) return;
+    if (i === bestIdx || s === best) return;
     const worseBy = missBy(s) - missBy(best);
-    if (worseBy < 0 || worseBy > closeGap) return;
+    if (worseBy < 0 || worseBy > gap) return;
     if (missBy(s) < runnerUpMiss) {
       runnerUpMiss = missBy(s);
       runnerUp = s;
@@ -153,10 +161,20 @@ export function adviseGauge({ patternGauge, myGauge, best }) {
 export function adviseRows({ patternRowGauge, myRowGauge, swatchSpan }) {
   const prg = num(patternRowGauge);
   const urg = num(myRowGauge);
+  const span = num(swatchSpan) ?? 4;
 
   if (prg === null) return { kind: "askPattern", tone: "ask" };
   if (urg === null) return { kind: "askYours", tone: "ask" };
   if (Math.abs(urg - prg) < GAUGE_TOLERANCE) {
+    return { kind: "match", tone: "ok", urg, prg };
+  }
+
+  /* Row gauges run 24 to 40+ per swatch, so a fixed quarter-row tolerance is a
+     ~1% test — fine for stitches, twitchy for rows. If the correction itself
+     rounds back to 100-ish rows, there is nothing to correct: telling a knitter
+     to "work about 101 rows instead of 100" is a worry, not advice. */
+  const needed = Math.round((100 * urg) / prg);
+  if (Math.abs(needed - 100) <= 1) {
     return { kind: "match", tone: "ok", urg, prg };
   }
 
@@ -166,8 +184,8 @@ export function adviseRows({ patternRowGauge, myRowGauge, swatchSpan }) {
     urg,
     prg,
     tighter: urg > prg,
-    yours: r1((100 / urg) * swatchSpan),
-    intended: r1((100 / prg) * swatchSpan),
-    needed: Math.round((100 * urg) / prg),
+    yours: r1((100 / urg) * span),
+    intended: r1((100 / prg) * span),
+    needed,
   };
 }

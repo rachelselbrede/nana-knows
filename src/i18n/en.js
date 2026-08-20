@@ -42,6 +42,7 @@ export default {
     read: ({ list }) => `Nana read: ${list}.`,
     range: " She took the dash as two separate numbers.",
     thousands: " She read a comma as a thousands mark.",
+    fraction: " She turned a fraction into its decimal.",
   },
 
   label: {

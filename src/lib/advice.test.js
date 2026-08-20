@@ -134,6 +134,50 @@ describe("adviseSize: the runner-up", () => {
       assert.ok(missRunner >= missBest);
     }
   });
+
+  test("an exact tie goes to the smaller size", () => {
+    /* Strict less-than keeps the first, and sizes run smallest to largest.
+       The runner-up copy leans on this being stable, so pin it. */
+    const r = adviseSize({
+      sizes: [36, 40],
+      bust: 38,
+      ease: 0,
+      patternGauge: null,
+      myGauge: null,
+      closeGap: CLOSE,
+    });
+    assert.equal(r.best, 36);
+    assert.equal(r.runnerUp, 40);
+  });
+
+  test("a pattern that repeats a measurement is not its own runner-up", () => {
+    /* With sizes [40, 40] the duplicate used to come back as runnerUp, and
+       Nana would recommend the 40 while adding that the 40 was close too. */
+    const r = size({ sizes: [40, 40] });
+    assert.equal(r.best, 40);
+    assert.equal(r.runnerUp, null);
+  });
+});
+
+describe("adviseSize: the string path the component actually walks", () => {
+  test("bust and gauges arrive as text and still work", () => {
+    const r = size({ bust: "38", patternGauge: "18", myGauge: "21" });
+    assert.equal(r.best, 48);
+    assert.equal(r.actual, 41.1);
+  });
+
+  test("a European decimal gauge keeps its half", () => {
+    /* "17,5" through parseFloat is 17 — half a stitch gone, which is enough
+       to flip the recommendation on a fine-gauge pattern. */
+    const withComma = size({ patternGauge: "17,5", myGauge: "17.5" });
+    assert.equal(withComma.gaugeAdjusted, true);
+    assert.equal(withComma.actual, withComma.best);
+  });
+
+  test("ease as text cannot glue itself onto the target", () => {
+    /* b + "2" would be "382", and the largest size wins in silence. */
+    assert.equal(size({ ease: "2" }).target, 40);
+  });
 });
 
 describe("adviseYarn", () => {
@@ -196,6 +240,25 @@ describe("adviseYarn", () => {
   test("the cushion is ten per cent, rounded up", () => {
     assert.equal(yarn({ yards: [1000], bestIdx: 0, sizes: [32] }).buffered, 1100);
   });
+
+  test("a basket typed as text counts the same as numbers", () => {
+    const r = yarn({ perSkein: "220", skeins: "6" });
+    assert.equal(r.kind, "allSet");
+    assert.equal(r.have, 1320);
+  });
+
+  test('a thousands-marked "1,100" per skein is eleven hundred yards', () => {
+    /* parseFloat read it as 1 — and then advised buying twelve hundred more
+       skeins of a yarn the knitter already had plenty of. */
+    const r = yarn({ perSkein: "1,100", skeins: "2" });
+    assert.equal(r.kind, "allSet");
+    assert.equal(r.have, 2200);
+  });
+
+  test("landing exactly on the cushion still counts as all set", () => {
+    /* 5 x 242 = 1210, the buffered figure to the yard. */
+    assert.equal(yarn({ perSkein: 242, skeins: 5 }).kind, "allSet");
+  });
 });
 
 describe("adviseGauge", () => {
@@ -235,6 +298,15 @@ describe("adviseGauge", () => {
   test("never suggests zero sizes, having just said the gauge is off", () => {
     assert.ok(adviseGauge({ patternGauge: 18, myGauge: 18.4, best: 40 }).toolSizes >= 0.5);
   });
+
+  test("a gap of exactly a quarter stitch is past the tolerance", () => {
+    assert.equal(adviseGauge({ patternGauge: 18, myGauge: 18.25, best: 40 }).kind, "off");
+  });
+
+  test('a European "17,5" matches a pattern\'s 17.5, as it should', () => {
+    const r = adviseGauge({ patternGauge: "17.5", myGauge: "17,5", best: 40 });
+    assert.equal(r.kind, "match");
+  });
 });
 
 describe("adviseRows", () => {
@@ -268,5 +340,23 @@ describe("adviseRows", () => {
     const metric = adviseRows({ patternRowGauge: 24, myRowGauge: 26, swatchSpan: 10 });
     assert.equal(inches.needed, metric.needed);
     assert.ok(Math.abs(metric.intended / inches.intended - 2.5) < 0.01);
+  });
+
+  test("a correction that rounds back to 100 rows is a match, not a worry", () => {
+    /* 24.3 against 24 clears the quarter-row tolerance, but the remedy works
+       out to 101 rows where the pattern says 100 — counting noise. Nana should
+       not send anyone to re-swatch over that. */
+    assert.equal(adviseRows({ patternRowGauge: 24, myRowGauge: 24.3, swatchSpan: 4 }).kind, "match");
+    assert.equal(adviseRows({ patternRowGauge: 50, myRowGauge: 50.3, swatchSpan: 10 }).kind, "match");
+  });
+
+  test("a missing swatch span falls back to four inches instead of NaN", () => {
+    const r = adviseRows({ patternRowGauge: 24, myRowGauge: 26 });
+    assert.equal(r.kind, "off");
+    assert.equal(r.intended, 16.7);
+  });
+
+  test("row gauges typed as text keep their halves too", () => {
+    assert.equal(adviseRows({ patternRowGauge: "24,5", myRowGauge: "24.5", swatchSpan: 10 }).kind, "match");
   });
 });
