@@ -1,0 +1,50 @@
+# The footer's "Tell Nana what to learn next" link used to drop visitors on a
+# blank form. This is the cup of tea and the comfortable chair instead.
+name: Tell Nana what to learn next
+description: An idea, a puzzle, or a number Nana read wrong. She is all ears, dear.
+title: "Nana, could you look at this?"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sit down, dear, and tell Nana all about it. There are no silly
+        questions here — only dropped stitches, and those can always be
+        picked up. *Puedes escribirle a Nana en español también, mi vida.*
+  - type: textarea
+    id: what
+    attributes:
+      label: What should Nana know?
+      description: >
+        An idea for something new, a number she read wrong, advice that
+        surprised you — whatever brought you by.
+      placeholder: "Nana, when I typed my sizes as..."
+    validations:
+      required: true
+  - type: textarea
+    id: numbers
+    attributes:
+      label: The numbers, if there were numbers
+      description: >
+        If something came out wrong, paste exactly what you typed into which
+        field, and what Nana said back. Her arithmetic is all done in your
+        browser, so nothing you typed ever reached us — she needs it from you.
+      placeholder: |
+        Finished sizes: 91,5-95,5
+        Nana read: ...
+    validations:
+      required: false
+  - type: dropdown
+    id: craft
+    attributes:
+      label: Needles or hook?
+      options:
+        - Knitting (dos agujas)
+        - Crochet (ganchillo)
+        - Both, or it does not matter
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thank you, dear. Leave it with Nana — and do finish that row while
+        you wait.

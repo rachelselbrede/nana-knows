@@ -10,9 +10,12 @@ permissions:
   pages: write
   id-token: write
 
+# Queued runs are superseded, but a deploy that has already begun is allowed
+# to finish: cancelling deploy-pages mid-flight is the one way this workflow
+# could leave the live site in an odd state, and waiting costs a minute.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # Nana's arithmetic is checked before anything reaches the live site. The
