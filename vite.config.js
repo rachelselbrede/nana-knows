@@ -23,7 +23,9 @@ export default defineConfig({
         theme_color: "#FBF6EC",
         background_color: "#FBF6EC",
         display: "standalone",
-        orientation: "portrait",
+        /* No orientation field: locking to portrait pinned the installed app
+           sideways on the tablets where a knitter props a pattern in
+           landscape, and the layout is happily responsive either way. */
         icons: [
           { src: "icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
@@ -37,7 +39,10 @@ export default defineConfig({
       },
       workbox: {
         // Precache the app shell only. No runtime caching, no network chatter.
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,webmanifest}"],
+        // The manifest is not in this list because the plugin precaches it
+        // itself; naming it here listed it twice, the same double-entry that
+        // includeManifestIcons below was set to prevent for the icons.
+        globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
         // og-image is only ever fetched by link-preview scrapers, so there is no
         // reason to push 70KB of it into every visitor's offline cache.
         globIgnores: ["og-image.png"],
