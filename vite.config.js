@@ -53,4 +53,10 @@ export default defineConfig({
     }),
   ],
   base: "/nana-knows/",
+  build: {
+    /* Vite 8's default output targets only current browsers. Nana's visitors
+       skew toward older iPads and hand-me-down phones, so keep the output
+       runnable back to Safari 14 rather than inheriting the modern default. */
+    target: ["es2020", "edge88", "firefox78", "chrome87", "safari14"],
+  },
 });

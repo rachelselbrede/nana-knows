@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Free sizing, yardage, and gauge advice for knitters and crocheters, from Nana Purl herself.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,14 +14,14 @@
     "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.0",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.1.0",
-    "vite": "^6.3.5",
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.2",
     "vite-plugin-pwa": "^1.3.0"
   }
 }
