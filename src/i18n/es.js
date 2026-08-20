@@ -182,7 +182,7 @@ export default {
       short: ({ have, need, buffered, shortAmt, moreSkeins, yarnU }) =>
         `Ay, mi vida. Tienes ${have} ${yarnU} pero esta talla quiere ${need} ${yarnU} (${buffered} con un colchón seguro). Consigue unos ${shortAmt} ${yarnU} más, más o menos ${moreSkeins} ${moreSkeins === 1 ? "madeja" : "madejas"} más, antes de empezar.`,
       mismatch:
-        " P. D. Tu lista de tallas y la de lana tienen distinto largo, así que dales un vistacito.",
+        " P. D. Tu lista de tallas y la de lana tienen distinto largo, así que dales una miradita.",
     },
 
     gauge: {
@@ -191,11 +191,13 @@ export default {
       askYours: ({ gaugeLabel }) =>
         `Teje una muestrita y dile a Nana tus ${gaugeLabel}. Es la diferencia entre un suéter y una sorpresa.`,
       match: ({ ug, pg, gaugeLabel, best }) =>
-        `Tu tensión coincide preciosa con la del patrón (${ug} contra ${pg} ${gaugeLabel}). Sigue los números de la talla ${best} tal como están. Qué manos tan lindas, mi vida.`,
+        `Tu tensión coincide de maravilla con la del patrón (${ug} contra ${pg} ${gaugeLabel}). Sigue los números de la talla ${best} tal como están. Qué manos tan lindas, mi vida.`,
       off: ({ tighter, ug, pg, gaugeLabel, best, actual, lenU, craft, toolSizes }) => {
         const tool = craft === "knit" ? "aguja" : "ganchillo";
-        const sizes = toolSizes === 1 ? "una talla" : `como ${toolSizes} tallas`;
-        return `Tus puntos quedan un poquito ${tighter ? "más apretados" : "más flojos"} que los del patrón (${ug} contra ${pg} ${gaugeLabel}), así que las instrucciones de la talla ${best} te saldrían cerca de ${actual} ${lenU} en tus manos. Nana ya eligió tu talla teniendo eso en cuenta. Si prefieres calcar el patrón exacto, ${tighter ? "sube" : "baja"} ${sizes} de ${tool} y vuelve a hacer la muestra.`;
+        /* "números", nunca "tallas": la talla es la de la prenda, y "sube dos
+           tallas" leería como el consejo contrario al que Nana está dando. */
+        const sizes = toolSizes === 1 ? "un número" : `como ${toolSizes} números`;
+        return `Tus puntos quedan un poquito ${tighter ? "más apretados" : "más flojos"} que los del patrón (${ug} contra ${pg} ${gaugeLabel}), así que las instrucciones de la talla ${best} te saldrían cerca de ${actual} ${lenU} en tus manos. Nana ya eligió tu talla teniendo eso en cuenta. Si prefieres seguir el patrón al pie de la letra, ${tighter ? "sube" : "baja"} ${sizes} de ${tool} y vuelve a hacer la muestra.`;
       },
     },
 
@@ -207,7 +209,7 @@ export default {
       match: ({ urg, prg, rowGaugeLabel }) =>
         `Tus filas también coinciden con el patrón (${urg} contra ${prg} ${rowGaugeLabel}). Teje los largos tal como están y saldrán bien.`,
       off: ({ tighter, urg, prg, rowGaugeLabel, yours, intended, lenU, needed }) =>
-        `Tus filas quedan ${tighter ? "más apretadas" : "más flojas"} que las del patrón (${urg} contra ${prg} ${rowGaugeLabel}). Donde dice tejer 100 filas, tú llegarías a unos ${yours} ${lenU} en vez de ${intended} ${lenU}, así que teje unas ${needed} filas para llegar al mismo largo. Ve midiendo tu cuerpo y tus mangas mientras avanzas en lugar de confiar solo en la cuenta de filas, y quedarás de maravilla.`,
+        `Tus filas quedan ${tighter ? "más apretadas" : "más flojas"} que las del patrón (${urg} contra ${prg} ${rowGaugeLabel}). Donde dice tejer 100 filas, tú llegarías a unos ${yours} ${lenU} en vez de ${intended} ${lenU}, así que teje unas ${needed} filas para llegar al mismo largo. Ve midiendo tu cuerpo y tus mangas mientras avanzas en lugar de confiar solo en la cuenta de filas, y todo te va a salir muy bien.`,
     },
   },
 

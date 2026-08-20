@@ -129,7 +129,7 @@ for (const lang of LANGS) {
       const g = adviseGauge({ patternGauge: 18, myGauge: 20, best: 40 });
       assert.equal(g.toolSizes, 1);
       const text = say(lang, "result.gauge.off", { ...g, ...UNITS, craft: "knit" });
-      assert.ok(!/\b1 (sizes|tallas)\b/.test(text), `reads awkwardly: ${text}`);
+      assert.ok(!/\b1 (sizes|tallas|números)\b/.test(text), `reads awkwardly: ${text}`);
     });
 
     /* ---------- the length card ---------- */
