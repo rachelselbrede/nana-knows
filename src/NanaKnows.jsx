@@ -112,7 +112,7 @@ function MeasureBust({ size = 132, label }) {
       {/* sweater body + sleeves, the sleeves curving gently steeper as they
           fall so they run long beside the body instead of stopping at the ribs */}
       <path
-        d="M56 28 L38 34 Q12 62 5 106 L17 112 Q20 80 35 62 L35 134 L105 134 L105 62 Q120 80 123 112 L135 106 Q128 62 102 34 L84 28 Q70 40 56 28 Z"
+        d="M56 28 L38 34 Q12 62 5 106 L20 114 Q24 82 35 62 L35 134 L105 134 L105 62 Q116 82 120 114 L135 106 Q128 62 102 34 L84 28 Q70 40 56 28 Z"
         fill={C.sage}
         stroke={C.sageDark}
         strokeWidth="2"
@@ -141,8 +141,8 @@ function MeasureBust({ size = 132, label }) {
         <line x1="95" y1="126.5" x2="95" y2="131.5" />
       </g>
       {/* ribbed cuffs */}
-      <path d="M6 100.5 L18 106.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M134 100.5 L122 106.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M6 100.5 L21 108.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M134 100.5 L119 108.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
 
       {/* tape measure across the bust, side seam to side seam and a little past */}
       <path
