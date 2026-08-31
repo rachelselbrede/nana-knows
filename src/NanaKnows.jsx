@@ -76,10 +76,30 @@ function GrannySquare({ size = 18 }) {
 }
 
 /* ---------- how-to-measure diagram ----------
-   A flat-lay sweater — crew neck, two sleeves, ribbed hem and cuffs —
-   with a soft tape measure wrapped around the bust. The tape drapes past
-   the sides so it reads as going around to the back, and it carries tick
-   marks and a little metal end tab. Same flat, rounded art as Nana. */
+   A flat-lay cabled sweater — crew neck, sleeves laid at an angle the way a
+   sweater actually sits on a table, ribbed hem and cuffs — with a soft tape
+   measure crossing the bust from side seam to side seam. The tape overhangs
+   each edge a touch and ends in its metal tab, so it reads as wrapping round
+   to the back rather than lying on top. Same flat, rounded art as Nana. */
+
+/* One cable column: two strands weaving around each other, six crossings tall.
+   Written as a loop because three hand-transcribed braids would be ninety
+   coordinates nobody could ever safely retouch. Each curve segment ends going
+   straight down, so the strands stay smooth where the segments meet. */
+const cablePath = (cx) => {
+  const L = cx - 3.5;
+  const R = cx + 3.5;
+  let a = `M ${L} 44`;
+  let b = `M ${R} 44`;
+  for (let y = 44; y < 116; y += 12) {
+    const leftToRight = ((y - 44) / 12) % 2 === 0;
+    const [from, to] = leftToRight ? [L, R] : [R, L];
+    a += ` C ${from} ${y + 5}, ${to} ${y + 7}, ${to} ${y + 12}`;
+    b += ` C ${to} ${y + 5}, ${from} ${y + 7}, ${from} ${y + 12}`;
+  }
+  return `${a} ${b}`;
+};
+
 function MeasureBust({ size = 132, label }) {
   return (
     <svg
@@ -91,47 +111,57 @@ function MeasureBust({ size = 132, label }) {
     >
       {/* sweater body + sleeves */}
       <path
-        d="M58 24 L44 30 L10 72 L16 84 L40 66 L36 128 L36 138 L104 138 L104 128 L100 66 L124 84 L130 72 L96 30 L82 24 Q70 34 58 24 Z"
+        d="M56 28 L38 34 L8 82 L19 93 L35 62 L35 134 L105 134 L105 62 L121 93 L132 82 L102 34 L84 28 Q70 40 56 28 Z"
         fill={C.sage}
         stroke={C.sageDark}
         strokeWidth="2"
         strokeLinejoin="round"
       />
+      {/* three cable columns down the front; the tape lies over their middle */}
+      <path
+        d={[52, 70, 88].map(cablePath).join(" ")}
+        fill="none"
+        stroke={C.sageDark}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
       {/* ribbed crew neckline */}
-      <path d="M58 24 Q70 34 82 24" fill="none" stroke={C.oat} strokeWidth="5" strokeLinecap="round" />
-      <path d="M58 24 Q70 34 82 24" fill="none" stroke={C.sageDark} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M56 28 Q70 40 84 28" fill="none" stroke={C.oat} strokeWidth="5" strokeLinecap="round" />
+      <path d="M56 28 Q70 40 84 28" fill="none" stroke={C.sageDark} strokeWidth="1.5" strokeLinecap="round" />
       {/* ribbed hem */}
-      <path d="M36 129 L104 129" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M37 123 L103 123" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
       <g stroke={C.sageDark} strokeWidth="1.4" strokeLinecap="round" opacity="0.65">
-        <line x1="46" y1="130" x2="46" y2="137" />
-        <line x1="58" y1="130" x2="58" y2="137" />
-        <line x1="70" y1="130" x2="70" y2="137" />
-        <line x1="82" y1="130" x2="82" y2="137" />
-        <line x1="94" y1="130" x2="94" y2="137" />
+        <line x1="45" y1="126.5" x2="45" y2="131.5" />
+        <line x1="55" y1="126.5" x2="55" y2="131.5" />
+        <line x1="65" y1="126.5" x2="65" y2="131.5" />
+        <line x1="75" y1="126.5" x2="75" y2="131.5" />
+        <line x1="85" y1="126.5" x2="85" y2="131.5" />
+        <line x1="95" y1="126.5" x2="95" y2="131.5" />
       </g>
       {/* ribbed cuffs */}
-      <path d="M10.5 72.5 L16.5 84" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
-      <path d="M129.5 72.5 L123.5 84" stroke={C.sageDark} strokeWidth="3" strokeLinecap="round" />
+      <path d="M10.5 77.7 L21.5 88.7" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M129.5 77.7 L118.5 88.7" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
 
-      {/* tape measure wrapping the bust, within the chest of the sweater */}
+      {/* tape measure across the bust, side seam to side seam and a little past */}
       <path
-        d="M44 74 Q70 82 96 74 L96 83 Q70 91 44 83 Z"
+        d="M32 68 Q70 76 108 68 L108 78 Q70 86 32 78 Z"
         fill={C.rose}
         stroke={C.roseDark}
         strokeWidth="1.2"
         strokeLinejoin="round"
       />
-      {/* measurement ticks */}
+      {/* measurement ticks, following the tape's sag */}
       <g stroke={C.oat} strokeWidth="1.5" strokeLinecap="round">
-        <line x1="50" y1="77" x2="50" y2="83" />
-        <line x1="58" y1="78" x2="58" y2="84" />
-        <line x1="66" y1="79" x2="66" y2="85" />
-        <line x1="74" y1="79" x2="74" y2="85" />
-        <line x1="82" y1="78" x2="82" y2="84" />
-        <line x1="90" y1="77" x2="90" y2="83" />
+        <line x1="42" y1="72.3" x2="42" y2="77.8" />
+        <line x1="52" y1="73.6" x2="52" y2="79.1" />
+        <line x1="62" y1="74.3" x2="62" y2="79.8" />
+        <line x1="72" y1="74.5" x2="72" y2="80" />
+        <line x1="82" y1="74.1" x2="82" y2="79.6" />
+        <line x1="92" y1="73.2" x2="92" y2="78.7" />
       </g>
-      {/* metal end tab where the tape meets */}
-      <rect x="84" y="71" width="11" height="8" rx="2" fill={C.roseDark} transform="rotate(8 89 75)" />
+      {/* metal tab capping the tape's end, tilted to match its slope */}
+      <rect x="102" y="67.5" width="8" height="11" rx="1.5" fill={C.roseDark} transform="rotate(-12 106 73)" />
     </svg>
   );
 }
