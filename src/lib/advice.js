@@ -152,6 +152,90 @@ export function adviseGauge({ patternGauge, myGauge, best }) {
   };
 }
 
+/* ---------- every size at a glance ----------
+   The size card answers "what should I make?". The table answers "what are my
+   choices?" — which is the question a knitter with a fixed stash, or a body
+   that lands between sizes, is actually weighing. One row per pattern size:
+   what the label claims, what it would really measure in this knitter's hands,
+   how far that lands from her aim, the yarn it calls for, and whether the
+   basket covers it.
+
+   The basket verdict runs the same cushion arithmetic as adviseYarn, so the
+   table can never contradict the yarn card sitting above it. The best and
+   runner-up rows are taken from adviseSize's answer rather than re-derived,
+   for the same reason: one source of truth per decision.
+
+   Needs at least two sizes — a one-size pattern has nothing to compare. */
+export function sizeTable({
+  sizes,
+  yards,
+  bust,
+  ease,
+  patternGauge,
+  myGauge,
+  perSkein,
+  skeins,
+  bestIdx,
+  runnerUp,
+}) {
+  const b = num(bust);
+  if (!Array.isArray(sizes) || sizes.length < 2 || b === null) return null;
+
+  const pg = num(patternGauge);
+  const ug = num(myGauge);
+  const gaugeAdjusted = pg !== null && ug !== null;
+  const target = b + (Number(ease) || 0);
+
+  const list = Array.isArray(yards) ? yards : [];
+  const per = num(perSkein);
+  const cnt = num(skeins);
+  const have = per !== null && cnt !== null ? r1(per * cnt) : null;
+
+  const rows = sizes.map((s, i) => {
+    const actual = gaugeAdjusted ? r1((s * pg) / ug) : s;
+    /* Diff of the rounded figure, so the column always agrees with the
+       "comes out" number printed beside it, to the decimal shown. */
+    const diff = r1(actual - r1(target));
+
+    /* Yardage lines up with sizes by position; a shorter list simply runs
+       out, and the missing cells stay honest blanks instead of guesses. */
+    const need = i < list.length ? list[i] : null;
+
+    let stash = null;
+    let shortAmt = null;
+    if (need !== null && have !== null) {
+      const buffered = Math.ceil(need * YARN_CUSHION);
+      if (have >= buffered) stash = "plenty";
+      else if (have >= need) stash = "justEnough";
+      else {
+        stash = "short";
+        shortAmt = Math.ceil(buffered - have);
+      }
+    }
+
+    return {
+      size: s,
+      actual,
+      diff,
+      need,
+      stash,
+      shortAmt,
+      best: i === bestIdx,
+      runnerUp: runnerUp !== null && s === runnerUp,
+    };
+  });
+
+  return {
+    rows,
+    gaugeAdjusted,
+    hasYards: list.length > 0,
+    /* Whether the basket column has anything to say. A stocked basket with no
+       yardage list would otherwise draw a whole column of dashes. */
+    hasVerdicts: rows.some((r) => r.stash !== null),
+    target: r1(target),
+  };
+}
+
 /* ---------- row gauge, which decides length ----------
    Stitch gauge only ever answers "how wide". Row gauge is what decides whether
    a body or a sleeve ends up the length the pattern intended, and it is the

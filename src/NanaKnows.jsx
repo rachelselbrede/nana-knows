@@ -13,7 +13,7 @@ import {
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
 } from "./lib/parse.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows } from "./lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
 
 /* ---------- Nana's palette ---------- */
 const C = {
@@ -535,6 +535,11 @@ export default function NanaKnows() {
       "",
       t("advice.length"),
       rowText(),
+      /* The table travels too, one size per line, so the whole decision goes
+         into the project notes and not just the winner. */
+      ...(results.table
+        ? ["", t("table.title"), ...results.table.rows.map(tableLine)]
+        : []),
     ]
       .join("\n")
       .replace(/\n{3,}/g, "\n\n");
@@ -584,6 +589,21 @@ export default function NanaKnows() {
       yarn: adviseYarn({ yards, sizes, bestIdx: size.bestIdx, perSkein, skeins }),
       gauge: adviseGauge({ patternGauge, myGauge, best: size.best }),
       row: adviseRows({ patternRowGauge, myRowGauge, swatchSpan }),
+      /* Null when there is only one size — nothing to compare. The best and
+         runner-up rows come from the size answer above, never re-derived, so
+         the table cannot highlight a different size than the card recommends. */
+      table: sizeTable({
+        sizes,
+        yards,
+        bust: b,
+        ease,
+        patternGauge,
+        myGauge,
+        perSkein,
+        skeins,
+        bestIdx: size.bestIdx,
+        runnerUp: size.runnerUp,
+      }),
     });
 
     const jump = () => {
@@ -673,6 +693,35 @@ export default function NanaKnows() {
     });
   };
 
+  /* The aim column reads best signed: "+1.2" is roomier than asked for,
+     "-0.8" snugger. String(-0) is "0" in JavaScript, so a hair under the aim
+     that rounds away never prints as a puzzling "-0". */
+  const signed = (n) => (n > 0 ? `+${n}` : String(n));
+
+  const tableNote = () =>
+    t("table.note", {
+      gaugeAdjusted: results.table.gaugeAdjusted,
+      hasVerdicts: results.table.hasVerdicts,
+    });
+
+  /* One table row as a line of plain text, for the Ravelry copy below. */
+  const tableLine = (r) => {
+    const u = said();
+    const head =
+      `${r.size} ${u.lenU}` +
+      (results.table.gaugeAdjusted ? ` → ${r.actual} ${u.lenU}` : "");
+    const rest = [
+      r.need !== null ? `${r.need} ${u.yarnU}` : "",
+      r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: u.yarnU }) : "",
+    ].filter(Boolean);
+    const badge = r.best
+      ? ` — ${t("table.pick")}`
+      : r.runnerUp
+        ? ` — ${t("table.closeCall")}`
+        : "";
+    return [head, ...rest].join(" · ") + badge;
+  };
+
   /* A shared link filled the form; run Nana once the inputs have settled. */
   useEffect(() => {
     if (!pendingAutoRun) return;
@@ -697,6 +746,14 @@ export default function NanaKnows() {
     borderRadius: 12,
     color: C.espresso,
     fontFamily: "'Nunito', sans-serif",
+  };
+  /* Table headers wear the label colour but not the uppercase letter-spacing:
+     five spaced-out columns of capitals wrap into tall stacks on a phone. */
+  const thStyle = {
+    fontFamily: "'Nunito', sans-serif",
+    fontWeight: 800,
+    fontSize: 12,
+    color: "#826E5A",
   };
 
   return (
@@ -993,6 +1050,97 @@ export default function NanaKnows() {
               <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText()}</AdviceCard>
               <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText()}</AdviceCard>
               <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText()}</AdviceCard>
+
+              {/* Every size side by side. Columns only appear when there is
+                  something honest to put in them: "comes out" needs both
+                  gauges, yarn needs a yardage list, the basket verdict needs
+                  a stocked basket. Units come from said(), so the table keeps
+                  the system it was asked in, like the cards above it. */}
+              {results.table && (
+                <div className="rounded-2xl overflow-hidden nk-pop" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+                  <div style={{ height: 8, background: C.rose }} />
+                  <div className="p-4 sm:p-5">
+                    <h3 className="mb-3 text-base font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.espresso }}>
+                      {t("table.title")}
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm" style={{ borderCollapse: "collapse", fontVariantNumeric: "tabular-nums" }}>
+                        <caption className="sr-only">{t("table.caption")}</caption>
+                        <thead>
+                          <tr>
+                            <th scope="col" className="py-2 pr-3 text-left align-bottom" style={thStyle}>
+                              {t("table.size", { lenU: said().lenU })}
+                            </th>
+                            {results.table.gaugeAdjusted && (
+                              <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
+                                {t("table.comesOut", { lenU: said().lenU })}
+                              </th>
+                            )}
+                            <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
+                              {t("table.vsAim", { target: results.table.target, lenU: said().lenU })}
+                            </th>
+                            {results.table.hasYards && (
+                              <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
+                                {t("table.yarn", { yarnU: said().yarnU })}
+                              </th>
+                            )}
+                            {results.table.hasVerdicts && (
+                              <th scope="col" className="py-2 pl-3 text-right align-bottom" style={thStyle}>
+                                {t("table.basket")}
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {results.table.rows.map((r, i) => (
+                            <tr key={i} style={{ borderTop: `1.5px dashed ${C.line}`, background: r.best ? "#F3E7EC" : "transparent" }}>
+                              {/* The pick is marked with words, not colour alone:
+                                  the tinted row means nothing to a screen reader
+                                  or in a greyscale print. */}
+                              <th scope="row" className="py-2 pr-3 text-left align-top">
+                                <span className="font-bold" style={{ color: C.espresso }}>{r.size}</span>
+                                {r.best && (
+                                  <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseDark }}>
+                                    {t("table.pick")}
+                                  </span>
+                                )}
+                                {r.runnerUp && (
+                                  <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageDark }}>
+                                    {t("table.closeCall")}
+                                  </span>
+                                )}
+                              </th>
+                              {results.table.gaugeAdjusted && (
+                                <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{r.actual}</td>
+                              )}
+                              <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{signed(r.diff)}</td>
+                              {results.table.hasYards && (
+                                <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>
+                                  {r.need !== null ? r.need : "—"}
+                                </td>
+                              )}
+                              {results.table.hasVerdicts && (
+                                <td
+                                  className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
+                                  style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageDark : C.roseDark }}
+                                >
+                                  {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said().yarnU }) : "—"}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {(results.table.gaugeAdjusted || results.table.hasVerdicts) && (
+                      <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: "#826E5A" }}>
+                        {tableNote()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
                   {t("copy.button")}

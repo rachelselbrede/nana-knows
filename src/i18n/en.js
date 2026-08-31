@@ -214,6 +214,36 @@ export default {
     },
   },
 
+  /* The all-sizes table. Column headers carry their units, like the field
+     labels do; the verdict words are deliberately short, because they sit in
+     a cell, not a sentence. */
+  table: {
+    title: "Every size at a glance",
+    caption:
+      "Every size compared: what it would really measure, how far that lands from your aim, the yarn it calls for, and whether your basket covers it.",
+    size: ({ lenU }) => `Size (${lenU})`,
+    comesOut: ({ lenU }) => `Comes out (${lenU})`,
+    vsAim: ({ target, lenU }) => `vs your aim (${target} ${lenU})`,
+    yarn: ({ yarnU }) => `Yarn (${yarnU})`,
+    basket: "Your basket",
+    pick: "Nana's pick",
+    closeCall: "close call",
+    plenty: "plenty",
+    justEnough: "just enough",
+    short: ({ shortAmt, yarnU }) => `short ${shortAmt} ${yarnU}`,
+    note: ({ gaugeAdjusted, hasVerdicts }) =>
+      [
+        gaugeAdjusted
+          ? "“Comes out” is what each size would really measure in your hands."
+          : "",
+        hasVerdicts
+          ? "The basket column already includes Nana's 10% just-in-case cushion."
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+  },
+
   proverbs: {
     knit: [
       "Measure twice, cast on once.",

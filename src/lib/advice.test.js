@@ -1,7 +1,8 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { adviseSize, adviseYarn, adviseGauge, adviseRows } from "./advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./advice.js";
+import { r1 } from "./parse.js";
 
 /* A common worsted sweater pattern, in inches. */
 const SIZES = [32, 36, 40, 44, 48, 52];
@@ -306,6 +307,110 @@ describe("adviseGauge", () => {
   test('a European "17,5" matches a pattern\'s 17.5, as it should', () => {
     const r = adviseGauge({ patternGauge: "17.5", myGauge: "17,5", best: 40 });
     assert.equal(r.kind, "match");
+  });
+});
+
+describe("sizeTable: every size at a glance", () => {
+  const table = (over) =>
+    sizeTable({
+      sizes: SIZES,
+      yards: YARDS,
+      bust: 38,
+      ease: 2,
+      patternGauge: null,
+      myGauge: null,
+      perSkein: 220,
+      skeins: 6,
+      bestIdx: 2,
+      runnerUp: null,
+      ...over,
+    });
+
+  test("one row per size, in the pattern's order", () => {
+    const t = table();
+    assert.deepEqual(t.rows.map((r) => r.size), SIZES);
+    assert.deepEqual(t.rows.map((r) => r.need), YARDS);
+  });
+
+  test("without a personal gauge, sizes come out as the pattern claims", () => {
+    const t = table();
+    assert.equal(t.gaugeAdjusted, false);
+    for (const r of t.rows) assert.equal(r.actual, r.size);
+  });
+
+  test("with both gauges, every row is re-worked for this knitter's hands", () => {
+    /* The same 18-vs-21 case the size card is tested on: the 48 must come out
+       41.1 here too, or the table would contradict the recommendation. */
+    const t = table({ patternGauge: 18, myGauge: 21, bestIdx: 4 });
+    assert.equal(t.gaugeAdjusted, true);
+    assert.equal(t.rows[4].actual, 41.1);
+    assert.equal(t.rows[0].actual, r1((32 * 18) / 21));
+  });
+
+  test("the diff column agrees with the numbers printed beside it", () => {
+    const t = table({ patternGauge: 18, myGauge: 21 });
+    for (const r of t.rows) {
+      assert.equal(r.diff, r1(r.actual - t.target));
+    }
+  });
+
+  test("the basket verdicts mirror the yarn card's cushion arithmetic", () => {
+    /* 6 x 220 = 1320: clears 1210 for the 40, only just covers the 44's 1250
+       (cushioned 1375), and falls short of the 48's 1400. Same three verdicts,
+       same thresholds, as adviseYarn would give size by size. */
+    const t = table();
+    assert.equal(t.rows[2].stash, "plenty");
+    assert.equal(t.rows[3].stash, "justEnough");
+    assert.equal(t.rows[4].stash, "short");
+    assert.equal(t.rows[4].shortAmt, Math.ceil(1400 * 1.1) - 1320);
+  });
+
+  test("the short amount is what adviseYarn would ask her to buy", () => {
+    const t = table({ skeins: 4 });
+    const y = adviseYarn({ yards: YARDS, sizes: SIZES, bestIdx: 2, perSkein: 220, skeins: 4 });
+    assert.equal(t.rows[2].stash, "short");
+    assert.equal(t.rows[2].shortAmt, y.shortAmt);
+  });
+
+  test("an empty basket leaves the verdict column honestly blank", () => {
+    const t = table({ perSkein: null, skeins: null });
+    assert.equal(t.hasVerdicts, false);
+    for (const r of t.rows) assert.equal(r.stash, null);
+  });
+
+  test("a yardage list that runs out leaves blanks, not guesses", () => {
+    const t = table({ yards: [900, 1000] });
+    assert.equal(t.hasYards, true);
+    assert.equal(t.rows[1].need, 1000);
+    assert.equal(t.rows[2].need, null);
+    assert.equal(t.rows[2].stash, null);
+  });
+
+  test("no yardage at all is reported so the column can be dropped", () => {
+    assert.equal(table({ yards: [] }).hasYards, false);
+  });
+
+  test("the best and runner-up rows are the ones adviseSize chose", () => {
+    const s = adviseSize({ sizes: [36, 40], bust: 38, ease: 0, patternGauge: null, myGauge: null, closeGap: 1 });
+    const t = table({ sizes: [36, 40], ease: 0, bestIdx: s.bestIdx, runnerUp: s.runnerUp });
+    assert.equal(t.rows[0].best, true);
+    assert.equal(t.rows[1].runnerUp, true);
+    assert.equal(t.rows[1].best, false);
+  });
+
+  test("a one-size pattern has nothing to compare", () => {
+    assert.equal(table({ sizes: [40] }), null);
+  });
+
+  test("needs a measurement, like the size card does", () => {
+    assert.equal(table({ bust: null }), null);
+    assert.equal(table({ bust: "" }), null);
+  });
+
+  test("fields typed as text still count", () => {
+    const t = table({ bust: "38", perSkein: "220", skeins: "6", patternGauge: "18", myGauge: "21" });
+    assert.equal(t.gaugeAdjusted, true);
+    assert.equal(t.hasVerdicts, true);
   });
 });
 

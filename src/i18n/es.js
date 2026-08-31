@@ -213,6 +213,36 @@ export default {
     },
   },
 
+  /* La tabla de todas las tallas. Los encabezados llevan sus unidades, como
+     las etiquetas de los campos; los veredictos son cortitos a propósito,
+     porque viven en una celda, no en una oración. */
+  table: {
+    title: "Todas las tallas de un vistazo",
+    caption:
+      "Cada talla comparada: lo que mediría de verdad, qué tan lejos queda de tu objetivo, la lana que pide y si tu canasta alcanza.",
+    size: ({ lenU }) => `Talla (${lenU})`,
+    comesOut: ({ lenU }) => `Te saldría (${lenU})`,
+    vsAim: ({ target, lenU }) => `contra tu objetivo (${target} ${lenU})`,
+    yarn: ({ yarnU }) => `Lana (${yarnU})`,
+    basket: "Tu canasta",
+    pick: "La elegida de Nana",
+    closeCall: "anda cerquita",
+    plenty: "de sobra",
+    justEnough: "apenas alcanza",
+    short: ({ shortAmt, yarnU }) => `faltan ${shortAmt} ${yarnU}`,
+    note: ({ gaugeAdjusted, hasVerdicts }) =>
+      [
+        gaugeAdjusted
+          ? "«Te saldría» es lo que cada talla mediría de verdad en tus manos."
+          : "",
+        hasVerdicts
+          ? "La columna de la canasta ya incluye el colchoncito del 10 % de Nana por si acaso."
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+  },
+
   proverbs: {
     knit: [
       "Mide dos veces, monta una sola.",

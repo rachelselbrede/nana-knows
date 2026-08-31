@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 
 import en from "./en.js";
 import es from "./es.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows } from "../lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "../lib/advice.js";
 
 const DICTS = { en, es };
 
@@ -146,6 +146,47 @@ for (const lang of LANGS) {
         assertSentence(say(lang, `result.row.${r.kind}`, { ...r, ...UNITS }), `${lang} row/${r.kind}`);
       });
     }
+
+    /* ---------- the all-sizes table ---------- */
+    test("the size table: headers, badges and every basket verdict", () => {
+      /* A basket sized so the table produces all three verdicts at once. */
+      const tbl = sizeTable({
+        sizes: SIZES, yards: YARDS, bust: 38, ease: 2,
+        patternGauge: 18, myGauge: 21, perSkein: 220, skeins: 6,
+        bestIdx: 4, runnerUp: 44,
+      });
+      assert.ok(tbl.gaugeAdjusted && tbl.hasVerdicts, "the fixture went quiet");
+      const seen = new Set(tbl.rows.map((r) => r.stash));
+      for (const kind of ["plenty", "justEnough", "short"]) {
+        assert.ok(seen.has(kind), `the fixture no longer reaches ${kind}`);
+      }
+
+      const headers = [
+        say(lang, "table.title"),
+        say(lang, "table.caption"),
+        say(lang, "table.size", { lenU: UNITS.lenU }),
+        say(lang, "table.comesOut", { lenU: UNITS.lenU }),
+        say(lang, "table.vsAim", { target: tbl.target, lenU: UNITS.lenU }),
+        say(lang, "table.yarn", { yarnU: UNITS.yarnU }),
+        say(lang, "table.basket"),
+      ].join(" ");
+      assertSentence(headers, `${lang} table/headers`);
+
+      /* Verdicts and badges are cell-sized, so judge them joined together. */
+      const cells = tbl.rows
+        .filter((r) => r.stash)
+        .map((r) => say(lang, `table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: UNITS.yarnU }))
+        .concat(say(lang, "table.pick"), say(lang, "table.closeCall"))
+        .join(" · ");
+      assertSentence(cells, `${lang} table/cells`);
+
+      assertSentence(
+        say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true }),
+        `${lang} table/note`
+      );
+      /* With nothing to explain, the note must vanish rather than mumble. */
+      assert.equal(say(lang, "table.note", { gaugeAdjusted: false, hasVerdicts: false }), "");
+    });
 
     /* ---------- the frame around the cards ---------- */
     test("the introduction, and the proverbs it draws on", () => {
