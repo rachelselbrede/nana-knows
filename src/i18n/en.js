@@ -91,6 +91,10 @@ export default {
     myGauge: "e.g. 19",
     perSkein: inch ? "e.g. 220" : "e.g. 200",
     skeins: "e.g. 5",
+    swatchStitches: "e.g. 22",
+    swatchAcross: inch ? "e.g. 4.25" : "e.g. 11",
+    swatchRows: "e.g. 30",
+    swatchTall: inch ? "e.g. 4.5" : "e.g. 11.5",
   }),
 
   button: { ask: "Ask Nana" },
@@ -134,6 +138,23 @@ export default {
       "Take it twice. If the two readings differ, use the larger one and trust it.",
     ],
     tip: "No helper and no full-length mirror? Measure a sweater that already fits you well, laid flat, and double the width across the chest.",
+  },
+
+  /* The swatch helper. A knitter counts whatever her swatch gives her; Nana
+     turns it into the per-4-in or per-10-cm figure the fields above want. */
+  swatch: {
+    summary: "Help me count my swatch",
+    intro: ({ spanLabel }) =>
+      `Counted your swatch, but not across exactly ${spanLabel}? Tell Nana what you counted and how far it stretched, and she will do the arithmetic, dear.`,
+    stitches: "Stitches you counted",
+    across: ({ lenU }) => `Across how wide (${lenU})`,
+    rows: "Rows you counted",
+    tall: ({ lenU }) => `Over how tall (${lenU})`,
+    stitchesOut: ({ gauge, gaugeLabel }) => `That makes ${gauge} ${gaugeLabel}.`,
+    rowsOut: ({ gauge, rowGaugeLabel }) => `That makes ${gauge} ${rowGaugeLabel}.`,
+    use: "Use these numbers",
+    used: "Nana popped those into your swatch fields above.",
+    tip: "Measure in the middle of the swatch, away from the edges, and count the half stitches too. If the finished piece will be washed, wash and rest the swatch first — that is the honest number.",
   },
 
   save: {

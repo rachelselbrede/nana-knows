@@ -12,6 +12,7 @@ import {
   yardsToMetres,
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
+  swatchToGauge,
   r1,
 } from "./parse.js";
 
@@ -268,5 +269,35 @@ describe("gauge conversion: 4 in is 10.16 cm, not 10", () => {
 
   test("and back again", () => {
     assert.ok(Math.abs(gaugePer10cmToPer4in(gaugePer4inToPer10cm(18)) - 18) < 1e-9);
+  });
+});
+
+describe("swatchToGauge: from a counted swatch to the gauge a pattern quotes", () => {
+  test("22 stitches across 4.25 in is 20.7 per 4 in", () => {
+    assert.equal(swatchToGauge("22", "4.25", 4), 20.7);
+  });
+
+  test("counted over exactly the span, the number comes back as typed", () => {
+    assert.equal(swatchToGauge("18", "4", 4), 18);
+    assert.equal(swatchToGauge("22", "10", 10), 22);
+  });
+
+  test("a European decimal in the width reads as a decimal", () => {
+    assert.equal(swatchToGauge("24", "10,5", 10), 22.9);
+  });
+
+  test("rows work the same way", () => {
+    assert.equal(swatchToGauge("30", "4.5", 4), 26.7);
+  });
+
+  test("half stitches count", () => {
+    assert.equal(swatchToGauge("22.5", "4", 4), 22.5);
+  });
+
+  test("waits until both numbers are there", () => {
+    assert.equal(swatchToGauge("", "4", 4), null);
+    assert.equal(swatchToGauge("22", "", 4), null);
+    assert.equal(swatchToGauge("22", "0", 4), null);
+    assert.equal(swatchToGauge("lots", "4", 4), null);
   });
 });

@@ -17,6 +17,7 @@ import assert from "node:assert/strict";
 import en from "./en.js";
 import es from "./es.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "../lib/advice.js";
+import { swatchToGauge } from "../lib/parse.js";
 
 const DICTS = { en, es };
 
@@ -274,3 +275,31 @@ describe("the two dictionaries stay level with each other", () => {
     assert.deepEqual(wrong, []);
   });
 });
+
+/* ---------- the swatch helper ----------
+   Not advice, but the same trap: a computed number dropped into a sentence
+   from the dictionary, in whichever language is showing. */
+for (const lang of LANGS) {
+  describe(`${lang}: the swatch helper has words`, () => {
+    test("intro, both results, the confirmation, the tip, and every label", () => {
+      const sts = swatchToGauge("22", "4.25", 4);
+      const rows = swatchToGauge("30", "4.5", 4);
+      assert.equal(sts, 20.7);
+      assertSentence(say(lang, "swatch.intro", { spanLabel: "4 in" }), `${lang} swatch/intro`);
+      assertSentence(say(lang, "swatch.stitchesOut", { gauge: sts, gaugeLabel: UNITS.gaugeLabel }), `${lang} swatch/stitchesOut`);
+      assertSentence(say(lang, "swatch.rowsOut", { gauge: rows, rowGaugeLabel: UNITS.rowGaugeLabel }), `${lang} swatch/rowsOut`);
+      assertSentence(say(lang, "swatch.used"), `${lang} swatch/used`);
+      assertSentence(say(lang, "swatch.tip"), `${lang} swatch/tip`);
+      for (const key of ["summary", "stitches", "rows", "use"]) {
+        assert.ok(say(lang, `swatch.${key}`).length > 3, `${lang} swatch/${key} is too short to be a label`);
+      }
+      /* The width labels carry the unit, like every other field label. */
+      assert.ok(say(lang, "swatch.across", { lenU: "in" }).includes("(in)"));
+      assert.ok(say(lang, "swatch.tall", { lenU: "cm" }).includes("(cm)"));
+      const ph = say(lang, "ph", { inch: false });
+      for (const key of ["swatchStitches", "swatchAcross", "swatchRows", "swatchTall"]) {
+        assert.ok(ph[key], `${lang} ph.${key} is missing`);
+      }
+    });
+  });
+}

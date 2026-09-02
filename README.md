@@ -23,6 +23,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
   cushion, because running out at the second sleeve is heartbreak.
 - **Checks row gauge too**, so you know whether the pattern's row counts will
   land at the length it intended, and how many rows to work instead if not.
+- **Turns a counted swatch into a gauge.** "22 stitches across 4¼ inches" is
+  not the number a pattern quotes; tell Nana what you counted and how wide it
+  stretched, and she hands you the per-4-inch (or per-10-cm) figure. Rows too.
 - **Reads numbers the way knitters write them.** `91,5`, `1,100`, `36 1/2`,
   `32-36`, `36½` — and she echoes back what she read, so a wrong guess is
   visible instead of silently changing the advice.
@@ -72,8 +75,6 @@ repo name. If you later use a custom domain, change `base` to `/`.
 Ideas worth doing, not built yet. Nothing here is promised, and none of it
 should break the "no backend, nothing collected" rule.
 
-- **A swatch-to-gauge helper** — "I counted 22 stitches over 4.25 inches" is
-  exactly the arithmetic Nana exists to do, and today you still do it by hand.
 - **Multiple saved projects** — "remember my numbers" currently holds one set.
   Saving several named projects (still in localStorage) would let someone keep
   a sweater and a blanket going at once.

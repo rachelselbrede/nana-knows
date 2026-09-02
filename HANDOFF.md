@@ -184,10 +184,10 @@ This is the biggest gap now that the maths is tested, and it is mostly writing.
 
 Ordered by value per hour. All respect the no-backend rule.
 
-1. **A swatch-to-gauge helper.** Right now you must normalise "I counted 22
-   stitches over 4.25 inches" to a per-4-in figure by hand — which is exactly
-   the arithmetic Nana exists to do. A small popover taking stitches counted and
-   width measured is the most Nana-ish feature not yet built.
+1. ~~**A swatch-to-gauge helper.**~~ Shipped 1 September 2026: a "Help me
+   count my swatch" disclosure under the swatch fields, backed by
+   `swatchToGauge()` in `parse.js`. Stitches and rows, live arithmetic, and a
+   button that writes the answer into the gauge fields.
 2. ~~**An all-sizes comparison table.**~~ Shipped 31 August 2026 in `1c24f84`;
    see the top of this file. The README carries its screenshot.
 3. **Yarn estimate adjusted for gauge.** Knitting looser eats more yarn for the

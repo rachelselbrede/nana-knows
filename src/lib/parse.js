@@ -197,3 +197,16 @@ export const metresToYards = (n) => n / 0.9144;
    span, so this converts properly rather than pretending 4 in is 10 cm. */
 export const gaugePer4inToPer10cm = (n) => (n * 10) / 10.16;
 export const gaugePer10cmToPer4in = (n) => (n * 10.16) / 10;
+
+/* A swatch is rarely counted over exactly 4 in or 10 cm. Knitters count
+   whatever the swatch gives them — "22 stitches across 4¼ in" — and the
+   per-swatch figure a pattern quotes is a rule of three away, which is the
+   step beginners skip or get wrong. `counted` and `over` are raw field text,
+   so a Spanish "4,25" reads as four and a quarter. Returns the gauge over
+   `span`, or null while either field is empty, unreadable, or zero. */
+export const swatchToGauge = (counted, over, span) => {
+  const c = parseOne(counted);
+  const o = parseOne(over);
+  if (c === null || o === null) return null;
+  return r1((c / o) * span);
+};

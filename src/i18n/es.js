@@ -90,6 +90,10 @@ export default {
     myGauge: "p. ej. 19",
     perSkein: inch ? "p. ej. 220" : "p. ej. 200",
     skeins: "p. ej. 5",
+    swatchStitches: "p. ej. 22",
+    swatchAcross: inch ? "p. ej. 4.25" : "p. ej. 11",
+    swatchRows: "p. ej. 30",
+    swatchTall: inch ? "p. ej. 4.5" : "p. ej. 11.5",
   }),
 
   button: { ask: "Pregúntale a Nana" },
@@ -132,6 +136,24 @@ export default {
       "Mídete dos veces. Si los números no coinciden, usa el mayor y confía en él.",
     ],
     tip: "¿No tienes quien te ayude ni un espejo de cuerpo entero? Mide un suéter que ya te quede bien, extendido en plano, y duplica el ancho del pecho.",
+  },
+
+  /* La ayuda con la muestra. Una tejedora cuenta lo que le dé su muestra;
+     Nana lo convierte a los puntos por 4 in o por 10 cm que piden los campos
+     de arriba. */
+  swatch: {
+    summary: "Ayúdame a contar mi muestra",
+    intro: ({ spanLabel }) =>
+      `¿Contaste tu muestra, pero no sobre ${spanLabel} exactos? Dile a Nana cuánto contaste y cuánto midió, y ella te hace la cuenta, mija.`,
+    stitches: "Puntos que contaste",
+    across: ({ lenU }) => `En cuánto de ancho (${lenU})`,
+    rows: "Filas que contaste",
+    tall: ({ lenU }) => `En cuánto de alto (${lenU})`,
+    stitchesOut: ({ gauge, gaugeLabel }) => `Eso da ${gauge} ${gaugeLabel}.`,
+    rowsOut: ({ gauge, rowGaugeLabel }) => `Eso da ${gauge} ${rowGaugeLabel}.`,
+    use: "Usar estos números",
+    used: "Nana ya los anotó arriba, en los campos de tu muestra.",
+    tip: "Mide en el centro de la muestra, lejos de los bordes, y cuenta también los medios puntos. Si la prenda terminada se va a lavar, lava y deja reposar la muestra antes: ese es el número honesto.",
   },
 
   save: {

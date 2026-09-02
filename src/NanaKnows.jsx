@@ -12,6 +12,7 @@ import {
   metresToYards,
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
+  swatchToGauge,
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
 
@@ -350,6 +351,14 @@ export default function NanaKnows() {
   const [myGauge, setMyGauge] = useState("");
   const [myRowGauge, setMyRowGauge] = useState("");
 
+  /* The swatch helper's scratch fields. Never saved, never shared: they are
+     the working-out, and the two gauge fields above are the answer. */
+  const [swatchSts, setSwatchSts] = useState("");
+  const [swatchAcross, setSwatchAcross] = useState("");
+  const [swatchRows, setSwatchRows] = useState("");
+  const [swatchTall, setSwatchTall] = useState("");
+  const [swatchUsed, setSwatchUsed] = useState(false);
+
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
 
@@ -390,6 +399,9 @@ export default function NanaKnows() {
     setMyGauge(convertOne(myGauge, gauge));
     setPatternRowGauge(convertOne(patternRowGauge, gauge));
     setMyRowGauge(convertOne(myRowGauge, gauge));
+    /* The helper's widths are lengths; its counts are just counts. */
+    setSwatchAcross(convertOne(swatchAcross, len));
+    setSwatchTall(convertOne(swatchTall, len));
     setResults(null); // old advice is in the old units
     setUnits(next);
     /* Say so. Eight fields just changed and the advice vanished; to a screen
@@ -753,6 +765,34 @@ export default function NanaKnows() {
     return [head, ...rest].join(" · ") + badge;
   };
 
+  /* ---------- the swatch helper ----------
+     Live arithmetic, but nothing lands in the gauge fields until the knitter
+     says so: a half-typed width would otherwise overwrite a gauge she had
+     entered by hand. `swatchUsed` is a flag, not a sentence, so the
+     confirmation re-words itself on a language switch like everything else. */
+  const swatchStsGauge = swatchToGauge(swatchSts, swatchAcross, swatchSpan);
+  const swatchRowsGauge = swatchToGauge(swatchRows, swatchTall, swatchSpan);
+  const swatchReady = swatchStsGauge !== null || swatchRowsGauge !== null;
+  const applySwatch = () => {
+    if (!swatchReady) return;
+    if (swatchStsGauge !== null) setMyGauge(String(swatchStsGauge));
+    if (swatchRowsGauge !== null) setMyRowGauge(String(swatchRowsGauge));
+    setSwatchUsed(true);
+  };
+  /* Typing in the helper again means the confirmation no longer describes
+     what is in the fields above; retire it rather than let it lie. */
+  const editSwatch = (set) => (e) => {
+    set(e.target.value);
+    setSwatchUsed(false);
+  };
+  /* The helper's inputs sit inside the big form, so Enter would ask Nana with
+     a gauge she has not been handed yet. Apply instead. */
+  const onSwatchKey = (e) => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    applySwatch();
+  };
+
   /* A shared link filled the form; run Nana once the inputs have settled. */
   useEffect(() => {
     if (!pendingAutoRun) return;
@@ -988,6 +1028,56 @@ export default function NanaKnows() {
                 <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
               </label>
             </div>
+
+            {/* the swatch helper */}
+            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
+              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
+                {t("swatch.summary")}
+              </summary>
+              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
+                <p className="mb-3">{t("swatch.intro", { spanLabel: `${swatchSpan} ${lenU}` })}</p>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("swatch.stitches")}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchSts} onChange={editSwatch(setSwatchSts)} onKeyDown={onSwatchKey} placeholder={ph.swatchStitches} />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("swatch.across", { lenU })}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchAcross} onChange={editSwatch(setSwatchAcross)} onKeyDown={onSwatchKey} placeholder={ph.swatchAcross} />
+                  </label>
+                  {/* Always in the DOM, so the live region exists before it has
+                      anything to announce. */}
+                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+                    {swatchStsGauge !== null ? t("swatch.stitchesOut", { gauge: swatchStsGauge, gaugeLabel }) : ""}
+                  </p>
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("swatch.rows")}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchRows} onChange={editSwatch(setSwatchRows)} onKeyDown={onSwatchKey} placeholder={ph.swatchRows} />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("swatch.tall", { lenU })}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchTall} onChange={editSwatch(setSwatchTall)} onKeyDown={onSwatchKey} placeholder={ph.swatchTall} />
+                  </label>
+                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+                    {swatchRowsGauge !== null ? t("swatch.rowsOut", { gauge: swatchRowsGauge, rowGaugeLabel }) : ""}
+                  </p>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={applySwatch}
+                    disabled={!swatchReady}
+                    className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
+                  >
+                    {t("swatch.use")}
+                  </button>
+                  <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{swatchUsed ? t("swatch.used") : ""}</span>
+                </div>
+                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("swatch.tip")}</p>
+              </div>
+            </details>
+
             <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
               <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
                 {t("measure.summary")}
