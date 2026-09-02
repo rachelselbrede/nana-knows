@@ -14,6 +14,11 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - **Recommends which pattern size to make** from your body measurement plus the
   ease you like — and if you give her your own swatch gauge, she first works out
   what each size would *really* measure in your hands, and picks from that.
+- **Lays every size on the table.** One ask, and each size the pattern offers
+  is compared side by side: what it would really measure in your hands, how
+  far that lands from your aim, the yarn it calls for, and whether your basket
+  covers it — with Nana's pick marked. Handy when you land between sizes, or
+  the stash is what it is.
 - **Checks whether the yarn in your basket covers it**, with a 10% just-in-case
   cushion, because running out at the second sleeve is heartbreak.
 - **Checks row gauge too**, so you know whether the pattern's row counts will
@@ -33,6 +38,8 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 
 ![Nana's four advice cards: the right size, your yarn basket, your tension, your length](docs/images/nana-advice.png)
 
+![Every size at a glance: a table of each pattern size with its real measurement, distance from your aim, yardage, and whether your basket covers it](docs/images/nana-table.png)
+
 ## Run her locally
 
 ```bash
@@ -46,7 +53,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 160 tests on Node's built-in runner, no test
+runs the arithmetic suite — 175 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ## Deploying
@@ -67,8 +74,6 @@ should break the "no backend, nothing collected" rule.
 
 - **A swatch-to-gauge helper** — "I counted 22 stitches over 4.25 inches" is
   exactly the arithmetic Nana exists to do, and today you still do it by hand.
-- **An all-sizes comparison table** — every size with its real, gauge-adjusted
-  measurement and a tick or cross against your stash.
 - **Multiple saved projects** — "remember my numbers" currently holds one set.
   Saving several named projects (still in localStorage) would let someone keep
   a sweater and a blanket going at once.

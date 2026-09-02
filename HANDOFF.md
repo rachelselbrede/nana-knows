@@ -1,19 +1,29 @@
 # Nana Knows — handoff
 
 Written 19 August 2026 at commit `ca1cd65`; head section refreshed 20 August
-2026 on the `nana-upgrades` branch. Read `CLAUDE.md` first for how the code
-works; this file is about where the project stands and where it could go.
+2026 on the `nana-upgrades` branch, and again 1 September 2026 after that
+branch merged. Read `CLAUDE.md` first for how the code works; this file is
+about where the project stands and where it could go.
 
 ---
 
 ## Read this bit first
 
-The warnings that used to sit here are resolved. The two sandbox commits
-(`ca1cd65`, `60bb321`) are on `main` and pushed. The dependency bumps that were
-loose in the working tree — React 19, Vite 8, plugin-react 6, Tailwind 4.3 —
-were installed fresh, built, tested, and clicked through, and now live as
-proper commits on the **`nana-upgrades` branch**, together with a day of fixes
-that came out of a full audit:
+Everything is on `main` and live. The `nana-upgrades` batch described below
+merged and deployed on 31 August 2026, and two things have shipped since:
+
+- **The all-sizes comparison table** (`1c24f84`) — item 2 of the feature list
+  further down. `sizeTable()` in `advice.js` lays out every pattern size with
+  its gauge-adjusted real measurement, distance from the aim, yardage and a
+  basket verdict; the verdicts run `adviseYarn`'s exact cushion arithmetic so
+  the table can never disagree with the yarn card above it. Columns appear
+  only when they have something to say. Fifteen tests, both dictionaries.
+- **The measuring sweater redrawn** (`ed55778` and two follow-ups) — proper
+  flat-lay proportions, cabled front, tape from side seam to side seam.
+
+For the record, the `nana-upgrades` branch was the dependency bumps — React
+19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
+clicked through, together with a day of fixes that came out of a full audit:
 
 - every single-value field reads through a comma-aware `parseOne` (a Spanish
   knitter's `17,5` used to lose its half to `parseFloat`), and the list parser
@@ -31,9 +41,8 @@ that came out of a full audit:
   issue template in Nana's voice, `engines` field, and a Pages workflow that
   no longer cancels a deploy mid-flight.
 
-The branch exists so the whole batch can be reviewed (or reverted) as one
-thing; merging it to `main` deploys it. `docs/REVIEW.md` is the audit that
-drove the priorities.
+`docs/REVIEW.md` is the audit that drove those priorities, and still ranks
+what is left.
 
 ---
 
@@ -51,6 +60,9 @@ you choose to share.
 
 Shipped features, in rough order of how much work they were:
 
+- **Every size at a glance** — a table under the four cards comparing each
+  pattern size: real gauge-adjusted measurement, distance from the aim,
+  yardage, basket verdict, Nana's pick and any close call marked.
 - **Bilingual** English / neutral Latin American Spanish, switchable at any time.
 - **Share links** — every field encoded in the URL (`s` sizes, `y` yardage, `b`
   measurement, `pg`/`prg`/`mg`/`mrg` gauges, `ps`/`sk` basket, `u` units, `c`
@@ -132,12 +144,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 129 tests, 16 suites, all passing, ~75 ms, zero dependencies.
+- 175 tests, 20 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 95 keys, parity enforced by test in both directions,
+- Both dictionaries at 113 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is 983 lines.
+- `NanaKnows.jsx` is about 1,190 lines.
 
 ---
 
@@ -176,10 +188,8 @@ Ordered by value per hour. All respect the no-backend rule.
    stitches over 4.25 inches" to a per-4-in figure by hand — which is exactly
    the arithmetic Nana exists to do. A small popover taking stitches counted and
    width measured is the most Nana-ish feature not yet built.
-2. **An all-sizes comparison table.** Every size, with the pattern's measurement,
-   the gauge-adjusted real measurement, the yardage, and a tick or cross against
-   your stash. Turns a calculator into a decision tool, reuses maths that already
-   exists, and demos beautifully in a screenshot — which the README needs anyway.
+2. ~~**An all-sizes comparison table.**~~ Shipped 31 August 2026 in `1c24f84`;
+   see the top of this file. The README carries its screenshot.
 3. **Yarn estimate adjusted for gauge.** Knitting looser eats more yarn for the
    same stitch counts. Even a first-order `pg/ug` scaling with an honest "this is
    a rough guide, dear" beats ignoring it.
