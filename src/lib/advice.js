@@ -79,39 +79,60 @@ export function adviseSize({ sizes, bust, ease, patternGauge, myGauge, closeGap 
    Nana adds 10% because running out at the second sleeve is heartbreak. */
 export const YARN_CUSHION = 1.1;
 
-export function adviseYarn({ yards, sizes, bestIdx, perSkein, skeins }) {
+/* A pattern's yardage assumes the pattern's gauge. Nana picks a size by
+   stitch count, so a tight knitter follows a bigger size that comes out
+   smaller — and less fabric wants less yarn. A loose knitter is the other
+   way round, which is the case that ends at the second sleeve. To first
+   order the yarn in a piece scales with the size of each stitch, and stitch
+   size is 1/gauge, so the pattern's figure is multiplied by pg/ug. Row
+   gauge, stitch pattern and the yarn itself all tug at that, which is why
+   every sentence built on it calls it a rough guide. Whole yards or metres,
+   like the figure it adjusts; unchanged while either gauge is missing. */
+export const yarnAtGauge = (need, patternGauge, myGauge) => {
+  const pg = num(patternGauge);
+  const ug = num(myGauge);
+  if (pg === null || ug === null) return need;
+  return Math.round((need * pg) / ug);
+};
+
+export function adviseYarn({ yards, sizes, bestIdx, perSkein, skeins, patternGauge, myGauge }) {
   const list = Array.isArray(yards) ? yards : [];
   const mismatch = list.length > 0 && list.length !== (sizes ? sizes.length : 0);
 
   if (list.length === 0) return { kind: "needSizes", tone: "ask", mismatch: false };
   if (list.length <= bestIdx) return { kind: "listShort", tone: "warn", mismatch: false };
 
-  const need = list[bestIdx];
+  /* `need` is what this knitter will use; `patternNeed` is what the pattern
+     printed, kept so the wording can show its working. The adjustment is
+     only worth a sentence when it actually moved the number. */
+  const patternNeed = list[bestIdx];
+  const need = yarnAtGauge(patternNeed, patternGauge, myGauge);
+  const gaugeAdjusted = need !== patternNeed;
+  const tighter = gaugeAdjusted && num(myGauge) > num(patternGauge);
   const buffered = Math.ceil(need * YARN_CUSHION);
   const per = num(perSkein);
   const cnt = num(skeins);
+  const common = { need, patternNeed, gaugeAdjusted, tighter, buffered, mismatch };
 
   if (per === null || cnt === null) {
-    return { kind: "askBasket", tone: "ask", need, buffered, mismatch };
+    return { kind: "askBasket", tone: "ask", ...common };
   }
 
   const have = r1(per * cnt);
   if (have >= buffered) {
-    return { kind: "allSet", tone: "ok", need, buffered, have, mismatch };
+    return { kind: "allSet", tone: "ok", ...common, have };
   }
   if (have >= need) {
-    return { kind: "justCovers", tone: "warn", need, buffered, have, mismatch };
+    return { kind: "justCovers", tone: "warn", ...common, have };
   }
   const shortAmt = Math.ceil(buffered - have);
   return {
     kind: "short",
     tone: "warn",
-    need,
-    buffered,
+    ...common,
     have,
     shortAmt,
     moreSkeins: Math.ceil(shortAmt / per),
-    mismatch,
   };
 }
 
@@ -198,8 +219,10 @@ export function sizeTable({
     const diff = r1(actual - r1(target));
 
     /* Yardage lines up with sizes by position; a shorter list simply runs
-       out, and the missing cells stay honest blanks instead of guesses. */
-    const need = i < list.length ? list[i] : null;
+       out, and the missing cells stay honest blanks instead of guesses.
+       Scaled for gauge exactly as the yarn card scales its own figure. */
+    const patternNeed = i < list.length ? list[i] : null;
+    const need = patternNeed === null ? null : yarnAtGauge(patternNeed, patternGauge, myGauge);
 
     let stash = null;
     let shortAmt = null;
@@ -218,6 +241,7 @@ export function sizeTable({
       actual,
       diff,
       need,
+      patternNeed,
       stash,
       shortAmt,
       best: i === bestIdx,
@@ -232,6 +256,9 @@ export function sizeTable({
     /* Whether the basket column has anything to say. A stocked basket with no
        yardage list would otherwise draw a whole column of dashes. */
     hasVerdicts: rows.some((r) => r.stash !== null),
+    /* Whether the yarn column shows something other than the pattern's own
+       figures — worth a footnote, and only then. */
+    yarnAdjusted: rows.some((r) => r.need !== null && r.need !== r.patternNeed),
     target: r1(target),
   };
 }

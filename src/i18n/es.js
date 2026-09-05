@@ -205,6 +205,10 @@ export default {
         `Ay, mi vida. Tienes ${have} ${yarnU} pero esta talla quiere ${need} ${yarnU} (${buffered} con un colchón seguro). Consigue unos ${shortAmt} ${yarnU} más, más o menos ${moreSkeins} ${moreSkeins === 1 ? "madeja" : "madejas"} más, antes de empezar.`,
       mismatch:
         " P. D. Tu lista de tallas y la de lana tienen distinto largo, así que dales una miradita.",
+      /* Se añade cuando la lana se ajustó a la muestra de quien teje, para
+         que la cifra de arriba no parezca una errata de la del patrón. */
+      adjusted: ({ patternNeed, need, tighter, yarnU }) =>
+        ` El patrón indica ${patternNeed} ${yarnU} para esta talla, pero tus puntos son ${tighter ? "más chicos" : "más grandes"} que los de su muestra, así que Nana calcula unos ${need} ${yarnU} en tus manos. Es un cálculo aproximado, mi vida, y justo para eso está el colchoncito.`,
     },
 
     gauge: {
@@ -252,10 +256,13 @@ export default {
     plenty: "de sobra",
     justEnough: "apenas alcanza",
     short: ({ shortAmt, yarnU }) => `faltan ${shortAmt} ${yarnU}`,
-    note: ({ gaugeAdjusted, hasVerdicts }) =>
+    note: ({ gaugeAdjusted, hasVerdicts, yarnAdjusted }) =>
       [
         gaugeAdjusted
           ? "«Te saldría» es lo que cada talla mediría de verdad en tus manos."
+          : "",
+        yarnAdjusted
+          ? "La columna de lana también está ajustada a tu muestra, como cálculo aproximado."
           : "",
         hasVerdicts
           ? "La columna de la canasta ya incluye el colchoncito del 10 % de Nana por si acaso."
@@ -287,7 +294,7 @@ export default {
     size:
       "tu medida del cuerpo más la holgura que elegiste dan un objetivo. Nana elige la talla del patrón cuya medida terminada quede más cerca. Si le diste tu propia muestra, primero ajusta cada talla a cómo saldría de verdad en tus manos.",
     yarn:
-      "lee la cantidad de lana de tu talla, le suma un colchón del 10 % porque quedarse sin lana en la segunda manga parte el alma, y lo compara con las madejas por su metraje en tu canasta.",
+      "lee la cantidad de lana de tu talla (ajustada a tu muestra si se la diste, porque los puntos más chicos llevan menos lana y los más grandes, más), le suma un colchón del 10 % porque quedarse sin lana en la segunda manga parte el alma, y lo compara con las madejas por su metraje en tu canasta.",
     tension:
       "el ancho terminado es la cantidad de puntos dividida entre la muestra. Si tu muestra difiere de la del patrón, las mismas instrucciones dan otra talla, así que ella te hace esa cuenta.",
     length:

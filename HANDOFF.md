@@ -190,9 +190,10 @@ Ordered by value per hour. All respect the no-backend rule.
    button that writes the answer into the gauge fields.
 2. ~~**An all-sizes comparison table.**~~ Shipped 31 August 2026 in `1c24f84`;
    see the top of this file. The README carries its screenshot.
-3. **Yarn estimate adjusted for gauge.** Knitting looser eats more yarn for the
-   same stitch counts. Even a first-order `pg/ug` scaling with an honest "this is
-   a rough guide, dear" beats ignoring it.
+3. ~~**Yarn estimate adjusted for gauge.**~~ Shipped 1 September 2026:
+   `yarnAtGauge()` in `advice.js` scales the pattern's figure by `pg/ug` for
+   the yarn card and the table alike, with a postscript that shows the
+   pattern's number beside Nana's and calls it a rough guide.
 4. **Multiple saved projects** — a named picker over the same localStorage. The
    natural follow-on now that share links exist.
 5. **Grams as well as yards.** Many European ball bands lead with weight.

@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 183 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 194 tests, ~75ms, zero dependencies
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
@@ -27,9 +27,9 @@ src/
                     parseOne is the only correct way to read a single-value field.
   lib/advice.js     the arithmetic. Numbers in, {kind, tone, ...numbers} out.
   i18n/index.jsx    I18nProvider / useI18n / t(). ~90 lines.
-  i18n/en.js        124 keys
-  i18n/es.js        124 keys, same shape
-  *.test.js         parse 64, advice 62, wording 57
+  i18n/en.js        125 keys
+  i18n/es.js        125 keys, same shape
+  *.test.js         parse 64, advice 69, wording 61
 ```
 
 ### The load-bearing idea
@@ -90,6 +90,12 @@ Size maths: `target = measurement + ease`; a pattern size `s` is a stitch count
 of `s*pg/4`, so worked at your gauge it comes out `s*pg/ug` wide. Best size
 minimises `|realWidth(s) - target|`. The runner-up ranks **by fit**, not by
 nearness in inches — those differ on unevenly spaced size ranges.
+
+Yardage at your gauge is the pattern's figure × `pg/ug` (first order: yarn per
+stitch follows stitch size, which is one over gauge), rounded to whole yards.
+`yarnAtGauge()` does it for the yarn card and for every table row — one
+function, so the two cannot disagree — and the wording only mentions the
+scaling when it actually moved the number.
 
 ## Voice
 

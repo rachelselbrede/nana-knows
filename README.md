@@ -20,7 +20,10 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
   covers it — with Nana's pick marked. Handy when you land between sizes, or
   the stash is what it is.
 - **Checks whether the yarn in your basket covers it**, with a 10% just-in-case
-  cushion, because running out at the second sleeve is heartbreak.
+  cushion, because running out at the second sleeve is heartbreak. If she has
+  your gauge she scales the pattern's yardage first — smaller stitches take
+  less yarn, bigger ones more — and shows both figures so you can see her
+  working.
 - **Checks row gauge too**, so you know whether the pattern's row counts will
   land at the length it intended, and how many rows to work instead if not.
 - **Turns a counted swatch into a gauge.** "22 stitches across 4¼ inches" is

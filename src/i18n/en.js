@@ -205,6 +205,11 @@ export default {
         `Oh dear. You have ${have} ${yarnU} but this size wants ${need} ${yarnU} (${buffered} with a safe cushion). Pick up about ${shortAmt} more ${yarnU}, roughly ${moreSkeins} more ${moreSkeins === 1 ? "skein" : "skeins"}, before you start.`,
       mismatch:
         " P.S. Your sizes and yardage lists are different lengths, so give them a quick once-over.",
+      /* Appended whenever the yardage was scaled for the knitter's gauge, so
+         the figure in the sentence above never looks like a misprint of the
+         one in her pattern. */
+      adjusted: ({ patternNeed, need, tighter, yarnU }) =>
+        ` The pattern quotes ${patternNeed} ${yarnU} for this size, but your stitches are ${tighter ? "smaller" : "bigger"} than its gauge, so Nana reckons about ${need} ${yarnU} in your hands. That is a rough guide, dear, which is exactly what the cushion is for.`,
     },
 
     gauge: {
@@ -252,10 +257,13 @@ export default {
     plenty: "plenty",
     justEnough: "just enough",
     short: ({ shortAmt, yarnU }) => `short ${shortAmt} ${yarnU}`,
-    note: ({ gaugeAdjusted, hasVerdicts }) =>
+    note: ({ gaugeAdjusted, hasVerdicts, yarnAdjusted }) =>
       [
         gaugeAdjusted
           ? "“Comes out” is what each size would really measure in your hands."
+          : "",
+        yarnAdjusted
+          ? "The yarn column is scaled for your gauge too, as a rough guide."
           : "",
         hasVerdicts
           ? "The basket column already includes Nana's 10% just-in-case cushion."
@@ -287,7 +295,7 @@ export default {
     size:
       "your body measurement plus your chosen ease gives a target. Nana picks the pattern size whose finished measurement lands closest to it. If you gave her your own gauge, she first adjusts each size to how it would really come out in your hands.",
     yarn:
-      "she reads the yardage for your size, adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.",
+      "she reads the yardage for your size — scaled for your gauge if she has it, since smaller stitches take less yarn and bigger ones more — adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.",
     tension:
       "finished width is stitch count divided by gauge. If your gauge differs from the pattern's, the same instructions produce a different size, so she does that arithmetic for you.",
     length:

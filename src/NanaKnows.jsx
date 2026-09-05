@@ -629,7 +629,7 @@ export default function NanaKnows() {
       bust: b,
       easeIdx,
       size,
-      yarn: adviseYarn({ yards, sizes, bestIdx: size.bestIdx, perSkein, skeins }),
+      yarn: adviseYarn({ yards, sizes, bestIdx: size.bestIdx, perSkein, skeins, patternGauge, myGauge }),
       gauge: adviseGauge({ patternGauge, myGauge, best: size.best }),
       row: adviseRows({ patternRowGauge, myRowGauge, swatchSpan }),
       /* Null when there is only one size — nothing to compare. The best and
@@ -713,8 +713,15 @@ export default function NanaKnows() {
 
   const yarnText = () => {
     const y = results.yarn;
-    const body = t(`result.yarn.${y.kind}`, { ...y, best: results.size.best, yarnU: said().yarnU });
-    return y.mismatch ? body + t("result.yarn.mismatch") : body;
+    const yarnU = said().yarnU;
+    const body = t(`result.yarn.${y.kind}`, { ...y, best: results.size.best, yarnU });
+    /* Postscripts in a fixed order: the gauge working first, because it
+       explains the figure just quoted, then the list-length nag. */
+    return (
+      body +
+      (y.gaugeAdjusted ? t("result.yarn.adjusted", { ...y, yarnU }) : "") +
+      (y.mismatch ? t("result.yarn.mismatch") : "")
+    );
   };
 
   const gaugeText = () => {
@@ -745,6 +752,7 @@ export default function NanaKnows() {
     t("table.note", {
       gaugeAdjusted: results.table.gaugeAdjusted,
       hasVerdicts: results.table.hasVerdicts,
+      yarnAdjusted: results.table.yarnAdjusted,
     });
 
   /* One table row as a line of plain text, for the Ravelry copy below. */

@@ -465,3 +465,77 @@ describe("adviseRows", () => {
     assert.equal(adviseRows({ patternRowGauge: "24,5", myRowGauge: "24.5", swatchSpan: 10 }).kind, "match");
   });
 });
+
+describe("adviseYarn: scaled for the knitter's gauge", () => {
+  /* Size 48 quotes 1400 yds. At 21 stitches against the pattern's 18, each
+     stitch is 18/21 the size, so the same instructions eat 18/21 the yarn. */
+  const at = (over) =>
+    adviseYarn({
+      yards: YARDS, sizes: SIZES, bestIdx: 4, perSkein: 220, skeins: 7,
+      patternGauge: 18, myGauge: 21, ...over,
+    });
+
+  test("a tight knitter's bigger size wants less yarn than the pattern printed", () => {
+    const r = at();
+    assert.equal(r.patternNeed, 1400);
+    assert.equal(r.need, 1200);
+    assert.equal(r.gaugeAdjusted, true);
+    assert.equal(r.tighter, true);
+    assert.equal(r.buffered, Math.ceil(1200 * 1.1));
+    assert.equal(r.kind, "allSet");
+  });
+
+  test("a loose knitter needs more, which is the heartbreak case", () => {
+    const r = at({ myGauge: 16 });
+    assert.equal(r.need, 1575);
+    assert.equal(r.tighter, false);
+    /* 7 x 220 = 1540 covered the pattern's 1400 handsomely; not this. */
+    assert.equal(r.kind, "short");
+  });
+
+  test("with either gauge missing the pattern's figure stands, unadjusted", () => {
+    for (const over of [{ myGauge: null }, { patternGauge: "" }]) {
+      const r = at(over);
+      assert.equal(r.need, 1400);
+      assert.equal(r.gaugeAdjusted, false);
+      assert.equal(r.tighter, false);
+    }
+  });
+
+  test("matching gauges change nothing, and claim nothing", () => {
+    const r = at({ myGauge: 18 });
+    assert.equal(r.need, 1400);
+    assert.equal(r.gaugeAdjusted, false);
+  });
+
+  test("string gauges, as the fields deliver them, work too", () => {
+    assert.equal(at({ patternGauge: "18", myGauge: "21" }).need, 1200);
+  });
+
+  test("the table's yarn column and verdicts agree with the card at every size", () => {
+    const tbl = sizeTable({
+      sizes: SIZES, yards: YARDS, bust: 38, ease: 2, patternGauge: 18, myGauge: 21,
+      perSkein: 220, skeins: 6, bestIdx: 4, runnerUp: null,
+    });
+    assert.equal(tbl.yarnAdjusted, true);
+    tbl.rows.forEach((row, i) => {
+      const card = adviseYarn({
+        yards: YARDS, sizes: SIZES, bestIdx: i, perSkein: 220, skeins: 6,
+        patternGauge: 18, myGauge: 21,
+      });
+      assert.equal(row.need, card.need, `size ${row.size}`);
+      assert.equal(row.patternNeed, YARDS[i]);
+      const verdict = { allSet: "plenty", justCovers: "justEnough", short: "short" }[card.kind];
+      assert.equal(row.stash, verdict, `size ${row.size}`);
+    });
+  });
+
+  test("the table only claims an adjustment when a number actually moved", () => {
+    const tbl = sizeTable({
+      sizes: SIZES, yards: YARDS, bust: 38, ease: 2, patternGauge: 18, myGauge: 18,
+      perSkein: 220, skeins: 6, bestIdx: 2, runnerUp: null,
+    });
+    assert.equal(tbl.yarnAdjusted, false);
+    assert.equal(tbl.rows[4].need, 1400);
+  });
+});

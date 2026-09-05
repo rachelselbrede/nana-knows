@@ -150,10 +150,12 @@ for (const lang of LANGS) {
 
     /* ---------- the all-sizes table ---------- */
     test("the size table: headers, badges and every basket verdict", () => {
-      /* A basket sized so the table produces all three verdicts at once. */
+      /* A basket sized so the table produces all three verdicts at once —
+         against the yardage as scaled for a 21-against-18 knitter, which is
+         what the table now shows. */
       const tbl = sizeTable({
         sizes: SIZES, yards: YARDS, bust: 38, ease: 2,
-        patternGauge: 18, myGauge: 21, perSkein: 220, skeins: 6,
+        patternGauge: 18, myGauge: 21, perSkein: 220, skeins: 5,
         bestIdx: 4, runnerUp: 44,
       });
       assert.ok(tbl.gaugeAdjusted && tbl.hasVerdicts, "the fixture went quiet");
@@ -300,6 +302,31 @@ for (const lang of LANGS) {
       for (const key of ["swatchStitches", "swatchAcross", "swatchRows", "swatchTall"]) {
         assert.ok(ph[key], `${lang} ph.${key} is missing`);
       }
+    });
+  });
+}
+
+/* ---------- yardage scaled for gauge ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the gauge postscript on the yarn card`, () => {
+    test("tight and loose, on a kind that quotes the figure", () => {
+      for (const myGauge of [21, 16]) {
+        const y = adviseYarn({ yards: YARDS, sizes: SIZES, bestIdx: 4, perSkein: 220, skeins: 7, patternGauge: 18, myGauge });
+        assert.equal(y.gaugeAdjusted, true, "the fixture did not adjust");
+        const text =
+          say(lang, `result.yarn.${y.kind}`, { ...y, best: 48, yarnU: UNITS.yarnU }) +
+          say(lang, "result.yarn.adjusted", { ...y, yarnU: UNITS.yarnU });
+        assertSentence(text, `${lang} yarn/adjusted/${myGauge}`);
+        /* Both figures must appear, or the postscript is not showing its working. */
+        assert.ok(text.includes(String(y.patternNeed)) && text.includes(String(y.need)), text);
+      }
+    });
+
+    test("the table note mentions the yarn column only when it was scaled", () => {
+      const scaled = say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true, yarnAdjusted: true });
+      const plain = say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true, yarnAdjusted: false });
+      assertSentence(scaled, `${lang} table/note/scaled`);
+      assert.ok(scaled.length > plain.length && scaled.startsWith(plain.split(" ")[0]));
     });
   });
 }
