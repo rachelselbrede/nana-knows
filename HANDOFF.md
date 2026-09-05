@@ -10,7 +10,7 @@ about where the project stands and where it could go.
 ## Read this bit first
 
 Everything is on `main` and live. The `nana-upgrades` batch described below
-merged and deployed on 31 August 2026, and four things have shipped since:
+merged and deployed on 31 August 2026, and five things have shipped since:
 
 - **The all-sizes comparison table** (`1c24f84`) — item 2 of the feature list
   further down. `sizeTable()` in `advice.js` lays out every pattern size with
@@ -27,6 +27,9 @@ merged and deployed on 31 August 2026, and four things have shipped since:
   multiplies the pattern's figure by `pg/ug` on the yarn card and in the
   table alike, with a postscript that shows both numbers and calls it a
   rough guide.
+- **The weighing helper** — grams on a kitchen scale become skeins in the
+  basket card, via `gramsToSkeins()`; the same disclosure pattern as the
+  swatch helper.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -151,12 +154,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 194 tests, 26 suites, all passing, ~75 ms, zero dependencies.
+- 200 tests, 29 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 125 keys, parity enforced by test in both directions,
+- Both dictionaries at 133 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,320 lines.
+- `NanaKnows.jsx` is about 1,380 lines.
 
 ---
 
@@ -203,7 +206,10 @@ Ordered by value per hour. All respect the no-backend rule.
    pattern's number beside Nana's and calls it a rough guide.
 4. **Multiple saved projects** — a named picker over the same localStorage. The
    natural follow-on now that share links exist.
-5. **Grams as well as yards.** Many European ball bands lead with weight.
+5. **Grams as well as yards.** Half shipped 1 September 2026: the basket can
+   be weighed ("Weighing your yarn instead?", backed by `gramsToSkeins()` in
+   `parse.js`) and the result lands in the skeins field. Still open: a
+   pattern that quotes its yarn in balls or grams per size rather than length.
 
 ### Structure, when it starts to hurt
 

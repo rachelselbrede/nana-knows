@@ -94,6 +94,8 @@ export default {
     swatchAcross: inch ? "p. ej. 4.25" : "p. ej. 11",
     swatchRows: "p. ej. 30",
     swatchTall: inch ? "p. ej. 4.5" : "p. ej. 11.5",
+    weighSkein: "p. ej. 100",
+    weighHave: "p. ej. 350",
   }),
 
   button: { ask: "Pregúntale a Nana" },
@@ -154,6 +156,21 @@ export default {
     use: "Usar estos números",
     used: "Nana ya los anotó arriba, en los campos de tu muestra.",
     tip: "Mide en el centro de la muestra, lejos de los bordes, y cuenta también los medios puntos. Si la prenda terminada se va a lavar, lava y deja reposar la muestra antes: ese es el número honesto.",
+  },
+
+  /* La ayuda con la báscula. Una báscula de cocina sabe cuánto queda de un
+     ovillo empezado; Nana pasa los gramos a las madejas que pide la canasta. */
+  weigh: {
+    summary: "¿Pesas tu lana en vez de contarla?",
+    intro:
+      "Una báscula de cocina sabe mejor que nadie cuánto queda de un ovillo empezado, mija. Dile a Nana cuánto pesa una madeja completa y cuánto pesa toda tu lana junta, y ella lo convierte en madejas.",
+    skeinWeighs: "Una madeja completa pesa (g)",
+    haveWeighs: "Toda tu lana junta pesa (g)",
+    out: ({ skeins, yards, yarnU }) =>
+      `Eso es como ${skeins === 1 ? "una madeja" : `${skeins} madejas`}${yards !== null ? `, unos ${yards} ${yarnU}` : ""}.`,
+    use: "Usar ese número",
+    used: "Nana lo anotó en «Madejas que tienes».",
+    tip: "Pesa la lana sin la etiqueta ni el carrete, y si un ovillo ya está empezado, pesa lo que queda en vez de adivinar.",
   },
 
   save: {

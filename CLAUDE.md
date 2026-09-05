@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 194 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 200 tests, ~75ms, zero dependencies
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
@@ -21,15 +21,15 @@ the directory argument as a module path.
 
 ```
 src/
-  NanaKnows.jsx     ~1300 lines: palette, three SVG illustrations, all state,
+  NanaKnows.jsx     ~1380 lines: palette, three SVG illustrations, all state,
                     share/save/print plumbing, entire layout
   lib/parse.js      raw text -> numbers, unit conversion. Pure, no React, no language.
                     parseOne is the only correct way to read a single-value field.
   lib/advice.js     the arithmetic. Numbers in, {kind, tone, ...numbers} out.
   i18n/index.jsx    I18nProvider / useI18n / t(). ~90 lines.
-  i18n/en.js        125 keys
-  i18n/es.js        125 keys, same shape
-  *.test.js         parse 64, advice 69, wording 61
+  i18n/en.js        133 keys
+  i18n/es.js        133 keys, same shape
+  *.test.js         parse 68, advice 69, wording 63
 ```
 
 ### The load-bearing idea

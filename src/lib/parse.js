@@ -210,3 +210,14 @@ export const swatchToGauge = (counted, over, span) => {
   if (c === null || o === null) return null;
   return r1((c / o) * span);
 };
+
+/* A kitchen scale is the honest way to count part-used balls. Grams of yarn
+   over the grams a full skein weighs is skeins — the same rule of three as
+   the swatch — and it drops straight into the field the yarn card already
+   reads, so nothing downstream ever has to know about grams. */
+export const gramsToSkeins = (grams, gramsPerSkein) => {
+  const g = parseOne(grams);
+  const per = parseOne(gramsPerSkein);
+  if (g === null || per === null) return null;
+  return r1(g / per);
+};

@@ -29,6 +29,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - **Turns a counted swatch into a gauge.** "22 stitches across 4¼ inches" is
   not the number a pattern quotes; tell Nana what you counted and how wide it
   stretched, and she hands you the per-4-inch (or per-10-cm) figure. Rows too.
+- **Weighs your stash, too.** Tell her what a full skein weighs and what your
+  yarn weighs on the kitchen scale, part-used balls and all, and she turns it
+  into skeins for the basket.
 - **Reads numbers the way knitters write them.** `91,5`, `1,100`, `36 1/2`,
   `32-36`, `36½` — and she echoes back what she read, so a wrong guess is
   visible instead of silently changing the advice.
@@ -59,7 +62,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 194 tests on Node's built-in runner, no test
+runs the arithmetic suite — 200 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ## Deploying
@@ -81,7 +84,9 @@ should break the "no backend, nothing collected" rule.
 - **Multiple saved projects** — "remember my numbers" currently holds one set.
   Saving several named projects (still in localStorage) would let someone keep
   a sweater and a blanket going at once.
-- **Grams as well as yards** — many European ball bands lead with weight.
+- **A pattern that counts in balls or grams** — turning "7 (8, 9) balls of
+  50 g" into yardage per size from the band's numbers, so the yardage field is
+  not the only way in.
 
 Got another idea? Open an issue: "Tell Nana what to learn next" in the footer.
 

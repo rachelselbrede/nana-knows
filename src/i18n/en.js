@@ -95,6 +95,8 @@ export default {
     swatchAcross: inch ? "e.g. 4.25" : "e.g. 11",
     swatchRows: "e.g. 30",
     swatchTall: inch ? "e.g. 4.5" : "e.g. 11.5",
+    weighSkein: "e.g. 100",
+    weighHave: "e.g. 350",
   }),
 
   button: { ask: "Ask Nana" },
@@ -155,6 +157,21 @@ export default {
     use: "Use these numbers",
     used: "Nana popped those into your swatch fields above.",
     tip: "Measure in the middle of the swatch, away from the edges, and count the half stitches too. If the finished piece will be washed, wash and rest the swatch first — that is the honest number.",
+  },
+
+  /* The weighing helper. A kitchen scale knows what is left of a part-used
+     ball; Nana turns grams into the skeins figure the basket card wants. */
+  weigh: {
+    summary: "Weighing your yarn instead?",
+    intro:
+      "A kitchen scale knows what is left of a part-used ball better than anyone, dear. Tell Nana what a full skein weighs and what your yarn weighs altogether, and she will turn it into skeins.",
+    skeinWeighs: "A full skein weighs (g)",
+    haveWeighs: "Your yarn weighs altogether (g)",
+    out: ({ skeins, yards, yarnU }) =>
+      `That is about ${skeins === 1 ? "one skein's worth" : `${skeins} skeins' worth`}${yards !== null ? `, around ${yards} ${yarnU}` : ""}.`,
+    use: "Use that number",
+    used: "Nana wrote that into “Skeins you have”.",
+    tip: "Weigh the yarn without its band or bobbin, and if a ball has been wound off, weigh what is left rather than guessing.",
   },
 
   save: {

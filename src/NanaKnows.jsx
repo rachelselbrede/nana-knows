@@ -13,6 +13,8 @@ import {
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
   swatchToGauge,
+  gramsToSkeins,
+  r1,
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
 
@@ -358,6 +360,10 @@ export default function NanaKnows() {
   const [swatchRows, setSwatchRows] = useState("");
   const [swatchTall, setSwatchTall] = useState("");
   const [swatchUsed, setSwatchUsed] = useState(false);
+  /* The weighing helper's scratch, likewise. */
+  const [weighSkein, setWeighSkein] = useState("");
+  const [weighHave, setWeighHave] = useState("");
+  const [weighUsed, setWeighUsed] = useState(false);
 
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
@@ -787,19 +793,37 @@ export default function NanaKnows() {
     if (swatchRowsGauge !== null) setMyRowGauge(String(swatchRowsGauge));
     setSwatchUsed(true);
   };
-  /* Typing in the helper again means the confirmation no longer describes
-     what is in the fields above; retire it rather than let it lie. */
-  const editSwatch = (set) => (e) => {
+  /* Typing in a helper again means its confirmation no longer describes what
+     is in the field above; retire it rather than let it lie. */
+  const scratchEdit = (set, retire) => (e) => {
     set(e.target.value);
-    setSwatchUsed(false);
+    retire(false);
   };
-  /* The helper's inputs sit inside the big form, so Enter would ask Nana with
-     a gauge she has not been handed yet. Apply instead. */
-  const onSwatchKey = (e) => {
+  /* Helper inputs sit inside the big form, so Enter would ask Nana with a
+     number she has not been handed yet. Apply instead. */
+  const applyOnEnter = (apply) => (e) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-    applySwatch();
+    apply();
   };
+  const editSwatch = (set) => scratchEdit(set, setSwatchUsed);
+  const onSwatchKey = applyOnEnter(applySwatch);
+
+  /* ---------- the weighing helper ----------
+     Grams over grams-per-skein is skeins, which drops into the field the yarn
+     card already reads, so nothing downstream has to know about grams. The
+     yardage shown alongside is worked from the rounded skeins figure, so it is
+     exactly what the card will go on to use. */
+  const weighSkeins = gramsToSkeins(weighHave, weighSkein);
+  const weighPer = parseOne(perSkein);
+  const weighYards = weighSkeins !== null && weighPer !== null ? r1(weighSkeins * weighPer) : null;
+  const applyWeigh = () => {
+    if (weighSkeins === null) return;
+    setSkeins(String(weighSkeins));
+    setWeighUsed(true);
+  };
+  const editWeigh = (set) => scratchEdit(set, setWeighUsed);
+  const onWeighKey = applyOnEnter(applyWeigh);
 
   /* A shared link filled the form; run Nana once the inputs have settled. */
   useEffect(() => {
@@ -1123,6 +1147,42 @@ export default function NanaKnows() {
                 <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
               </label>
             </div>
+
+            {/* the weighing helper */}
+            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
+              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
+                {t("weigh.summary")}
+              </summary>
+              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
+                <p className="mb-3">{t("weigh.intro")}</p>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("weigh.skeinWeighs")}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={weighSkein} onChange={editWeigh(setWeighSkein)} onKeyDown={onWeighKey} placeholder={ph.weighSkein} />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("weigh.haveWeighs")}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={weighHave} onChange={editWeigh(setWeighHave)} onKeyDown={onWeighKey} placeholder={ph.weighHave} />
+                  </label>
+                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+                    {weighSkeins !== null ? t("weigh.out", { skeins: weighSkeins, yards: weighYards, yarnU }) : ""}
+                  </p>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={applyWeigh}
+                    disabled={weighSkeins === null}
+                    className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
+                  >
+                    {t("weigh.use")}
+                  </button>
+                  <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{weighUsed ? t("weigh.used") : ""}</span>
+                </div>
+                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("weigh.tip")}</p>
+              </div>
+            </details>
           </section>
 
           {/* ask button */}

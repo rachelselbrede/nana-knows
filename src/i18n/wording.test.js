@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import en from "./en.js";
 import es from "./es.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "../lib/advice.js";
-import { swatchToGauge } from "../lib/parse.js";
+import { swatchToGauge, gramsToSkeins } from "../lib/parse.js";
 
 const DICTS = { en, es };
 
@@ -327,6 +327,28 @@ for (const lang of LANGS) {
       const plain = say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true, yarnAdjusted: false });
       assertSentence(scaled, `${lang} table/note/scaled`);
       assert.ok(scaled.length > plain.length && scaled.startsWith(plain.split(" ")[0]));
+    });
+  });
+}
+
+/* ---------- the weighing helper ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the weighing helper has words`, () => {
+    test("intro, the result with and without yardage, one skein, the confirmation, the tip", () => {
+      const skeins = gramsToSkeins("350", "100");
+      assert.equal(skeins, 3.5);
+      assertSentence(say(lang, "weigh.intro"), `${lang} weigh/intro`);
+      assertSentence(say(lang, "weigh.out", { skeins, yards: 770, yarnU: UNITS.yarnU }), `${lang} weigh/out`);
+      assertSentence(say(lang, "weigh.out", { skeins, yards: null, yarnU: UNITS.yarnU }), `${lang} weigh/out/noYards`);
+      /* "1 skeins' worth" is the sort of thing that makes an app feel unloved. */
+      const one = say(lang, "weigh.out", { skeins: 1, yards: null, yarnU: UNITS.yarnU });
+      assert.ok(!/\b1 /.test(one), `one skein should read as words: ${one}`);
+      assertSentence(say(lang, "weigh.used"), `${lang} weigh/used`);
+      assertSentence(say(lang, "weigh.tip"), `${lang} weigh/tip`);
+      for (const key of ["summary", "use"]) assert.ok(say(lang, `weigh.${key}`).length > 3);
+      assert.ok(say(lang, "weigh.skeinWeighs").includes("(g)") && say(lang, "weigh.haveWeighs").includes("(g)"));
+      const ph = say(lang, "ph", { inch: true });
+      assert.ok(ph.weighSkein && ph.weighHave, `${lang} ph.weigh* missing`);
     });
   });
 }

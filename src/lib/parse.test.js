@@ -13,6 +13,7 @@ import {
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
   swatchToGauge,
+  gramsToSkeins,
   r1,
 } from "./parse.js";
 
@@ -299,5 +300,25 @@ describe("swatchToGauge: from a counted swatch to the gauge a pattern quotes", (
     assert.equal(swatchToGauge("22", "", 4), null);
     assert.equal(swatchToGauge("22", "0", 4), null);
     assert.equal(swatchToGauge("lots", "4", 4), null);
+  });
+});
+
+describe("gramsToSkeins: the kitchen scale, in skeins", () => {
+  test("350 g of a 100 g yarn is three and a half skeins", () => {
+    assert.equal(gramsToSkeins("350", "100"), 3.5);
+  });
+
+  test("a part-used 50 g ball reads to a tenth", () => {
+    assert.equal(gramsToSkeins("37", "50"), 0.7);
+  });
+
+  test("a European decimal weight reads as a decimal", () => {
+    assert.equal(gramsToSkeins("87,5", "50"), 1.8);
+  });
+
+  test("waits until both weights are there", () => {
+    assert.equal(gramsToSkeins("", "100"), null);
+    assert.equal(gramsToSkeins("350", ""), null);
+    assert.equal(gramsToSkeins("350", "0"), null);
   });
 });
