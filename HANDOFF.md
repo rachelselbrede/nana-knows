@@ -10,7 +10,7 @@ about where the project stands and where it could go.
 ## Read this bit first
 
 Everything is on `main` and live. The `nana-upgrades` batch described below
-merged and deployed on 31 August 2026, and two things have shipped since:
+merged and deployed on 31 August 2026, and four things have shipped since:
 
 - **The all-sizes comparison table** (`1c24f84`) — item 2 of the feature list
   further down. `sizeTable()` in `advice.js` lays out every pattern size with
@@ -20,6 +20,13 @@ merged and deployed on 31 August 2026, and two things have shipped since:
   only when they have something to say. Fifteen tests, both dictionaries.
 - **The measuring sweater redrawn** (`ed55778` and two follow-ups) — proper
   flat-lay proportions, cabled front, tape from side seam to side seam.
+- **The swatch helper** (`02ad33a`) — "Help me count my swatch" under the
+  swatch fields; `swatchToGauge()` in `parse.js` turns stitches-over-width
+  into the per-4-in or per-10-cm figure, for rows too.
+- **Yardage scaled for gauge** (`262356b`) — `yarnAtGauge()` in `advice.js`
+  multiplies the pattern's figure by `pg/ug` on the yarn card and in the
+  table alike, with a postscript that shows both numbers and calls it a
+  rough guide.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -144,12 +151,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 175 tests, 20 suites, all passing, ~75 ms, zero dependencies.
+- 194 tests, 26 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 113 keys, parity enforced by test in both directions,
+- Both dictionaries at 125 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,190 lines.
+- `NanaKnows.jsx` is about 1,320 lines.
 
 ---
 

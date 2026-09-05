@@ -59,7 +59,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 175 tests on Node's built-in runner, no test
+runs the arithmetic suite — 194 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ## Deploying
