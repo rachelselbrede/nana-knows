@@ -42,6 +42,7 @@ export default {
     range: " Tomó el guion como dos números distintos.",
     thousands: " Leyó una coma como separador de miles.",
     fraction: " Convirtió una fracción en su decimal.",
+    label: " Leyó solo lo que venía después de los dos puntos.",
   },
 
   label: {
@@ -82,10 +83,12 @@ export default {
     gauge: "p. ej. 18",
     rowGauge: "p. ej. 24",
     myRowGauge: "p. ej. 26",
-    sizes: inch ? "p. ej. 32, 36, 40, 44, 48, 52" : "p. ej. 81, 91, 102, 112, 122, 132",
+    /* Escritas como las imprime un patrón, para que el propio campo diga
+       que una línea pegada directo del patrón es bienvenida. */
+    sizes: inch ? "p. ej. 32 (36, 40, 44, 48, 52)" : "p. ej. 81 (91, 102, 112, 122, 132)",
     yards: inch
-      ? "p. ej. 900, 1000, 1100, 1250, 1400, 1550"
-      : "p. ej. 825, 915, 1005, 1145, 1280, 1420",
+      ? "p. ej. 900 (1000, 1100, 1250, 1400, 1550)"
+      : "p. ej. 825 (915, 1005, 1145, 1280, 1420)",
     bust: inch ? "p. ej. 38" : "p. ej. 96",
     myGauge: "p. ej. 19",
     perSkein: inch ? "p. ej. 220" : "p. ej. 200",

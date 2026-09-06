@@ -98,7 +98,24 @@ export function parseNumberList(text) {
   const issues = [];
   const values = [];
 
-  String(text || "")
+  let source = String(text || "");
+  /* A line pasted whole from a pattern usually opens with a label, and the
+     label can carry numbers of its own — "Size 1 (2, 3, 4): 32 (36, 40, 44)".
+     Everything up to the last colon is the label. If dropping it dropped
+     digits, say so, since the echo will then show fewer numbers than were
+     pasted and the knitter deserves to know why. */
+  const colon = source.lastIndexOf(":");
+  if (colon !== -1) {
+    if (/\d/.test(source.slice(0, colon))) issues.push("label");
+    source = source.slice(colon + 1);
+  }
+
+  source
+    /* Pattern notation: "32 (36, 40, 44)", with brackets or braces from some
+       designers, and sometimes no spaces at all. A bracket is only ever a
+       separator, never part of a number — "32(36" used to be read as 3236,
+       finite and positive, so nothing downstream objected. */
+    .replace(/[()[\]{}]/g, " ")
     /* En dashes and em dashes are ranges too, however they were typed. */
     .replace(/[\u2012-\u2015\u2212]/g, "-")
     /* "36\u00bd" and "36 \u00bd" both mean thirty-six and a half. */

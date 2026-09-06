@@ -33,8 +33,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
   yarn weighs on the kitchen scale, part-used balls and all, and she turns it
   into skeins for the basket.
 - **Reads numbers the way knitters write them.** `91,5`, `1,100`, `36 1/2`,
-  `32-36`, `36½` — and she echoes back what she read, so a wrong guess is
-  visible instead of silently changing the advice.
+  `32-36`, `36½` — and `Finished bust: 32 (36, 40, 44, 48) in` pasted
+  straight from the pattern, label and all. She echoes back what she read,
+  so a wrong guess is visible instead of silently changing the advice.
 - **Speaks English and Spanish**, switchable at any moment — advice already on
   screen re-words itself. La abuela también teje.
 - **Shares as a link.** Every field rides in the URL itself, so you can send

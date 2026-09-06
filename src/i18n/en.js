@@ -43,6 +43,7 @@ export default {
     range: " She took the dash as two separate numbers.",
     thousands: " She read a comma as a thousands mark.",
     fraction: " She turned a fraction into its decimal.",
+    label: " She read only what came after the colon.",
   },
 
   label: {
@@ -83,10 +84,12 @@ export default {
     gauge: "e.g. 18",
     rowGauge: "e.g. 24",
     myRowGauge: "e.g. 26",
-    sizes: inch ? "e.g. 32, 36, 40, 44, 48, 52" : "e.g. 81, 91, 102, 112, 122, 132",
+    /* Written the way a pattern prints them, so the field itself says that
+       a line pasted straight from the pattern is welcome. */
+    sizes: inch ? "e.g. 32 (36, 40, 44, 48, 52)" : "e.g. 81 (91, 102, 112, 122, 132)",
     yards: inch
-      ? "e.g. 900, 1000, 1100, 1250, 1400, 1550"
-      : "e.g. 825, 915, 1005, 1145, 1280, 1420",
+      ? "e.g. 900 (1000, 1100, 1250, 1400, 1550)"
+      : "e.g. 825 (915, 1005, 1145, 1280, 1420)",
     bust: inch ? "e.g. 38" : "e.g. 96",
     myGauge: "e.g. 19",
     perSkein: inch ? "e.g. 220" : "e.g. 200",

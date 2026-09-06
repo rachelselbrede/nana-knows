@@ -206,7 +206,8 @@ for (const lang of LANGS) {
       const text = say(lang, "echo.read", { list: "32, 36, 40" })
         + say(lang, "echo.range")
         + say(lang, "echo.thousands")
-        + say(lang, "echo.fraction");
+        + say(lang, "echo.fraction")
+        + say(lang, "echo.label");
       assertSentence(text, `${lang} echo`);
     });
 

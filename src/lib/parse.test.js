@@ -322,3 +322,54 @@ describe("gramsToSkeins: the kitchen scale, in skeins", () => {
     assert.equal(gramsToSkeins("350", "0"), null);
   });
 });
+
+describe("parseNumberList: a line pasted straight from the pattern", () => {
+  test("the classic first-size-then-brackets notation", () => {
+    assert.deepEqual(parseList("32 (36, 40, 44, 48, 52)"), [32, 36, 40, 44, 48, 52]);
+  });
+
+  test("square brackets and braces, which some designers prefer", () => {
+    assert.deepEqual(parseList("32 [36, 40, 44]"), [32, 36, 40, 44]);
+    assert.deepEqual(parseList("32 {36, 40}"), [32, 36, 40]);
+  });
+
+  test("no spaces at all, as a PDF often pastes", () => {
+    /* "32(36" used to reach toNumber as one token and come out as 3236. */
+    assert.deepEqual(parseList("32(36,40,44)"), [32, 36, 40, 44]);
+  });
+
+  test("the alternating style and the grouped style", () => {
+    assert.deepEqual(parseList("32 (36) 40 (44) 48"), [32, 36, 40, 44, 48]);
+    assert.deepEqual(parseList("32 (36, 40) (44, 48, 52)"), [32, 36, 40, 44, 48, 52]);
+  });
+
+  test("a label and a unit ride along harmlessly", () => {
+    const r = parseNumberList("Finished bust: 32 (36, 40, 44) in");
+    assert.deepEqual(r.values, [32, 36, 40, 44]);
+    assert.deepEqual(r.issues, []);
+  });
+
+  test("a label with numbers in it is dropped, and said so", () => {
+    /* Size names are numbers too; without the colon rule the knitter would
+       be offered sizes 1 to 4 as finished measurements. */
+    const r = parseNumberList("Size 1 (2, 3, 4): 32 (36, 40, 44)");
+    assert.deepEqual(r.values, [32, 36, 40, 44]);
+    assert.deepEqual(r.issues, ["label"]);
+  });
+
+  test("yardage lines, with and without thousands marks", () => {
+    assert.deepEqual(parseList("Yarn: 900 (1000, 1100, 1250) yds"), [900, 1000, 1100, 1250]);
+    const r = parseNumberList("1,100 (1,250, 1,400) yds");
+    assert.deepEqual(r.values, [1100, 1250, 1400]);
+    assert.deepEqual(r.issues, ["thousands"]);
+  });
+
+  test("European decimals inside the brackets", () => {
+    assert.deepEqual(parseList("81,5 (91,5, 101,5) cm"), [81.5, 91.5, 101.5]);
+    assert.deepEqual(parseList("32.5 (36.5, 40.5)"), [32.5, 36.5, 40.5]);
+  });
+
+  test("letter sizes on their own are nothing to Nana", () => {
+    assert.deepEqual(parseList("XS (S, M, L, XL)"), []);
+  });
+});
