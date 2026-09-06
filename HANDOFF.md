@@ -165,12 +165,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 202 tests, 31 suites, all passing, ~75 ms, zero dependencies.
+- 213 tests, 34 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 134 keys, parity enforced by test in both directions,
+- Both dictionaries at 140 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,410 lines.
+- `NanaKnows.jsx` is about 1,460 lines.
 
 ---
 
