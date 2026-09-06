@@ -183,6 +183,13 @@ export default {
     redoneCm: "Nana pasó tus números a centímetros y metros, mi vida.",
   },
 
+  /* La única oración que oye un lector de pantalla cuando Nana responde. Las
+     tarjetas se leen a su ritmo desde el encabezado enfocado; esto solo avisa
+     de que existen. */
+  status: {
+    answer: ({ best }) => `Nana ya tiene tu respuesta, mi vida: la talla ${best}. Los detalles vienen justo abajo.`,
+  },
+
   advice: {
     size: "La talla justa",
     yarn: "Tu canasta de lana",

@@ -352,3 +352,15 @@ for (const lang of LANGS) {
     });
   });
 }
+
+/* ---------- the status line ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the one sentence a screen reader hears`, () => {
+    test("names the size and stays short", () => {
+      const text = say(lang, "status.answer", { best: 48 });
+      assertSentence(text, `${lang} status/answer`);
+      assert.ok(text.includes("48"));
+      assert.ok(text.length < 120, `too long to be a status line: ${text}`);
+    });
+  });
+}

@@ -154,12 +154,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 200 tests, 29 suites, all passing, ~75 ms, zero dependencies.
+- 202 tests, 31 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 133 keys, parity enforced by test in both directions,
+- Both dictionaries at 134 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,380 lines.
+- `NanaKnows.jsx` is about 1,410 lines.
 
 ---
 
@@ -234,11 +234,12 @@ of a rewrite.
 
 ### Accessibility leftovers
 
-The colour and toggle work is done. Still open: when results appear focus is not
-moved, and the `aria-live="polite"` region announces all four cards at once. A
-short status line plus a focusable results heading would read much better to a
-screen reader. Also unbounded URL parameters — React escapes them so there is no
-XSS, but a 50 kB `?b=` value still renders.
+The colour and toggle work is done, and so — as of 1 September 2026 — is the
+results announcement: a one-sentence `role="status"` line ("Nana has your
+answer, dear: the size 48") replaces the polite region that used to read all
+four cards in one breath, and focus lands on the results heading so the cards
+are read at the reader's own pace. Shared-link parameters are capped at 120
+characters (`MAX_PARAM`). Nothing is known to be open here.
 
 ---
 

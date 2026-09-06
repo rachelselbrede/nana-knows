@@ -184,6 +184,12 @@ export default {
     redoneCm: "Nana redid your numbers in centimetres and metres, dear.",
   },
 
+  /* The one sentence a screen reader hears when Nana answers. The cards are
+     read on demand from the focused heading; this only says that they exist. */
+  status: {
+    answer: ({ best }) => `Nana has your answer, dear: the size ${best}. The details are just below.`,
+  },
+
   advice: {
     size: "The right size",
     yarn: "Your yarn basket",

@@ -57,6 +57,12 @@ const SHARE_TEXT_KEYS = {
    must not be allowed to talk Nana out of opening her notebook. */
 const SHARE_KEYS = new Set(["u", "c", "e", ...Object.keys(SHARE_TEXT_KEYS)]);
 
+/* A shared link is untrusted text. React escapes it, so the risk was never
+   injection — it was a 50 kB ?b= value pasted into a field and rendered. A
+   dozen sizes with spaces run to about 70 characters; nothing honest is
+   longer than this. */
+const MAX_PARAM = 120;
+
 const hasSharedParams = () => {
   try {
     const p = new URLSearchParams(window.location.search);
@@ -376,7 +382,11 @@ export default function NanaKnows() {
   const [saveMsg, setSaveMsg] = useState("");
   const [copyMsg, setCopyMsg] = useState("");
   const [pendingAutoRun, setPendingAutoRun] = useState(false);
+  /* Counts asks, so the status line is re-inserted — and so re-announced —
+     even when two asks in a row produce the very same sentence. */
+  const [askCount, setAskCount] = useState(0);
   const resultsRef = useRef(null);
+  const headingRef = useRef(null);
 
   const inch = units === "in";
   const lenU = inch ? "in" : "cm";
@@ -486,7 +496,7 @@ export default function NanaKnows() {
       };
       Object.entries(SHARE_TEXT_KEYS).forEach(([key, field]) => {
         const v = p.get(key);
-        if (v != null && v !== "") setter[field](v);
+        if (v != null && v !== "") setter[field](v.slice(0, MAX_PARAM));
       });
       if (p.get("s") && p.get("b")) setPendingAutoRun(true);
     } catch (e) {
@@ -620,8 +630,30 @@ export default function NanaKnows() {
       closeGap,
     });
 
+    const jump = () => {
+      if (!resultsRef.current) return;
+      /* Move focus to the results heading as well as scrolling there: a
+         screen reader then announces that one line and reads the cards
+         beneath it at the reader's own pace. The status line above has already
+         said, in one sentence, that there is an answer. Both targets take
+         tabIndex={-1} and draw no ring, so nothing changes visually. */
+      (headingRef.current || resultsRef.current).focus({ preventScroll: true });
+      const gentle = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      resultsRef.current.scrollIntoView({
+        behavior: gentle ? "auto" : "smooth",
+        block: "start",
+      });
+    };
+    /* Whichever way the answer goes — advice or "Nana needs two things" — say
+       so through the status line and take the reader there. */
+    const announce = () => {
+      setAskCount((n) => n + 1);
+      setTimeout(jump, 60);
+    };
+
     if (!size) {
       setResults({ error: true });
+      announce();
       return;
     }
 
@@ -655,21 +687,7 @@ export default function NanaKnows() {
       }),
     });
 
-    const jump = () => {
-      if (!resultsRef.current) return;
-      /* Move focus to the results as well as scrolling there: a screen-reader
-         user can then read the four cards at her own pace instead of hearing
-         the whole polite live-region announcement in one breath. The div takes
-         tabIndex={-1}, and the focus ring only draws for keyboard use, so
-         nothing changes visually. */
-      resultsRef.current.focus({ preventScroll: true });
-      const gentle = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      resultsRef.current.scrollIntoView({
-        behavior: gentle ? "auto" : "smooth",
-        block: "start",
-      });
-    };
-    setTimeout(jump, 60);
+    announce();
   };
 
   /* ---------- turning Nana's findings into Nana's words ----------
@@ -885,7 +903,8 @@ export default function NanaKnows() {
            reader starts where the answer starts. That focus is for the reading
            order, not the eye — without this, the browser draws its default
            ring around all four cards. */
-        .nk-results:focus, .nk-results:focus-visible { outline: none; box-shadow: none; }
+        .nk-results:focus, .nk-results:focus-visible,
+        .nk-results-head:focus, .nk-results-head:focus-visible { outline: none; box-shadow: none; }
         .nk-edge {
           height: 13px;
           background-image: radial-gradient(circle at 10px 0px, ${C.rose} 9px, transparent 10px);
@@ -1217,12 +1236,23 @@ export default function NanaKnows() {
           {t("share.note")}
         </p>
 
-        {/* results */}
-        <div ref={resultsRef} tabIndex={-1} className="nk-results" aria-live="polite">
+        {/* results. The live region is a single sentence, kept in the DOM from
+            the start so it exists before it has anything to say; the cards
+            themselves are not live, and are read from the focused heading at
+            the reader's own pace instead of in one breath. The inner span is
+            keyed by ask, so an identical answer is still re-announced. */}
+        <p role="status" className="sr-only">
+          {results && (
+            <span key={askCount}>
+              {results.error ? t("result.error") : t("status.answer", { best: results.size.best })}
+            </span>
+          )}
+        </p>
+        <div ref={resultsRef} tabIndex={-1} className="nk-results">
           {results && results.error && (
             <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
               <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
-              <p className="text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{t("result.error")}</p>
+              <p ref={headingRef} tabIndex={-1} className="nk-results-head text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{t("result.error")}</p>
             </div>
           )}
           {results && !results.error && (
@@ -1230,9 +1260,11 @@ export default function NanaKnows() {
               <div className="flex items-start gap-3 nk-pop">
                 <div className="shrink-0 mt-1"><Nana size={72} bob={false} label={t("nana.alt")} /></div>
                 <div className="relative rounded-2xl px-4 py-3" style={{ background: "#F3E7EC", border: `2px solid ${C.rose}` }}>
-                  <p className="text-sm italic" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseDark }}>
+                  {/* A heading, so the answer has a landmark for a screen reader
+                      to land on; styled as the speech-bubble line it always was. */}
+                  <h2 ref={headingRef} tabIndex={-1} className="nk-results-head text-sm italic" style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 400, color: C.roseDark }}>
                     {t("result.intro", { proverb })}
-                  </p>
+                  </h2>
                 </div>
               </div>
               <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText()}</AdviceCard>
