@@ -125,6 +125,8 @@ export default {
     failed:
       "Nana puso el enlace en tu barra de direcciones, mi vida. Cópialo de ahí para compartir.",
     loaded: "Nana abrió esto desde un enlace compartido.",
+    loadedRemembered:
+      "Nana abrió este patrón desde un enlace y completó tus propios números desde su cuaderno.",
     note: "Ese enlace lleva tus números. Compártelo solo con quien tú le contarías.",
   },
 

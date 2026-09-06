@@ -63,12 +63,19 @@ const SHARE_KEYS = new Set(["u", "c", "e", ...Object.keys(SHARE_TEXT_KEYS)]);
    longer than this. */
 const MAX_PARAM = 120;
 
-const hasSharedParams = () => {
+/* The params that are the knitter's own. A link carrying any of these was
+   shared by a person, numbers and all, and must not be mixed with the
+   notebook. A link carrying only the pattern's numbers — a designer's "ask
+   Nana which size" link — is exactly what the notebook is for. */
+const PERSONAL_KEYS = new Set(["b", "mg", "mrg", "ps", "sk", "e"]);
+
+/* The share params on this visit, or null when none brought us here. */
+const sharedParams = () => {
   try {
     const p = new URLSearchParams(window.location.search);
-    return [...p.keys()].some((k) => SHARE_KEYS.has(k));
+    return [...p.keys()].some((k) => SHARE_KEYS.has(k)) ? p : null;
   } catch (e) {
-    return false;
+    return null;
   }
 };
 
@@ -387,6 +394,9 @@ export default function NanaKnows() {
   const [askCount, setAskCount] = useState(0);
   const resultsRef = useRef(null);
   const headingRef = useRef(null);
+  /* What to say once a shared link has been answered: depends on whether the
+     notebook chipped in, which is known at load time, not at answer time. */
+  const loadedMsg = useRef("share.loaded");
 
   const inch = units === "in";
   const lenU = inch ? "in" : "cm";
@@ -437,70 +447,94 @@ export default function NanaKnows() {
 
   const proverbs = t(craft === "knit" ? "proverbs.knit" : "proverbs.crochet");
 
-  /* load Nana's notebook if it exists (stored only in this browser).
-     A shared link takes precedence, so skip the saved notebook when one is
-     present rather than mixing someone else's numbers with your own.
+  /* Where the first numbers come from, settled in one place because the two
+     sources interact. A shared link wins whatever it carries. The notebook —
+     the knitter's own measurements, saved in this browser — is opened as
+     well, unless the link carries personal numbers of its own, in which case
+     mixing hers with someone else's would be wrong. So a designer's link,
+     which holds only the pattern, arrives with the knitter's bust, gauge and
+     basket already filled in, and when that adds up to enough, Nana answers
+     on the spot.
 
      Nothing in the notebook is taken on trust: it may have been written by an
      older version of the app, or by a hand in the browser console. An easeIdx
      of 7 would send askNana past the end of the ease list and kill the button;
      a units value that is neither "in" nor "cm" would leave the toggle
-     unselected and run conversions from a nonsense baseline. The shared-link
-     loader below has always validated; this now matches it. */
+     unselected and run conversions from a nonsense baseline. And the notebook
+     was written in whatever units were showing at the time, so when the link
+     asks for the other system its numbers are converted on the way in — a
+     38 in bust must not turn up as 38 cm. */
   useEffect(() => {
-    if (hasSharedParams()) return;
-    try {
-      const saved = localStorage.getItem("nana-notebook");
-      if (saved) {
-        const d = JSON.parse(saved);
-        if (d.units === "in" || d.units === "cm") setUnits(d.units);
-        if (d.craft === "knit" || d.craft === "crochet") setCraft(d.craft);
-        if (d.bust) setBust(String(d.bust));
-        if (Number.isInteger(d.easeIdx) && d.easeIdx >= 0 && d.easeIdx <= 4) {
-          setEaseIdx(d.easeIdx);
-        }
-        if (d.myGauge) setMyGauge(String(d.myGauge));
-        if (d.myRowGauge) setMyRowGauge(String(d.myRowGauge));
-        if (d.perSkein) setPerSkein(String(d.perSkein));
-        if (d.skeins) setSkeins(String(d.skeins));
-        setSaveMsg("save.remembered");
-      }
-    } catch (e) {
-      /* nothing saved yet, and that is fine */
-    }
-  }, []);
+    const p = sharedParams();
+    const get = (k) => (p ? p.get(k) : null);
+    const linkHasPersonal = p !== null && [...p.keys()].some((k) => PERSONAL_KEYS.has(k));
+    const linkUnits = get("u") === "cm" ? "cm" : get("u") === "in" ? "in" : null;
 
-  /* Fill the form from a shared link, if one brought us here. When it carries
-     enough to compute (sizes + measurement), ask Nana straight away so the
-     visitor lands on her advice. */
-  useEffect(() => {
-    try {
-      if (!hasSharedParams()) return;
-      const p = new URLSearchParams(window.location.search);
-      if (p.get("u")) setUnits(p.get("u") === "cm" ? "cm" : "in");
-      if (p.get("c")) setCraft(p.get("c") === "crochet" ? "crochet" : "knit");
-      if (p.get("e") != null && p.get("e") !== "") {
-        const e = Number(p.get("e"));
-        if (Number.isInteger(e) && e >= 0 && e <= 4) setEaseIdx(e);
+    let d = null;
+    if (!linkHasPersonal) {
+      try {
+        const saved = localStorage.getItem("nana-notebook");
+        if (saved) d = JSON.parse(saved);
+      } catch (e) {
+        /* nothing saved yet, and that is fine */
       }
-      const setter = {
-        patternGauge: setPatternGauge,
-        patternRowGauge: setPatternRowGauge,
-        sizesText: setSizesText,
-        yardsText: setYardsText,
-        bust: setBust,
-        myGauge: setMyGauge,
-        myRowGauge: setMyRowGauge,
-        perSkein: setPerSkein,
-        skeins: setSkeins,
-      };
-      Object.entries(SHARE_TEXT_KEYS).forEach(([key, field]) => {
-        const v = p.get(key);
-        if (v != null && v !== "") setter[field](v.slice(0, MAX_PARAM));
-      });
-      if (p.get("s") && p.get("b")) setPendingAutoRun(true);
-    } catch (e) {
-      /* malformed link; leave the form blank */
+    }
+    const notebookUnits = d && (d.units === "in" || d.units === "cm") ? d.units : null;
+    const finalUnits = linkUnits ?? notebookUnits;
+    if (finalUnits) setUnits(finalUnits);
+
+    if (get("c")) setCraft(get("c") === "crochet" ? "crochet" : "knit");
+    else if (d && (d.craft === "knit" || d.craft === "crochet")) setCraft(d.craft);
+
+    let remembered = false;
+    if (d) {
+      const flip = notebookUnits !== null && finalUnits !== null && notebookUnits !== finalUnits;
+      const toMetric = finalUnits === "cm";
+      const via = (f) => (flip ? (v) => convertOne(v, f) : (v) => v);
+      const len = via(toMetric ? inchesToCm : cmToInches);
+      const yarn = via(toMetric ? yardsToMetres : metresToYards);
+      const gauge = via(toMetric ? gaugePer4inToPer10cm : gaugePer10cmToPer4in);
+      if (d.bust) { setBust(len(String(d.bust))); remembered = true; }
+      if (Number.isInteger(d.easeIdx) && d.easeIdx >= 0 && d.easeIdx <= 4) setEaseIdx(d.easeIdx);
+      if (d.myGauge) { setMyGauge(gauge(String(d.myGauge))); remembered = true; }
+      if (d.myRowGauge) { setMyRowGauge(gauge(String(d.myRowGauge))); remembered = true; }
+      if (d.perSkein) { setPerSkein(yarn(String(d.perSkein))); remembered = true; }
+      if (d.skeins) { setSkeins(String(d.skeins)); remembered = true; }
+    }
+
+    if (!p) {
+      if (d) setSaveMsg("save.remembered");
+      return;
+    }
+
+    const e = get("e");
+    if (e != null && e !== "") {
+      const n = Number(e);
+      if (Number.isInteger(n) && n >= 0 && n <= 4) setEaseIdx(n);
+    }
+    const setter = {
+      patternGauge: setPatternGauge,
+      patternRowGauge: setPatternRowGauge,
+      sizesText: setSizesText,
+      yardsText: setYardsText,
+      bust: setBust,
+      myGauge: setMyGauge,
+      myRowGauge: setMyRowGauge,
+      perSkein: setPerSkein,
+      skeins: setSkeins,
+    };
+    Object.entries(SHARE_TEXT_KEYS).forEach(([key, field]) => {
+      const v = get(key);
+      if (v != null && v !== "") setter[field](v.slice(0, MAX_PARAM));
+    });
+
+    /* Enough to answer: sizes from the link, a measurement from either. */
+    const msg = remembered ? "share.loadedRemembered" : "share.loaded";
+    if (get("s") && (get("b") || (d && d.bust))) {
+      loadedMsg.current = msg;
+      setPendingAutoRun(true);
+    } else {
+      setSaveMsg(msg);
     }
   }, []);
 
@@ -848,7 +882,7 @@ export default function NanaKnows() {
     if (!pendingAutoRun) return;
     setPendingAutoRun(false);
     askNana();
-    setSaveMsg("share.loaded");
+    setSaveMsg(loadedMsg.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAutoRun]);
 

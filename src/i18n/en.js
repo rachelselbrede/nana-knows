@@ -127,6 +127,8 @@ export default {
       "Link copied. Send it to a friend and Nana will greet them with the very same numbers.",
     failed: "Nana put the link in your address bar, dear. Copy it from there to share.",
     loaded: "Nana opened this from a shared link.",
+    loadedRemembered:
+      "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
     note: "That link carries your numbers. Share it only with folks you would tell them to.",
   },
 

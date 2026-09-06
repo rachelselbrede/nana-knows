@@ -67,10 +67,13 @@ heuristic wins every case, so `parseNumberList` returns `{values, issues}` and
 
 **Order is preserved** in parsed lists — yardage lines up with sizes by position.
 
-**First-load precedence:** shared-link params beat the saved notebook (the
-notebook load is skipped entirely when params are present, rather than mixing
-someone else's numbers with yours). For language: `?lang` beats saved
-`nana-lang` beats `navigator.language`.
+**First-load precedence:** a shared link wins whatever it carries. The saved
+notebook (personal fields only) is opened as well *unless* the link carries
+personal params of its own (`PERSONAL_KEYS`: b, mg, mrg, ps, sk, e) — mixing
+your numbers with someone else's would be wrong, but a designer's pattern-only
+link plus your notebook is the whole point. Notebook numbers are converted into
+the link's units on the way in. For language: `?lang` beats saved `nana-lang`
+beats `navigator.language`.
 
 **Unit abbreviations** (`in`, `cm`, `yds`, `m`) live in the component and are not
 translated. Dictionary numbers keep period decimals so they survive `parseList`.
