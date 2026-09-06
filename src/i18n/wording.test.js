@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 
 import en from "./en.js";
 import es from "./es.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "../lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "../lib/advice.js";
 import { swatchToGauge, gramsToSkeins } from "../lib/parse.js";
 
 const DICTS = { en, es };
@@ -376,6 +376,42 @@ for (const lang of LANGS) {
       steps.forEach((s, i) => assertSentence(s, `${lang} designers/step${i}`));
       assertSentence(say(lang, "designers.note"), `${lang} designers/note`);
       assert.ok(say(lang, "designers.summary").length > 3);
+    });
+  });
+}
+
+/* ---------- the substitution helper ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the substitution helper has words`, () => {
+    const bands = { askPattern: ["20", ""], match: ["18", 18], close: ["19", 18], stretch: ["15", 18], no: ["22", 18] };
+    for (const [expected, [band, pg]] of Object.entries(bands)) {
+      for (const craft of ["knit", "crochet"]) {
+        test(`${expected} (${craft})`, () => {
+          const r = adviseSubstitute({ patternGauge: pg, bandGauge: band });
+          assert.equal(r.kind, expected, "the fixture no longer produces the branch it names");
+          assertSentence(say(lang, `substitute.${r.kind}`, { ...r, gaugeLabel: UNITS.gaugeLabel, craft }), `${lang} substitute/${r.kind}/${craft}`);
+        });
+      }
+    }
+
+    test("a whole tool size reads as words, not as the number 1", () => {
+      const r = adviseSubstitute({ patternGauge: 18, bandGauge: "20" });
+      assert.equal(r.kind, "stretch");
+      assert.equal(r.toolSizes, 1);
+      const text = say(lang, "substitute.stretch", { ...r, craft: "knit" });
+      assert.ok(!/\b1 (needle|aguja|números|sizes)\b/.test(text), `reads awkwardly: ${text}`);
+    });
+
+    test("balls, one and many, and the two waiting lines", () => {
+      assertSentence(say(lang, "substitute.balls", { balls: 8, best: 48, buffered: 1541, yarnU: UNITS.yarnU }), `${lang} substitute/balls`);
+      const one = say(lang, "substitute.balls", { balls: 1, best: 32, buffered: 200, yarnU: UNITS.yarnU });
+      assert.ok(!/\b1 (balls|ovillos)\b/.test(one), one);
+      assertSentence(say(lang, "substitute.askFirst"), `${lang} substitute/askFirst`);
+      assertSentence(say(lang, "substitute.needPerSkein", { yarnU: UNITS.yarnU }), `${lang} substitute/needPerSkein`);
+      assertSentence(say(lang, "substitute.intro"), `${lang} substitute/intro`);
+      assertSentence(say(lang, "substitute.tip"), `${lang} substitute/tip`);
+      assert.ok(say(lang, "substitute.bandGauge", { gaugeLabel: UNITS.gaugeLabel }).includes(UNITS.gaugeLabel));
+      assert.ok(say(lang, "ph", { inch: true }).bandGauge);
     });
   });
 }

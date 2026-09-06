@@ -100,6 +100,7 @@ export default {
     swatchTall: inch ? "e.g. 4.5" : "e.g. 11.5",
     weighSkein: "e.g. 100",
     weighHave: "e.g. 350",
+    bandGauge: "e.g. 20",
   }),
 
   button: { ask: "Ask Nana" },
@@ -299,6 +300,34 @@ export default {
       ]
         .filter(Boolean)
         .join(" "),
+  },
+
+  /* The substitution helper. A band gauge against the pattern's, in Nana's
+     words, and a count of balls once she knows the size. `craft` picks the
+     tool word, exactly as the tension card does. */
+  substitute: {
+    summary: "Will this yarn work instead?",
+    intro:
+      "Pattern calls for a yarn you do not have? Read the gauge off the band of the one you do, and Nana will tell you how close it comes — and, once she has picked your size, how many balls you would need.",
+    bandGauge: ({ gaugeLabel }) => `The band says (${gaugeLabel})`,
+    askPattern: "Pop the pattern's gauge into the first card, dear, and Nana can compare the two.",
+    match: ({ bg, pg, gaugeLabel }) =>
+      `The band matches the pattern's gauge (${bg} vs ${pg} ${gaugeLabel}). A promising substitute — swatch to be sure.`,
+    close: ({ away, finer, craft }) =>
+      `Only ${away} ${away === 1 ? "stitch" : "stitches"} ${finer ? "finer" : "heavier"} than the pattern's yarn — the same weight, near enough. Swatch it; you may want to go ${finer ? "up" : "down"} a ${craft === "knit" ? "needle" : "hook"} size.`,
+    stretch: ({ away, finer, toolSizes, craft }) => {
+      const tool = craft === "knit" ? "needle" : "hook";
+      const sizes = toolSizes === 1 ? `one ${tool} size` : `${toolSizes} ${tool} sizes`;
+      return `About ${away} stitches ${finer ? "finer" : "heavier"} than the pattern's yarn, so roughly ${sizes} away. It can be coaxed, but the fabric will come out ${finer ? "looser and lighter" : "denser and stiffer"} than the designer's. Swatch before you commit, dear.`;
+    },
+    no: ({ away, finer }) =>
+      `That is a different weight of yarn altogether — ${away} stitches ${finer ? "finer" : "heavier"} than the pattern calls for. Nana would look for something closer, dear.`,
+    balls: ({ balls, best, buffered, yarnU }) =>
+      `For the size ${best} you would want about ${balls} ${balls === 1 ? "ball" : "balls"} of it (${buffered} ${yarnU}, cushion included).`,
+    askFirst: "Ask Nana for your size and she will count how many balls you would need.",
+    needPerSkein: ({ yarnU }) =>
+      `Tell Nana the ${yarnU} per skein above and she will count how many balls you would need.`,
+    tip: "A matching gauge is the first test, not the last: fibre, twist and drape decide whether the sweater will hang like the one in the picture. Swatch, wash the swatch, and trust it.",
   },
 
   /* How to put Nana in a pattern. Sits at the foot of the page, out of the

@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 213 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 246 tests, ~75ms, zero dependencies
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
@@ -21,15 +21,15 @@ the directory argument as a module path.
 
 ```
 src/
-  NanaKnows.jsx     ~1460 lines: palette, three SVG illustrations, all state,
+  NanaKnows.jsx     ~1510 lines: palette, three SVG illustrations, all state,
                     share/save/print plumbing, entire layout
   lib/parse.js      raw text -> numbers, unit conversion. Pure, no React, no language.
                     parseOne is the only correct way to read a single-value field.
   lib/advice.js     the arithmetic. Numbers in, {kind, tone, ...numbers} out.
   i18n/index.jsx    I18nProvider / useI18n / t(). ~90 lines.
-  i18n/en.js        140 keys
-  i18n/es.js        140 keys, same shape
-  *.test.js         parse 77, advice 69, wording 67
+  i18n/en.js        152 keys
+  i18n/es.js        152 keys, same shape
+  *.test.js         parse 77, advice 78, wording 91
 ```
 
 ### The load-bearing idea
@@ -84,6 +84,8 @@ translated. Dictionary numbers keep period decimals so they survive `parseList`.
 YARN_CUSHION          1.1     10% — running out at the second sleeve is heartbreak
 GAUGE_TOLERANCE       0.25    a quarter stitch is inside the noise of counting
 STITCHES_PER_TOOL_SIZE 2      one needle/hook size ~= 2 sts per 4 in
+SUBSTITUTE_CLOSE      1       a band gauge within a stitch is the same weight class
+SUBSTITUTE_STRETCH    3       within three, a needle change can coax it; beyond, a different yarn
 closeGap              1 in / 2.5 cm     how near a runner-up size has to be
 swatchSpan            4 in / 10 cm
 in<->cm 2.54 | yds<->m 0.9144 | gauge per-4in <-> per-10cm 10.16

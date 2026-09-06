@@ -32,6 +32,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - **Weighs your stash, too.** Tell her what a full skein weighs and what your
   yarn weighs on the kitchen scale, part-used balls and all, and she turns it
   into skeins for the basket.
+- **Says whether another yarn will do.** Read the gauge off the band of the
+  yarn you have; Nana says how close it comes to the pattern's, what a needle
+  change could coax, and how many balls you would need for your size.
 - **Reads numbers the way knitters write them.** `91,5`, `1,100`, `36 1/2`,
   `32-36`, `36½` — and `Finished bust: 32 (36, 40, 44, 48) in` pasted
   straight from the pattern, label and all. She echoes back what she read,
@@ -63,7 +66,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 213 tests on Node's built-in runner, no test
+runs the arithmetic suite — 246 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ## Deploying

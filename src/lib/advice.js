@@ -173,6 +173,43 @@ export function adviseGauge({ patternGauge, myGauge, best }) {
   };
 }
 
+/* ---------- will another yarn do ----------
+   The pattern's yarn is out of reach, and the knitter is holding a ball band.
+   Its gauge against the pattern's is the first test of a substitute — not
+   the last, since fibre and drape are the knitter's call — and the same
+   half-stitch-per-tool-size rule of thumb says what a needle change could
+   coax. One stitch per swatch is the same weight class, near enough; three is
+   the edge of what a needle change can reach; beyond that it is a different
+   yarn, whatever the band says. Returns null while no band gauge is typed,
+   because a helper with nothing to compare should stay quiet. */
+export const SUBSTITUTE_CLOSE = 1;
+export const SUBSTITUTE_STRETCH = 3;
+
+export function adviseSubstitute({ patternGauge, bandGauge }) {
+  const bg = num(bandGauge);
+  if (bg === null) return null;
+  const pg = num(patternGauge);
+  if (pg === null) return { kind: "askPattern", tone: "ask", bg };
+
+  const away = r1(Math.abs(bg - pg));
+  const finer = bg > pg;
+  const toolSizes = Math.max(0.5, Math.round((away / STITCHES_PER_TOOL_SIZE) * 2) / 2);
+  const facts = { bg, pg, away, finer, toolSizes };
+
+  if (away < GAUGE_TOLERANCE) return { kind: "match", tone: "ok", ...facts, toolSizes: 0 };
+  if (away <= SUBSTITUTE_CLOSE) return { kind: "close", tone: "ok", ...facts };
+  if (away <= SUBSTITUTE_STRETCH) return { kind: "stretch", tone: "warn", ...facts };
+  return { kind: "no", tone: "warn", ...facts };
+}
+
+/* Balls to buy for a cushioned need, at this yarn's put-up. Whole balls,
+   because shops do not sell fractions; null until both numbers exist. */
+export const ballsFor = (need, perSkein) => {
+  const per = num(perSkein);
+  if (per === null || !(need > 0)) return null;
+  return Math.ceil(need / per);
+};
+
 /* ---------- every size at a glance ----------
    The size card answers "what should I make?". The table answers "what are my
    choices?" — which is the question a knitter with a fixed stash, or a body

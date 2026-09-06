@@ -16,7 +16,7 @@ import {
   gramsToSkeins,
   r1,
 } from "./lib/parse.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
 
 /* ---------- Nana's palette ---------- */
 const C = {
@@ -377,6 +377,8 @@ export default function NanaKnows() {
   const [weighSkein, setWeighSkein] = useState("");
   const [weighHave, setWeighHave] = useState("");
   const [weighUsed, setWeighUsed] = useState(false);
+  /* The substitution helper's one field: the gauge printed on a ball band. */
+  const [bandGauge, setBandGauge] = useState("");
 
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
@@ -428,6 +430,7 @@ export default function NanaKnows() {
     /* The helper's widths are lengths; its counts are just counts. */
     setSwatchAcross(convertOne(swatchAcross, len));
     setSwatchTall(convertOne(swatchTall, len));
+    setBandGauge(convertOne(bandGauge, gauge));
     setResults(null); // old advice is in the old units
     setUnits(next);
     /* Say so. Eight fields just changed and the advice vanished; to a screen
@@ -877,6 +880,23 @@ export default function NanaKnows() {
   const editWeigh = (set) => scratchEdit(set, setWeighUsed);
   const onWeighKey = applyOnEnter(applyWeigh);
 
+  /* ---------- the substitution helper ----------
+     Nothing to apply: it only advises, live, from the band gauge against the
+     pattern's. The ball count comes from the yarn card's own cushioned need,
+     so the two cannot disagree — and it can only be counted once Nana has
+     been asked, because before that there is no size to count for. */
+  const substitute = adviseSubstitute({ patternGauge, bandGauge });
+  const substituteNeed = results && results.yarn && results.yarn.buffered ? results.yarn.buffered : null;
+  const substituteBalls = ballsFor(substituteNeed, perSkein);
+  const substituteBallsText = () => {
+    if (substitute === null || substitute.kind === "askPattern") return "";
+    if (substituteBalls !== null) {
+      return t("substitute.balls", { balls: substituteBalls, best: results.size.best, buffered: substituteNeed, yarnU: said().yarnU });
+    }
+    if (substituteNeed === null) return t("substitute.askFirst");
+    return t("substitute.needPerSkein", { yarnU });
+  };
+
   /* A shared link filled the form; run Nana once the inputs have settled. */
   useEffect(() => {
     if (!pendingAutoRun) return;
@@ -1234,6 +1254,31 @@ export default function NanaKnows() {
                   <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{weighUsed ? t("weigh.used") : ""}</span>
                 </div>
                 <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("weigh.tip")}</p>
+              </div>
+            </details>
+
+            {/* the substitution helper */}
+            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
+              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
+                {t("substitute.summary")}
+              </summary>
+              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
+                <p className="mb-3">{t("substitute.intro")}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span style={labelStyle}>{t("substitute.bandGauge", { gaugeLabel })}</span>
+                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={bandGauge} onChange={(e) => setBandGauge(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }} placeholder={ph.bandGauge} />
+                  </label>
+                </div>
+                {/* Two live lines: the verdict, then the ball count. Warn-toned
+                    verdicts wear the rose, like the cards. */}
+                <p className="mt-2 text-sm" role="status" style={{ minHeight: "1.2em", color: substitute && substitute.tone === "warn" ? C.roseDark : C.sageDark }}>
+                  {substitute ? t(`substitute.${substitute.kind}`, { ...substitute, gaugeLabel, craft }) : ""}
+                </p>
+                <p className="mt-1 text-xs" role="status" style={{ minHeight: "1.2em", color: C.sageDark }}>
+                  {substituteBallsText()}
+                </p>
+                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("substitute.tip")}</p>
               </div>
             </details>
           </section>

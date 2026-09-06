@@ -99,6 +99,7 @@ export default {
     swatchTall: inch ? "p. ej. 4.5" : "p. ej. 11.5",
     weighSkein: "p. ej. 100",
     weighHave: "p. ej. 350",
+    bandGauge: "p. ej. 20",
   }),
 
   button: { ask: "Pregúntale a Nana" },
@@ -299,6 +300,35 @@ export default {
       ]
         .filter(Boolean)
         .join(" "),
+  },
+
+  /* La ayuda para sustituir lana. La muestra de la etiqueta contra la del
+     patrón, en palabras de Nana, y la cuenta de ovillos cuando ya sabe la
+     talla. `craft` elige la palabra de la herramienta, igual que en la
+     tarjeta de tensión. */
+  substitute: {
+    summary: "¿Me sirve esta otra lana?",
+    intro:
+      "¿El patrón pide una lana que no tienes? Lee la muestra en la etiqueta de la que sí tienes, y Nana te dirá qué tan cerca queda y, cuando ya haya elegido tu talla, cuántos ovillos necesitarías.",
+    bandGauge: ({ gaugeLabel }) => `La etiqueta dice (${gaugeLabel})`,
+    askPattern: "Pon primero la muestra del patrón en la primera tarjeta, mi vida, y Nana podrá comparar las dos.",
+    match: ({ bg, pg, gaugeLabel }) =>
+      `La etiqueta coincide con la muestra del patrón (${bg} contra ${pg} ${gaugeLabel}). Un sustituto prometedor; haz la muestra para estar segura.`,
+    close: ({ away, finer, craft }) =>
+      `Solo ${away} ${away === 1 ? "punto" : "puntos"} ${finer ? "más fina" : "más gruesa"} que la lana del patrón: el mismo grosor, o casi. Haz la muestra; quizá quieras ${finer ? "subir" : "bajar"} un número de ${craft === "knit" ? "aguja" : "ganchillo"}.`,
+    stretch: ({ away, finer, toolSizes, craft }) => {
+      const tool = craft === "knit" ? "aguja" : "ganchillo";
+      const sizes = toolSizes === 1 ? `un número de ${tool}` : `${toolSizes} números de ${tool}`;
+      return `Como ${away} puntos ${finer ? "más fina" : "más gruesa"} que la lana del patrón, o sea ${sizes} de distancia. Se puede forzar, pero la tela quedará ${finer ? "más suelta y ligera" : "más densa y tiesa"} que la de la diseñadora. Haz la muestra antes de decidirte, mija.`;
+    },
+    no: ({ away, finer }) =>
+      `Eso es una lana de otro grosor: ${away} puntos ${finer ? "más fina" : "más gruesa"} de lo que pide el patrón. Nana buscaría algo más parecido, mi vida.`,
+    balls: ({ balls, best, buffered, yarnU }) =>
+      `Para la talla ${best} necesitarías unos ${balls} ${balls === 1 ? "ovillo" : "ovillos"} (${buffered} ${yarnU}, con colchón incluido).`,
+    askFirst: "Pregúntale a Nana tu talla y ella contará cuántos ovillos necesitarías.",
+    needPerSkein: ({ yarnU }) =>
+      `Dile a Nana los ${yarnU} por madeja arriba y ella contará cuántos ovillos necesitarías.`,
+    tip: "Que la muestra coincida es la primera prueba, no la última: la fibra, la torsión y la caída deciden si el suéter va a colgar como el de la foto. Haz la muestra, lávala y confía en ella.",
   },
 
   /* Cómo poner a Nana en un patrón. Va al pie de la página, sin estorbar a

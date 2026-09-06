@@ -41,6 +41,11 @@ merged and deployed on 31 August 2026, and since then:
   answers on arrival. `PERSONAL_KEYS` decides which links keep the notebook
   closed. The README has a "For designers" section and the page a matching
   disclosure.
+- **The substitution helper** — "Will this yarn work instead?" in the basket
+  card: `adviseSubstitute()` grades a ball band's gauge against the pattern's
+  (match / close / stretch / no, thresholds `SUBSTITUTE_CLOSE` and
+  `SUBSTITUTE_STRETCH`), and `ballsFor()` counts balls from the yarn card's
+  cushioned need once a size is chosen.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -165,12 +170,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 213 tests, 34 suites, all passing, ~75 ms, zero dependencies.
+- 246 tests, 38 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
-- Both dictionaries at 140 keys, parity enforced by test in both directions,
+- Both dictionaries at 152 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,460 lines.
+- `NanaKnows.jsx` is about 1,510 lines.
 
 ---
 

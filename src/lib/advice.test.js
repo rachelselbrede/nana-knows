@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./advice.js";
 import { r1 } from "./parse.js";
 
 /* A common worsted sweater pattern, in inches. */
@@ -537,5 +537,61 @@ describe("adviseYarn: scaled for the knitter's gauge", () => {
     });
     assert.equal(tbl.yarnAdjusted, false);
     assert.equal(tbl.rows[4].need, 1400);
+  });
+});
+
+describe("adviseSubstitute: a ball band against the pattern", () => {
+  const sub = (bandGauge, patternGauge = 18) => adviseSubstitute({ patternGauge, bandGauge });
+
+  test("stays quiet until a band gauge is typed", () => {
+    assert.equal(sub(""), null);
+    assert.equal(sub(null), null);
+  });
+
+  test("asks for the pattern's gauge before it will compare", () => {
+    assert.equal(sub("20", "").kind, "askPattern");
+  });
+
+  test("within a quarter stitch is a match", () => {
+    const r = sub("18.2");
+    assert.equal(r.kind, "match");
+    assert.equal(r.tone, "ok");
+  });
+
+  test("a stitch finer is close, and points the needle up", () => {
+    const r = sub("19");
+    assert.equal(r.kind, "close");
+    assert.equal(r.away, 1);
+    assert.equal(r.finer, true);
+  });
+
+  test("three stitches heavier is a stretch, about a size and a half down", () => {
+    const r = sub("15");
+    assert.equal(r.kind, "stretch");
+    assert.equal(r.tone, "warn");
+    assert.equal(r.finer, false);
+    assert.equal(r.toolSizes, 1.5);
+  });
+
+  test("four stitches away is a different yarn", () => {
+    assert.equal(sub("22").kind, "no");
+    assert.equal(sub("14").kind, "no");
+  });
+
+  test("reads the band the way the fields deliver it, comma and all", () => {
+    assert.equal(sub("17,5").away, 0.5);
+  });
+});
+
+describe("ballsFor: whole balls to buy", () => {
+  test("rounds up, because shops do not sell fractions", () => {
+    assert.equal(ballsFor(1541, "220"), 8);
+    assert.equal(ballsFor(1320, "220"), 6);
+  });
+
+  test("needs both numbers", () => {
+    assert.equal(ballsFor(null, "220"), null);
+    assert.equal(ballsFor(1541, ""), null);
+    assert.equal(ballsFor(0, "220"), null);
   });
 });
