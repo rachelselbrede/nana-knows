@@ -365,3 +365,17 @@ for (const lang of LANGS) {
     });
   });
 }
+
+/* ---------- the designers' note ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the designers' note has words`, () => {
+    test("intro, three steps, and the privacy note", () => {
+      assertSentence(say(lang, "designers.intro"), `${lang} designers/intro`);
+      const steps = say(lang, "designers.steps");
+      assert.equal(steps.length, 3);
+      steps.forEach((s, i) => assertSentence(s, `${lang} designers/step${i}`));
+      assertSentence(say(lang, "designers.note"), `${lang} designers/note`);
+      assert.ok(say(lang, "designers.summary").length > 3);
+    });
+  });
+}

@@ -301,6 +301,20 @@ export default {
         .join(" "),
   },
 
+  /* Cómo poner a Nana en un patrón. Va al pie de la página, sin estorbar a
+     quien teje; es la única sección escrita para quienes diseñan. */
+  designers: {
+    summary: "¿Diseñas patrones?",
+    intro:
+      "Pon a Nana en tu patrón. Completa solo la tarjeta del patrón de arriba (muestra, tallas, lana), deja el resto en blanco y copia el enlace. Quien lo siga encontrará a Nana con tus números ya puestos, y con sus propias medidas sacadas del cuaderno si Nana ya la conoce, así que responde apenas llega.",
+    steps: [
+      "Completa la tarjeta del patrón y nada más.",
+      "Pulsa «Copiar un enlace con estos números».",
+      "Ponlo en el patrón, en tu página o en una publicación de Ravelry como «¿No sabes qué talla? Pregúntale a Nana».",
+    ],
+    note: "El enlace lleva solo los números de tu patrón, nunca las medidas de nadie, y Nana no guarda registro de quién lo sigue.",
+  },
+
   proverbs: {
     knit: [
       "Mide dos veces, monta una sola.",

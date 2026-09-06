@@ -10,7 +10,7 @@ about where the project stands and where it could go.
 ## Read this bit first
 
 Everything is on `main` and live. The `nana-upgrades` batch described below
-merged and deployed on 31 August 2026, and five things have shipped since:
+merged and deployed on 31 August 2026, and since then:
 
 - **The all-sizes comparison table** (`1c24f84`) — item 2 of the feature list
   further down. `sizeTable()` in `advice.js` lays out every pattern size with
@@ -30,6 +30,17 @@ merged and deployed on 31 August 2026, and five things have shipped since:
 - **The weighing helper** — grams on a kitchen scale become skeins in the
   basket card, via `gramsToSkeins()`; the same disclosure pattern as the
   swatch helper.
+- **A screen-reader status line** replaces the polite region that read every
+  card at once; focus lands on the results heading. Share params are capped
+  at `MAX_PARAM` characters.
+- **Pattern notation in the parser** — `32 (36, 40, 44)` pasted straight from
+  the pattern, brackets as separators, everything before the last colon
+  treated as a label (and said so when it held digits).
+- **Designer links** — a link carrying only the pattern's numbers is merged
+  with the knitter's notebook (converted into the link's units), and Nana
+  answers on arrival. `PERSONAL_KEYS` decides which links keep the notebook
+  closed. The README has a "For designers" section and the page a matching
+  disclosure.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and

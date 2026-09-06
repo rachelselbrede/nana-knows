@@ -77,6 +77,36 @@ One-time setup in the GitHub repo: Settings → Pages → set Source to "GitHub 
 Note: `base` in `vite.config.js` is set to `/nana-knows/` and must match the
 repo name. If you later use a custom domain, change `base` to `/`.
 
+## For designers
+
+Nana can arrive with your pattern already filled in. Every field she asks
+about can ride in the link, so a pattern page, a PDF or a Ravelry post can
+say *"Not sure which size? Ask Nana"* and hand her your numbers:
+
+```
+https://rachelselbrede.github.io/nana-knows/?s=32,36,40,44,48,52&y=900,1000,1100,1250,1400,1550&pg=18&prg=24&u=in&c=knit&lang=en
+```
+
+| param | what it carries |
+| --- | --- |
+| `s` | finished sizes, smallest to largest |
+| `y` | yarn each size needs, same order |
+| `pg`, `prg` | the pattern's stitch and row gauge, per 4 in or per 10 cm |
+| `u` | `in` or `cm` — the units the numbers above are in |
+| `c` | `knit` or `crochet` |
+| `lang` | `en` or `es` |
+
+The easiest way to build one: fill in only the pattern card on the site,
+leave the rest blank, and press "Copy a link to these numbers".
+
+A link that carries only the pattern is combined with whatever the knitter
+has asked Nana to remember — her bust, her gauge, her basket — converted into
+your units if need be, and when that adds up to enough Nana answers the moment
+the page opens. A link that carries someone's own measurements (`b`, `mg`,
+`mrg`, `ps`, `sk`, `e`) is treated as that person's project instead, and the
+notebook stays closed. Nana keeps no record of who follows a link; there is
+nothing to record it with.
+
 ## Someday
 
 Ideas worth doing, not built yet. Nothing here is promised, and none of it

@@ -301,6 +301,20 @@ export default {
         .join(" "),
   },
 
+  /* How to put Nana in a pattern. Sits at the foot of the page, out of the
+     knitter's way; it is the one section written for designers. */
+  designers: {
+    summary: "Are you a designer?",
+    intro:
+      "Put Nana in your pattern. Fill in only the pattern card above — gauge, sizes, yardage — leave the rest blank, and copy the link. Anyone who follows it finds Nana with your numbers already in place, and with their own measurements from her notebook if she has met them before, so she answers the moment they arrive.",
+    steps: [
+      "Fill in the pattern card and nothing else.",
+      "Press “Copy a link to these numbers”.",
+      "Put it in the pattern, on your page, or in a Ravelry post as “Not sure which size? Ask Nana.”",
+    ],
+    note: "The link carries only your pattern's numbers, never anyone's measurements, and Nana keeps no record of who follows it.",
+  },
+
   proverbs: {
     knit: [
       "Measure twice, cast on once.",
