@@ -17,9 +17,13 @@ import { readShareLink, buildShareUrl } from "./lib/share.js";
 import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
 import { adviceAsText } from "./lib/words.js";
 import { C } from "./palette.js";
-import { GrannySquare } from "./components/GrannySquare.jsx";
-import { Nana } from "./components/Nana.jsx";
-import { Toggle } from "./components/Toggle.jsx";
+import { GlobalStyle } from "./components/GlobalStyle.jsx";
+import { Header } from "./components/Header.jsx";
+import { Toggles } from "./components/Toggles.jsx";
+import { RememberRow } from "./components/RememberRow.jsx";
+import { MathNote } from "./components/MathNote.jsx";
+import { DesignersNote } from "./components/DesignersNote.jsx";
+import { Footer } from "./components/Footer.jsx";
 import { PatternCard } from "./components/PatternCard.jsx";
 import { YouCard } from "./components/YouCard.jsx";
 import { BasketCard } from "./components/BasketCard.jsx";
@@ -327,133 +331,12 @@ export default function NanaKnows() {
 
   return (
     <div style={{ background: C.oat, minHeight: "100vh", color: C.espresso }}>
-      <style>{`
-        .nk-bob { animation: nkbob 4s ease-in-out infinite; }
-        @keyframes nkbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .nk-pop { animation: nkpop .4s ease-out both; }
-        @keyframes nkpop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-        @media (prefers-reduced-motion: reduce) { .nk-bob, .nk-pop { animation: none; } }
-        .nk-link {
-          text-decoration: underline; text-decoration-thickness: 2px;
-          text-underline-offset: 3px; text-decoration-color: ${C.line};
-          transition: color .15s ease, text-decoration-color .15s ease;
-        }
-        .nk-link:hover { color: ${C.rose}; text-decoration-color: ${C.rose}; }
-        /* The butter ring alone is 1.76:1 against the oat background — nearly
-           invisible to exactly the eyes that lean on it. An espresso ring
-           underneath lifts the pair well past the 3:1 that WCAG asks of focus
-           indicators, and it only ever draws for keyboard focus. */
-        .nk-focus:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-          outline: 3px solid ${C.butter}; outline-offset: 2px;
-          box-shadow: 0 0 0 2px ${C.espresso};
-        }
-        /* The results container takes focus programmatically so a screen
-           reader starts where the answer starts. That focus is for the reading
-           order, not the eye — without this, the browser draws its default
-           ring around all four cards. */
-        .nk-results:focus, .nk-results:focus-visible,
-        .nk-results-head:focus, .nk-results-head:focus-visible { outline: none; box-shadow: none; }
-        .nk-edge {
-          height: 13px;
-          background-image: radial-gradient(circle at 10px 0px, ${C.rose} 9px, transparent 10px);
-          background-size: 20px 13px;
-          background-repeat: repeat-x;
-        }
-        input::placeholder, textarea::placeholder { color: #817464; }
-        summary { cursor: pointer; }
-        /* Print just Nana's advice, so it can go in a project bag. The form,
-           toggles, buttons and footer drop away; the header keeps her face. */
-        @media print {
-          .nk-noprint { display: none !important; }
-          body { background: #FFFFFF !important; }
-          .nk-results, .nk-results * {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .nk-pop { animation: none !important; }
-        }
-      `}</style>
+      <GlobalStyle />
 
-      {/* header */}
-      <header className="max-w-2xl mx-auto px-5 pt-8 pb-2">
-        {/* language switch */}
-        <div className="nk-noprint flex justify-end mb-2">
-          <div
-            role="group"
-            aria-label={t("lang.toggleLabel")}
-            className="inline-flex rounded-full overflow-hidden"
-            style={{ border: `2px solid ${C.line}` }}
-          >
-            <button
-              type="button"
-              onClick={() => setLang("en")}
-              aria-pressed={lang === "en"}
-              aria-label={t("lang.switchToEn")}
-              lang="en"
-              className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
-              style={{
-                fontFamily: "'Nunito', sans-serif",
-                background: lang === "en" ? C.sageDark : "transparent",
-                color: lang === "en" ? "#FFF" : C.sageDark,
-              }}
-            >
-              {t("lang.en")}
-            </button>
-            {/* lang="es": the label stays Spanish whichever language the page is
-                in, so say so, or a screen reader reads it with an English
-                accent. The English button is marked the same way. */}
-            <button
-              type="button"
-              onClick={() => setLang("es")}
-              aria-pressed={lang === "es"}
-              aria-label={t("lang.switchToEs")}
-              lang="es"
-              className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
-              style={{
-                fontFamily: "'Nunito', sans-serif",
-                background: lang === "es" ? C.sageDark : "transparent",
-                color: lang === "es" ? "#FFF" : C.sageDark,
-              }}
-            >
-              {t("lang.es")}
-            </button>
-          </div>
-        </div>
-        <div className="flex items-end gap-4 sm:gap-6">
-          <div className="shrink-0">
-            <Nana size={140} label={t("nana.alt")} />
-          </div>
-          <div className="pb-2">
-            <h1
-              className="leading-none"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, fontSize: "clamp(34px, 8vw, 52px)" }}
-            >
-              Nana Knows
-            </h1>
-            <p className="mt-2 text-sm sm:text-base" style={{ fontFamily: "'Nunito', sans-serif", color: "#6B5847" }}>
-              {t("header.tagline")}
-            </p>
-            <p className="mt-2 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageDark }}>
-              {t("header.badge")}
-            </p>
-          </div>
-        </div>
-      </header>
-      <div className="nk-edge" aria-hidden="true" />
+      <Header t={t} lang={lang} setLang={setLang} />
 
       <main className="max-w-2xl mx-auto px-5 py-7 flex flex-col gap-5">
-        {/* toggles */}
-        <div className="nk-noprint flex flex-wrap items-center gap-2">
-          <div role="group" aria-label={t("toggle.craftLabel")} className="flex gap-2">
-            <Toggle value="knit" current={craft} set={setCraft}>{t("toggle.knitting")}</Toggle>
-            <Toggle value="crochet" current={craft} set={setCraft}>{t("toggle.crochet")}</Toggle>
-          </div>
-          <span className="mx-1" aria-hidden="true" style={{ color: C.line }}>|</span>
-          <div role="group" aria-label={t("toggle.unitsLabel")} className="flex gap-2">
-            <Toggle value="in" current={units} set={switchUnits}>{t("toggle.inYds")}</Toggle>
-            <Toggle value="cm" current={units} set={switchUnits}>{t("toggle.cmM")}</Toggle>
-          </div>
-        </div>
+        <Toggles t={t} craft={craft} setCraft={setCraft} units={units} switchUnits={switchUnits} />
 
         {/* Everything from here to the Ask button is one form, so that pressing
             Enter in any field asks Nana, as a visitor would expect. */}
@@ -479,27 +362,7 @@ export default function NanaKnows() {
           </button>
         </form>
 
-        {/* remember me */}
-        <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
-          <button type="button" onClick={rememberMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
-            {t("remember.save")}
-          </button>
-          <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: "#7F6F5C" }}>
-            {t("remember.forget")}
-          </button>
-          <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
-            {t("share.button")}
-          </button>
-          {/* Always in the tree so the live region exists before the first
-              message lands — a region that appears with its text is skipped by
-              some screen readers. The span holds a key, not a sentence, so the
-              little confirmations follow a language switch like the advice
-              cards do. */}
-          <span role="status" style={{ color: "#826E5A" }}>{saveMsg ? t(saveMsg) : ""}</span>
-        </div>
-        <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#7F6F5C" }}>
-          {t("share.note")}
-        </p>
+        <RememberRow t={t} rememberMe={rememberMe} forgetMe={forgetMe} shareLink={shareLink} saveMsg={saveMsg} />
 
         <Results
           t={t}
@@ -514,57 +377,11 @@ export default function NanaKnows() {
           copyMsg={copyMsg}
         />
 
-        {/* how the math works */}
-        <details className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-          <summary className="nk-focus font-bold" style={{ fontFamily: "'Fraunces', serif", fontSize: 18 }}>
-            {t("math.summary")}
-          </summary>
-          <div className="mt-3 text-sm leading-relaxed flex flex-col gap-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#5C4B3E" }}>
-            <p><strong>{t("math.labels.size")}</strong> {t("math.size")}</p>
-            <p><strong>{t("math.labels.yarn")}</strong> {t("math.yarn")}</p>
-            <p><strong>{t("math.labels.tension")}</strong> {t("math.tension")}</p>
-            <p><strong>{t("math.labels.length")}</strong> {t("math.length")}</p>
-          </div>
-        </details>
-
-        {/* the one section written for designers, at the foot of the page */}
-        <details className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-          <summary className="nk-focus font-bold" style={{ fontFamily: "'Fraunces', serif", fontSize: 18 }}>
-            {t("designers.summary")}
-          </summary>
-          <div className="mt-3 text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif", color: "#5C4B3E" }}>
-            <p>{t("designers.intro")}</p>
-            <ol className="list-decimal pl-5 mt-2 flex flex-col gap-1.5">
-              {t("designers.steps").map((step, i) => (
-                <li key={i}>{step}</li>
-              ))}
-            </ol>
-            <p className="mt-3" style={{ color: C.sageDark }}>{t("designers.note")}</p>
-          </div>
-        </details>
+        <MathNote t={t} />
+        <DesignersNote t={t} />
       </main>
 
-      {/* footer */}
-      <footer className="nk-noprint max-w-2xl mx-auto px-5 pb-10 pt-2 text-center" style={{ fontFamily: "'Nunito', sans-serif" }}>
-        <div className="flex justify-center gap-2 mb-3" aria-hidden="true">
-          <GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} />
-        </div>
-        <p className="text-xs" style={{ color: "#826E5A" }}>
-          {t("footer.privacy")}
-        </p>
-        <p className="text-xs mt-3">
-          <a
-            href="https://github.com/rachelselbrede/nana-knows/issues"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="nk-focus nk-link font-bold rounded"
-            style={{ color: C.roseDark }}
-          >
-            {t("footer.learnNext")}
-            <span className="sr-only"> {t("footer.newTab")}</span>
-          </a>
-        </p>
-      </footer>
+      <Footer t={t} />
     </div>
   );
 }
