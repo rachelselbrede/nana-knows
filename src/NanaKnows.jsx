@@ -16,6 +16,8 @@ import {
   r1,
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
+import { readShareLink, buildShareUrl } from "./lib/share.js";
+import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
 import { C } from "./palette.js";
 import { GrannySquare } from "./components/GrannySquare.jsx";
 import { MeasureBust } from "./components/MeasureBust.jsx";
@@ -28,47 +30,6 @@ import { labelStyle, inputStyle, thStyle } from "./components/fieldStyles.js";
 /* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
    where they are pure and covered by tests. See src/lib/parse.js for why the
    comma is such hard work, and src/lib/advice.js for the sizing maths. */
-
-/* The project fields Nana can carry in a shared link, keyed short to keep
-   URLs tidy. Everything stays client-side: the link itself is the storage. */
-const SHARE_TEXT_KEYS = {
-  pg: "patternGauge",
-  prg: "patternRowGauge",
-  s: "sizesText",
-  y: "yardsText",
-  b: "bust",
-  mg: "myGauge",
-  mrg: "myRowGauge",
-  ps: "perSkein",
-  sk: "skeins",
-};
-
-/* Only these params mean "someone shared a project". Anything else — a
-   ?fbclid=, a ?utm_source= stuck on by whichever platform relayed the link —
-   must not be allowed to talk Nana out of opening her notebook. */
-const SHARE_KEYS = new Set(["u", "c", "e", ...Object.keys(SHARE_TEXT_KEYS)]);
-
-/* A shared link is untrusted text. React escapes it, so the risk was never
-   injection — it was a 50 kB ?b= value pasted into a field and rendered. A
-   dozen sizes with spaces run to about 70 characters; nothing honest is
-   longer than this. */
-const MAX_PARAM = 120;
-
-/* The params that are the knitter's own. A link carrying any of these was
-   shared by a person, numbers and all, and must not be mixed with the
-   notebook. A link carrying only the pattern's numbers — a designer's "ask
-   Nana which size" link — is exactly what the notebook is for. */
-const PERSONAL_KEYS = new Set(["b", "mg", "mrg", "ps", "sk", "e"]);
-
-/* The share params on this visit, or null when none brought us here. */
-const sharedParams = () => {
-  try {
-    const p = new URLSearchParams(window.location.search);
-    return [...p.keys()].some((k) => SHARE_KEYS.has(k)) ? p : null;
-  } catch (e) {
-    return null;
-  }
-};
 
 /* ---------- the app ---------- */
 export default function NanaKnows() {
@@ -179,64 +140,24 @@ export default function NanaKnows() {
      mixing hers with someone else's would be wrong. So a designer's link,
      which holds only the pattern, arrives with the knitter's bust, gauge and
      basket already filled in, and when that adds up to enough, Nana answers
-     on the spot.
-
-     Nothing in the notebook is taken on trust: it may have been written by an
-     older version of the app, or by a hand in the browser console. An easeIdx
-     of 7 would send askNana past the end of the ease list and kill the button;
-     a units value that is neither "in" nor "cm" would leave the toggle
-     unselected and run conversions from a nonsense baseline. And the notebook
-     was written in whatever units were showing at the time, so when the link
-     asks for the other system its numbers are converted on the way in — a
-     38 in bust must not turn up as 38 cm. */
+     on the spot. The reading and validating of both sources lives in
+     src/lib, where it is tested; this effect only decides who wins. */
   useEffect(() => {
-    const p = sharedParams();
-    const get = (k) => (p ? p.get(k) : null);
-    const linkHasPersonal = p !== null && [...p.keys()].some((k) => PERSONAL_KEYS.has(k));
-    const linkUnits = get("u") === "cm" ? "cm" : get("u") === "in" ? "in" : null;
-
-    let d = null;
-    if (!linkHasPersonal) {
+    const link = readShareLink(window.location.search);
+    let notebook = null;
+    if (!link || !link.hasPersonal) {
       try {
-        const saved = localStorage.getItem("nana-notebook");
-        if (saved) d = JSON.parse(saved);
+        notebook = readNotebook(localStorage);
       } catch (e) {
-        /* nothing saved yet, and that is fine */
+        /* no storage at all, and that is fine */
       }
     }
-    const notebookUnits = d && (d.units === "in" || d.units === "cm") ? d.units : null;
-    const finalUnits = linkUnits ?? notebookUnits;
+    const finalUnits = (link && link.units) ?? (notebook && notebook.units) ?? null;
     if (finalUnits) setUnits(finalUnits);
 
-    if (get("c")) setCraft(get("c") === "crochet" ? "crochet" : "knit");
-    else if (d && (d.craft === "knit" || d.craft === "crochet")) setCraft(d.craft);
+    if (link && link.craft) setCraft(link.craft);
+    else if (notebook && notebook.craft) setCraft(notebook.craft);
 
-    let remembered = false;
-    if (d) {
-      const flip = notebookUnits !== null && finalUnits !== null && notebookUnits !== finalUnits;
-      const toMetric = finalUnits === "cm";
-      const via = (f) => (flip ? (v) => convertOne(v, f) : (v) => v);
-      const len = via(toMetric ? inchesToCm : cmToInches);
-      const yarn = via(toMetric ? yardsToMetres : metresToYards);
-      const gauge = via(toMetric ? gaugePer4inToPer10cm : gaugePer10cmToPer4in);
-      if (d.bust) { setBust(len(String(d.bust))); remembered = true; }
-      if (Number.isInteger(d.easeIdx) && d.easeIdx >= 0 && d.easeIdx <= 4) setEaseIdx(d.easeIdx);
-      if (d.myGauge) { setMyGauge(gauge(String(d.myGauge))); remembered = true; }
-      if (d.myRowGauge) { setMyRowGauge(gauge(String(d.myRowGauge))); remembered = true; }
-      if (d.perSkein) { setPerSkein(yarn(String(d.perSkein))); remembered = true; }
-      if (d.skeins) { setSkeins(String(d.skeins)); remembered = true; }
-    }
-
-    if (!p) {
-      if (d) setSaveMsg("save.remembered");
-      return;
-    }
-
-    const e = get("e");
-    if (e != null && e !== "") {
-      const n = Number(e);
-      if (Number.isInteger(n) && n >= 0 && n <= 4) setEaseIdx(n);
-    }
     const setter = {
       patternGauge: setPatternGauge,
       patternRowGauge: setPatternRowGauge,
@@ -248,14 +169,24 @@ export default function NanaKnows() {
       perSkein: setPerSkein,
       skeins: setSkeins,
     };
-    Object.entries(SHARE_TEXT_KEYS).forEach(([key, field]) => {
-      const v = get(key);
-      if (v != null && v !== "") setter[field](v.slice(0, MAX_PARAM));
-    });
+    let remembered = false;
+    if (notebook) {
+      const nb = notebookInUnits(notebook, finalUnits);
+      if (nb.easeIdx !== null) setEaseIdx(nb.easeIdx);
+      Object.entries(nb.fields).forEach(([field, v]) => setter[field](v));
+      remembered = Object.keys(nb.fields).length > 0;
+    }
+
+    if (!link) {
+      if (notebook) setSaveMsg("save.remembered");
+      return;
+    }
+    if (link.easeIdx !== null) setEaseIdx(link.easeIdx);
+    Object.entries(link.fields).forEach(([field, v]) => setter[field](v));
 
     /* Enough to answer: sizes from the link, a measurement from either. */
     const msg = remembered ? "share.loadedRemembered" : "share.loaded";
-    if (get("s") && (get("b") || (d && d.bust))) {
+    if (link.fields.sizesText && (link.fields.bust || (notebook && notebook.fields.bust))) {
       loadedMsg.current = msg;
       setPendingAutoRun(true);
     } else {
@@ -265,49 +196,21 @@ export default function NanaKnows() {
 
   const rememberMe = () => {
     try {
-      localStorage.setItem(
-        "nana-notebook",
-        JSON.stringify({ units, craft, bust, easeIdx, myGauge, myRowGauge, perSkein, skeins })
-      );
+      writeNotebook(localStorage, { units, craft, easeIdx, bust, myGauge, myRowGauge, perSkein, skeins });
       setSaveMsg("save.written");
     } catch (e) {
       setSaveMsg("save.notHandy");
     }
   };
 
-  /* Build a link that carries the current inputs. Always includes the
-     language: it used to be copied from the URL, which only has ?lang once the
-     toggle has been clicked — so a Spanish speaker whose language came from
-     her browser shared links that opened in English. The i18n hook knows the
-     real answer however it was chosen. Units and craft ride along too, so
-     numbers are never misread, and empty fields are skipped. */
-  const buildShareUrl = () => {
-    const url = new URL(window.location.href);
-    const fresh = new URLSearchParams();
-    fresh.set("lang", lang);
-    fresh.set("u", units);
-    fresh.set("c", craft);
-    if (easeIdx !== 2) fresh.set("e", String(easeIdx));
-    const values = {
-      pg: patternGauge,
-      prg: patternRowGauge,
-      s: sizesText,
-      y: yardsText,
-      b: bust,
-      mg: myGauge,
-      mrg: myRowGauge,
-      ps: perSkein,
-      sk: skeins,
-    };
-    Object.entries(values).forEach(([k, v]) => {
-      if (v != null && String(v).trim() !== "") fresh.set(k, v);
-    });
-    url.search = fresh.toString();
-    return url.toString();
-  };
-
   const shareLink = async () => {
-    const url = buildShareUrl();
+    const url = buildShareUrl(window.location.href, {
+      lang,
+      units,
+      craft,
+      easeIdx,
+      fields: { patternGauge, patternRowGauge, sizesText, yardsText, bust, myGauge, myRowGauge, perSkein, skeins },
+    });
     try {
       await navigator.clipboard.writeText(url);
       setSaveMsg("share.copied");
@@ -324,7 +227,7 @@ export default function NanaKnows() {
 
   const forgetMe = () => {
     try {
-      localStorage.removeItem("nana-notebook");
+      clearNotebook(localStorage);
     } catch (e) {
       /* ignore */
     }
