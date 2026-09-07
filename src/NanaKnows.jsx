@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useI18n } from "./i18n/index.jsx";
 import {
-  parseNumberList,
   parseList,
   parseOne,
   convertOne,
@@ -17,22 +16,14 @@ import {
   r1,
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
-
-/* ---------- Nana's palette ---------- */
-const C = {
-  oat: "#FBF6EC",
-  card: "#FFFDF9",
-  rose: "#D4718C",
-  roseDark: "#AF546F",
-  sage: "#7E9B76",
-  sageDark: "#5C7956",
-  butter: "#E9B44C",
-  espresso: "#3E2F25",
-  line: "#E4D5C3",
-  skin: "#F6D7BD",
-  hair: "#CFC6C0",
-  cheek: "#F2AAB2",
-};
+import { C } from "./palette.js";
+import { GrannySquare } from "./components/GrannySquare.jsx";
+import { MeasureBust } from "./components/MeasureBust.jsx";
+import { Nana } from "./components/Nana.jsx";
+import { AdviceCard } from "./components/AdviceCard.jsx";
+import { Toggle } from "./components/Toggle.jsx";
+import { ParseEcho } from "./components/ParseEcho.jsx";
+import { labelStyle, inputStyle, thStyle } from "./components/fieldStyles.js";
 
 /* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
    where they are pure and covered by tests. See src/lib/parse.js for why the
@@ -77,275 +68,6 @@ const sharedParams = () => {
   } catch (e) {
     return null;
   }
-};
-
-/* ---------- tiny granny square icon ---------- */
-function GrannySquare({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="1" y="1" width="22" height="22" rx="4" fill={C.butter} />
-      <rect x="5" y="5" width="14" height="14" rx="3" fill={C.sage} />
-      <rect x="9" y="9" width="6" height="6" rx="2" fill={C.rose} />
-      <circle cx="12" cy="12" r="1.4" fill={C.card} />
-    </svg>
-  );
-}
-
-/* ---------- how-to-measure diagram ----------
-   A flat-lay cabled sweater — crew neck, sleeves laid at an angle the way a
-   sweater actually sits on a table, ribbed hem and cuffs — with a soft tape
-   measure crossing the bust from side seam to side seam. The tape overhangs
-   each edge a touch and ends in its metal tab, so it reads as wrapping round
-   to the back rather than lying on top. Same flat, rounded art as Nana. */
-
-/* One cable column: two strands weaving around each other, six crossings tall.
-   Written as a loop because three hand-transcribed braids would be ninety
-   coordinates nobody could ever safely retouch. Each curve segment ends going
-   straight down, so the strands stay smooth where the segments meet. */
-const cablePath = (cx) => {
-  const L = cx - 3.5;
-  const R = cx + 3.5;
-  let a = `M ${L} 44`;
-  let b = `M ${R} 44`;
-  for (let y = 44; y < 116; y += 12) {
-    const leftToRight = ((y - 44) / 12) % 2 === 0;
-    const [from, to] = leftToRight ? [L, R] : [R, L];
-    a += ` C ${from} ${y + 5}, ${to} ${y + 7}, ${to} ${y + 12}`;
-    b += ` C ${to} ${y + 5}, ${from} ${y + 7}, ${from} ${y + 12}`;
-  }
-  return `${a} ${b}`;
-};
-
-function MeasureBust({ size = 132, label }) {
-  return (
-    <svg
-      width={size}
-      height={size * 1.07}
-      viewBox="0 0 140 150"
-      role="img"
-      aria-label={label}
-    >
-      {/* sweater body + sleeves, the sleeves curving gently steeper as they
-          fall so they run long beside the body instead of stopping at the ribs */}
-      <path
-        d="M56 28 L38 34 Q12 62 5 106 L20 114 Q24 82 35 62 L35 134 L105 134 L105 62 Q116 82 120 114 L135 106 Q128 62 102 34 L84 28 Q70 40 56 28 Z"
-        fill={C.sage}
-        stroke={C.sageDark}
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      {/* three cable columns down the front; the tape lies over their middle */}
-      <path
-        d={[52, 70, 88].map(cablePath).join(" ")}
-        fill="none"
-        stroke={C.sageDark}
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        opacity="0.5"
-      />
-      {/* ribbed crew neckline */}
-      <path d="M56 28 Q70 40 84 28" fill="none" stroke={C.oat} strokeWidth="5" strokeLinecap="round" />
-      <path d="M56 28 Q70 40 84 28" fill="none" stroke={C.sageDark} strokeWidth="1.5" strokeLinecap="round" />
-      {/* ribbed hem */}
-      <path d="M37 123 L103 123" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
-      <g stroke={C.sageDark} strokeWidth="1.4" strokeLinecap="round" opacity="0.65">
-        <line x1="45" y1="126.5" x2="45" y2="131.5" />
-        <line x1="55" y1="126.5" x2="55" y2="131.5" />
-        <line x1="65" y1="126.5" x2="65" y2="131.5" />
-        <line x1="75" y1="126.5" x2="75" y2="131.5" />
-        <line x1="85" y1="126.5" x2="85" y2="131.5" />
-        <line x1="95" y1="126.5" x2="95" y2="131.5" />
-      </g>
-      {/* ribbed cuffs */}
-      <path d="M6 100.5 L21 108.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M134 100.5 L119 108.5" stroke={C.sageDark} strokeWidth="2.5" strokeLinecap="round" />
-
-      {/* tape measure across the bust, side seam to side seam and a little past */}
-      <path
-        d="M32 68 Q70 76 108 68 L108 78 Q70 86 32 78 Z"
-        fill={C.rose}
-        stroke={C.roseDark}
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-      {/* measurement ticks, following the tape's sag */}
-      <g stroke={C.oat} strokeWidth="1.5" strokeLinecap="round">
-        <line x1="42" y1="72.3" x2="42" y2="77.8" />
-        <line x1="52" y1="73.6" x2="52" y2="79.1" />
-        <line x1="62" y1="74.3" x2="62" y2="79.8" />
-        <line x1="72" y1="74.5" x2="72" y2="80" />
-        <line x1="82" y1="74.1" x2="82" y2="79.6" />
-        <line x1="92" y1="73.2" x2="92" y2="78.7" />
-      </g>
-      {/* metal tab capping the tape's end, tilted to match its slope */}
-      <rect x="102" y="67.5" width="8" height="11" rx="1.5" fill={C.roseDark} transform="rotate(-12 106 73)" />
-    </svg>
-  );
-}
-
-/* ---------- Nana Purl herself ----------
-   No default for `label` on purpose: every call site passes t("nana.alt"), and
-   a hardcoded English fallback would let a future call site quietly ship an
-   English aria-label to a Spanish screen reader instead of failing in review. */
-function Nana({ size = 150, bob = true, label }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 200 210"
-      role="img"
-      aria-label={label}
-      className={bob ? "nk-bob" : ""}
-    >
-      {/* cardigan body */}
-      <path
-        d="M52 208 L52 152 Q52 122 100 122 Q148 122 148 152 L148 208 Z"
-        fill={C.sage}
-      />
-      {/* collar */}
-      <path d="M84 124 L100 146 L116 124 Q100 132 84 124 Z" fill={C.oat} />
-      {/* buttons */}
-      <circle cx="100" cy="154" r="3" fill={C.butter} />
-      <circle cx="100" cy="168" r="3" fill={C.butter} />
-      {/* bun */}
-      <circle cx="100" cy="34" r="21" fill={C.hair} />
-      <path
-        d="M84 30 Q100 20 116 30"
-        stroke="#B9AFA8"
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* knitting needle through the bun */}
-      <line x1="66" y1="20" x2="134" y2="36" stroke={C.butter} strokeWidth="4" strokeLinecap="round" />
-      <circle cx="64" cy="19.5" r="4.5" fill={C.roseDark} />
-      {/* hair */}
-      <circle cx="100" cy="76" r="47" fill={C.hair} />
-      {/* face */}
-      <circle cx="100" cy="82" r="38" fill={C.skin} />
-      {/* glasses */}
-      <circle cx="83" cy="80" r="12.5" fill="none" stroke="#8A5A44" strokeWidth="3" />
-      <circle cx="117" cy="80" r="12.5" fill="none" stroke="#8A5A44" strokeWidth="3" />
-      <line x1="95.5" y1="80" x2="104.5" y2="80" stroke="#8A5A44" strokeWidth="3" />
-      {/* eyes */}
-      <circle cx="83" cy="81" r="3.4" fill={C.espresso} />
-      <circle cx="117" cy="81" r="3.4" fill={C.espresso} />
-      {/* cheeks */}
-      <circle cx="68" cy="96" r="6" fill={C.cheek} opacity="0.8" />
-      <circle cx="132" cy="96" r="6" fill={C.cheek} opacity="0.8" />
-      {/* smile */}
-      <path
-        d="M88 101 Q100 111 112 101"
-        stroke={C.espresso}
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* arms */}
-      <path
-        d="M56 150 Q60 176 82 182"
-        stroke={C.sageDark}
-        strokeWidth="14"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <path
-        d="M144 150 Q140 176 118 182"
-        stroke={C.sageDark}
-        strokeWidth="14"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* yarn ball */}
-      <circle cx="100" cy="180" r="21" fill={C.rose} />
-      <path d="M81 174 Q100 166 119 174" stroke={C.roseDark} strokeWidth="2.5" fill="none" />
-      <path d="M80 184 Q100 176 120 184" stroke={C.roseDark} strokeWidth="2.5" fill="none" />
-      <path d="M84 192 Q100 186 116 192" stroke={C.roseDark} strokeWidth="2.5" fill="none" />
-      {/* loose yarn tail */}
-      <path
-        d="M120 186 Q140 192 146 204"
-        stroke={C.rose}
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* hands */}
-      <circle cx="82" cy="181" r="8.5" fill={C.skin} />
-      <circle cx="118" cy="181" r="8.5" fill={C.skin} />
-    </svg>
-  );
-}
-
-/* ---------- advice card ---------- */
-function AdviceCard({ color, title, children, tone }) {
-  return (
-    <div
-      className="rounded-2xl overflow-hidden nk-pop"
-      style={{ background: C.card, border: `2px dashed ${C.line}` }}
-    >
-      <div style={{ height: 8, background: color }} />
-      <div className="p-4 sm:p-5">
-        <h3
-          className="mb-2 text-base font-bold"
-          style={{ fontFamily: "'Fraunces', serif", color: C.espresso }}
-        >
-          {title}
-        </h3>
-        <p
-          className="text-sm leading-relaxed"
-          style={{ color: tone === "warn" ? C.roseDark : "#5C4B3E" }}
-        >
-          {children}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- shared small pieces ----------
-   These live at module scope on purpose. Defined inside the component they
-   would be a brand-new component type every render, so React would tear down
-   and rebuild their DOM instead of updating it — which threw keyboard focus
-   off the craft and unit toggles the moment they were pressed. */
-
-/* aria-pressed matters here: the only other clue that you are in crochet
-   rather than knitting mode is the pink fill, which a screen reader cannot
-   see and a colour-blind visitor may not distinguish. */
-const Toggle = ({ value, current, set, children }) => (
-  <button
-    type="button"
-    onClick={() => set(value)}
-    aria-pressed={current === value}
-    className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
-    style={{
-      fontFamily: "'Nunito', sans-serif",
-      background: current === value ? C.rose : "transparent",
-      color: current === value ? "#FFF" : C.roseDark,
-      border: `2px solid ${current === value ? C.rose : C.line}`,
-    }}
-  >
-    {children}
-  </button>
-);
-
-/* Show the knitter what Nana made of her typing. Commas and dashes are
-   genuinely ambiguous — "32,36" could be two sizes or one odd decimal — and
-   no heuristic gets every case. Echoing the reading back turns a wrong guess
-   into something visible and correctable, which is worth more than a cleverer
-   guess would be. The span stays in the tree even when quiet, so the status
-   region exists before it has anything to announce, and the input points at it
-   with aria-describedby instead of swallowing it into its own label. */
-const ParseEcho = ({ id, text, t }) => {
-  const { values, issues } = parseNumberList(text);
-  const quiet = values.length === 0 || (values.length === 1 && issues.length === 0);
-  return (
-    <span id={id} role="status" className="text-xs" style={{ color: C.sageDark }}>
-      {quiet
-        ? ""
-        : t("echo.read", { list: values.join(", ") }) +
-          issues.map((i) => t(`echo.${i}`)).join("")}
-    </span>
-  );
 };
 
 /* ---------- the app ---------- */
@@ -905,31 +627,6 @@ export default function NanaKnows() {
     setSaveMsg(loadedMsg.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAutoRun]);
-
-  /* ---------- shared field styles ---------- */
-  const labelStyle = {
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 800,
-    fontSize: 11,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#826E5A",
-  };
-  const inputStyle = {
-    background: "#FFFFFF",
-    border: `2px solid ${C.line}`,
-    borderRadius: 12,
-    color: C.espresso,
-    fontFamily: "'Nunito', sans-serif",
-  };
-  /* Table headers wear the label colour but not the uppercase letter-spacing:
-     five spaced-out columns of capitals wrap into tall stacks on a phone. */
-  const thStyle = {
-    fontFamily: "'Nunito', sans-serif",
-    fontWeight: 800,
-    fontSize: 12,
-    color: "#826E5A",
-  };
 
   return (
     <div style={{ background: C.oat, minHeight: "100vh", color: C.espresso }}>
