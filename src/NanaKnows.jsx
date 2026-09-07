@@ -18,6 +18,7 @@ import {
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
 import { readShareLink, buildShareUrl } from "./lib/share.js";
 import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
+import { said, sizeText, yarnText, gaugeText, rowText, signed, tableNote, adviceAsText } from "./lib/words.js";
 import { C } from "./palette.js";
 import { GrannySquare } from "./components/GrannySquare.jsx";
 import { MeasureBust } from "./components/MeasureBust.jsx";
@@ -234,36 +235,11 @@ export default function NanaKnows() {
     setSaveMsg("save.forgotten");
   };
 
-  /* Turn the four advice cards into plain text Nana's visitor can paste into a
-     Ravelry project note. Built from the same messages shown on screen. */
+  /* Plain text for a Ravelry project note, built from the same words as the
+     cards. Assembled in src/lib/words.js, next to the sentences themselves. */
   const copyAdvice = async () => {
     if (!results || results.error) return;
-    const text = [
-      t("copy.heading"),
-      "",
-      /* The dictionary owns the quotation marks: Spanish advice gets its
-         guillemets in the pasted text, same as on screen. */
-      proverb ? t("copy.proverb", { proverb }) : "",
-      "",
-      t("advice.size"),
-      sizeText(),
-      "",
-      t("advice.yarn"),
-      yarnText(),
-      "",
-      t("advice.tension"),
-      gaugeText(),
-      "",
-      t("advice.length"),
-      rowText(),
-      /* The table travels too, one size per line, so the whole decision goes
-         into the project notes and not just the winner. */
-      ...(results.table
-        ? ["", t("table.title"), ...results.table.rows.map(tableLine)]
-        : []),
-    ]
-      .join("\n")
-      .replace(/\n{3,}/g, "\n\n");
+    const text = adviceAsText(t, results, craft, proverb);
     try {
       await navigator.clipboard.writeText(text);
       setCopyMsg("copy.done");
@@ -352,112 +328,7 @@ export default function NanaKnows() {
     announce();
   };
 
-  /* ---------- turning Nana's findings into Nana's words ----------
-     These run during render, which is what lets a language or craft switch
-     re-word advice that has already been given. */
   const proverb = proverbs[proverbIdx % proverbs.length];
-
-  /* Language and craft are pure wording, so advice already on screen should
-     follow a switch. Units are not: the numbers in `results` were worked out in
-     whichever system was showing when Nana was asked, and 40 in is not 40 cm.
-     So the cards keep the units they were measured in, even after the toggle
-     converts the fields above them. */
-  const said = () => {
-    const wasInch = results.inch;
-    return {
-      lenU: wasInch ? "in" : "cm",
-      yarnU: wasInch ? "yds" : "m",
-      gaugeLabel: t("label.gaugeLabel", { inch: wasInch }),
-      rowGaugeLabel: t("label.rowGaugeLabel", { inch: wasInch }),
-    };
-  };
-
-  const sizeText = () => {
-    const s = results.size;
-    const u = said();
-    const easeLabel = t("ease.labels", { inch: results.inch })[results.easeIdx].toLowerCase();
-    const base = s.gaugeAdjusted && s.actual !== s.best
-      ? t("result.size.mainAdjusted", {
-          best: s.best,
-          actual: s.actual,
-          lenU: u.lenU,
-          b: results.bust,
-          easeLabel,
-          target: s.target,
-        })
-      : t("result.size.main", {
-          best: s.best,
-          lenU: u.lenU,
-          b: results.bust,
-          easeLabel,
-          target: s.target,
-        });
-    return s.runnerUp !== null
-      ? base + t("result.size.runnerUp", { runnerUp: s.runnerUp })
-      : base;
-  };
-
-  const yarnText = () => {
-    const y = results.yarn;
-    const yarnU = said().yarnU;
-    const body = t(`result.yarn.${y.kind}`, { ...y, best: results.size.best, yarnU });
-    /* Postscripts in a fixed order: the gauge working first, because it
-       explains the figure just quoted, then the list-length nag. */
-    return (
-      body +
-      (y.gaugeAdjusted ? t("result.yarn.adjusted", { ...y, yarnU }) : "") +
-      (y.mismatch ? t("result.yarn.mismatch") : "")
-    );
-  };
-
-  const gaugeText = () => {
-    const u = said();
-    return t(`result.gauge.${results.gauge.kind}`, {
-      ...results.gauge,
-      gaugeLabel: u.gaugeLabel,
-      lenU: u.lenU,
-      craft,
-    });
-  };
-
-  const rowText = () => {
-    const u = said();
-    return t(`result.row.${results.row.kind}`, {
-      ...results.row,
-      rowGaugeLabel: u.rowGaugeLabel,
-      lenU: u.lenU,
-    });
-  };
-
-  /* The aim column reads best signed: "+1.2" is roomier than asked for,
-     "-0.8" snugger. String(-0) is "0" in JavaScript, so a hair under the aim
-     that rounds away never prints as a puzzling "-0". */
-  const signed = (n) => (n > 0 ? `+${n}` : String(n));
-
-  const tableNote = () =>
-    t("table.note", {
-      gaugeAdjusted: results.table.gaugeAdjusted,
-      hasVerdicts: results.table.hasVerdicts,
-      yarnAdjusted: results.table.yarnAdjusted,
-    });
-
-  /* One table row as a line of plain text, for the Ravelry copy below. */
-  const tableLine = (r) => {
-    const u = said();
-    const head =
-      `${r.size} ${u.lenU}` +
-      (results.table.gaugeAdjusted ? ` → ${r.actual} ${u.lenU}` : "");
-    const rest = [
-      r.need !== null ? `${r.need} ${u.yarnU}` : "",
-      r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: u.yarnU }) : "",
-    ].filter(Boolean);
-    const badge = r.best
-      ? ` — ${t("table.pick")}`
-      : r.runnerUp
-        ? ` — ${t("table.closeCall")}`
-        : "";
-    return [head, ...rest].join(" · ") + badge;
-  };
 
   /* ---------- the swatch helper ----------
      Live arithmetic, but nothing lands in the gauge fields until the knitter
@@ -516,7 +387,7 @@ export default function NanaKnows() {
   const substituteBallsText = () => {
     if (substitute === null || substitute.kind === "askPattern") return "";
     if (substituteBalls !== null) {
-      return t("substitute.balls", { balls: substituteBalls, best: results.size.best, buffered: substituteNeed, yarnU: said().yarnU });
+      return t("substitute.balls", { balls: substituteBalls, best: results.size.best, buffered: substituteNeed, yarnU: said(t, results).yarnU });
     }
     if (substituteNeed === null) return t("substitute.askFirst");
     return t("substitute.needPerSkein", { yarnU });
@@ -946,10 +817,10 @@ export default function NanaKnows() {
                   </h2>
                 </div>
               </div>
-              <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText()}</AdviceCard>
-              <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText()}</AdviceCard>
-              <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText()}</AdviceCard>
-              <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText()}</AdviceCard>
+              <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText(t, results)}</AdviceCard>
+              <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText(t, results)}</AdviceCard>
+              <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText(t, results, craft)}</AdviceCard>
+              <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText(t, results)}</AdviceCard>
 
               {/* Every size side by side. Columns only appear when there is
                   something honest to put in them: "comes out" needs both
@@ -969,19 +840,19 @@ export default function NanaKnows() {
                         <thead>
                           <tr>
                             <th scope="col" className="py-2 pr-3 text-left align-bottom" style={thStyle}>
-                              {t("table.size", { lenU: said().lenU })}
+                              {t("table.size", { lenU: said(t, results).lenU })}
                             </th>
                             {results.table.gaugeAdjusted && (
                               <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                                {t("table.comesOut", { lenU: said().lenU })}
+                                {t("table.comesOut", { lenU: said(t, results).lenU })}
                               </th>
                             )}
                             <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                              {t("table.vsAim", { target: results.table.target, lenU: said().lenU })}
+                              {t("table.vsAim", { target: results.table.target, lenU: said(t, results).lenU })}
                             </th>
                             {results.table.hasYards && (
                               <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                                {t("table.yarn", { yarnU: said().yarnU })}
+                                {t("table.yarn", { yarnU: said(t, results).yarnU })}
                               </th>
                             )}
                             {results.table.hasVerdicts && (
@@ -1024,7 +895,7 @@ export default function NanaKnows() {
                                   className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
                                   style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageDark : C.roseDark }}
                                 >
-                                  {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said().yarnU }) : "—"}
+                                  {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said(t, results).yarnU }) : "—"}
                                 </td>
                               )}
                             </tr>
@@ -1034,7 +905,7 @@ export default function NanaKnows() {
                     </div>
                     {(results.table.gaugeAdjusted || results.table.hasVerdicts) && (
                       <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: "#826E5A" }}>
-                        {tableNote()}
+                        {tableNote(t, results)}
                       </p>
                     )}
                   </div>
