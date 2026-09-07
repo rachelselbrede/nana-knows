@@ -46,6 +46,14 @@ merged and deployed on 31 August 2026, and since then:
   (match / close / stretch / no, thresholds `SUBSTITUTE_CLOSE` and
   `SUBSTITUTE_STRETCH`), and `ballsFor()` counts balls from the yarn card's
   cushioned need once a size is chosen.
+- **The component split** (six commits, 2 September 2026) — `NanaKnows.jsx`
+  went from 1,510 lines to under 400: palette, art, cards, helpers, results,
+  table, chrome and stylesheet into `src/components`; the link, the notebook
+  and the render-time wording into `src/lib`, each with tests of its own
+  (34 new). Every step was checked against a headless smoke run of the whole
+  app and came back identical. The review's `hooks/useNotebook.js` became
+  `lib/notebook.js` instead: pure functions over a storage argument beat a
+  hook for testing.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -170,12 +178,12 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 246 tests, 38 suites, all passing, ~75 ms, zero dependencies.
+- 280 tests, 46 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
 - Both dictionaries at 152 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 1,510 lines.
+- `NanaKnows.jsx` is about 390 lines; the rest is in `src/components` (26 files) and `src/lib`.
 
 ---
 
@@ -227,22 +235,25 @@ Ordered by value per hour. All respect the no-backend rule.
    `parse.js`) and the result lands in the skeins field. Still open: a
    pattern that quotes its yarn in balls or grams per size rather than length.
 
-### Structure, when it starts to hurt
+### Structure
 
-`NanaKnows.jsx` holds the palette, three SVG illustrations, all the state, the
-share/save/print plumbing and the whole layout. It is readable — the comments do
-heavy lifting — but it is the file that makes an experienced reviewer wince. The
-sketched split:
+Done, 2 September 2026, in six commits (`62d3e5f` to `87d9ff9`), each checked
+against a headless smoke run of the whole app that came back identical. What
+the split looks like now is the tree in `CLAUDE.md`; the short version:
 
 ```
-lib/share.js          buildShareUrl, readShareUrl
-hooks/useNotebook.js  the localStorage dance
-components/           Nana, GrannySquare, MeasureBust, AdviceCard,
-                      PatternCard, YouCard, BasketCard
-NanaKnows.jsx         ~150 lines of composition
+lib/share.js          readShareLink, buildShareUrl, PERSONAL_KEYS, MAX_PARAM — tested
+lib/notebook.js       read (validated), notebookInUnits, write, clear — tested;
+                      pure functions over a storage argument, where the review
+                      had sketched a hook
+lib/words.js          the render-time sentences, tested against both dictionaries
+components/           26 files: the cards, the helpers (each owning its scratch
+                      and following the unit toggle itself), Results, SizeTable,
+                      the chrome, the stylesheet, and the small shared pieces
+NanaKnows.jsx         ~390 lines: state, effects, askNana, handlers, composition
 ```
 
-Related: Tailwind v4 is installed but almost unused for colour. Moving the `C`
+Still open, and now cheap: Tailwind v4 is installed but almost unused for colour. Moving the `C`
 palette into an `@theme` block in `index.css` would let you write
 `bg-card border-line text-espresso`, delete several hundred lines of inline style
 objects, and make a `prefers-color-scheme: dark` variant a small change instead

@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 246 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 280 tests, ~75ms, zero dependencies
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
@@ -21,24 +21,39 @@ the directory argument as a module path.
 
 ```
 src/
-  NanaKnows.jsx     ~1510 lines: palette, three SVG illustrations, all state,
-                    share/save/print plumbing, entire layout
-  lib/parse.js      raw text -> numbers, unit conversion. Pure, no React, no language.
-                    parseOne is the only correct way to read a single-value field.
-  lib/advice.js     the arithmetic. Numbers in, {kind, tone, ...numbers} out.
-  i18n/index.jsx    I18nProvider / useI18n / t(). ~90 lines.
-  i18n/en.js        152 keys
-  i18n/es.js        152 keys, same shape
-  *.test.js         parse 77, advice 78, wording 91
+  NanaKnows.jsx       ~390 lines: all state, the unit switch, the mount effect
+                      that settles link against notebook, askNana, the share /
+                      remember / copy handlers, and the composition of the rest
+  palette.js          the C palette; every colour in the app
+  lib/parse.js        raw text -> numbers, unit conversion, the swatch and scale
+                      arithmetic. Pure, no React, no language. parseOne is the
+                      only correct way to read a single-value field.
+  lib/advice.js       the arithmetic. Numbers in, {kind, tone, ...numbers} out.
+  lib/words.js        results -> sentences, through t(). Runs at render; tested
+                      against both dictionaries without React.
+  lib/share.js        shared links: read (validated, capped), build, PERSONAL_KEYS
+  lib/notebook.js     the localStorage notebook: read (validated), convert into
+                      the link's units, write, clear. Takes the storage as an arg.
+  components/         Header, Toggles, PatternCard, YouCard (SwatchHelper,
+                      MeasureGuide), BasketCard (WeighHelper, SubstituteHelper),
+                      RememberRow, Results, SizeTable, MathNote, DesignersNote,
+                      Footer, GlobalStyle; and the small pieces they share:
+                      FormCard, Disclosure, AdviceCard, Toggle, ParseEcho, Nana,
+                      GrannySquare, MeasureBust, fieldStyles, scratch
+  i18n/index.jsx      I18nProvider / useI18n / t(). ~90 lines.
+  i18n/en.js          152 keys
+  i18n/es.js          152 keys, same shape
+  *.test.js           parse 77, advice 78, words 15, share 10, notebook 9, wording 91
 ```
 
 ### The load-bearing idea
 
 `results` holds **numbers and decision kinds, never finished sentences.** The
-wording happens during render, in `sizeText()` / `yarnText()` / `gaugeText()` /
-`rowText()`. That is what lets a language or craft switch re-word advice that is
-already on screen, and it is also what makes the arithmetic testable. Do not
-move sentence-building back into `askNana()`.
+wording happens during render, in `lib/words.js` — `sizeText(t, results)` and
+friends, called from the Results component. That is what lets a language or
+craft switch re-word advice that is already on screen, and it is also what
+makes both the arithmetic and the sentences testable. Do not move
+sentence-building back into `askNana()`.
 
 `advice.js` functions return a `kind` (e.g. `allSet`, `justCovers`, `short`) and
 the component looks up `result.<card>.<kind>` in the dictionary. Adding a branch
@@ -120,6 +135,10 @@ that register; it is most of what makes the repo pleasant to read.
 - Pushing to `main` deploys. The workflow now runs `npm test` first, so a failing
   suite blocks the site update.
 - Tailwind v4 is installed but barely used for colour — every colour is an inline
-  `style={{}}` off the `C` palette object.
+  `style={{}}` off the `C` palette object in `src/palette.js`.
+- The helpers keep their own scratch state and follow the unit toggle through
+  `useUnitFlip` in `components/scratch.js`; the parent's `switchUnits` converts
+  only the fields it owns. A new helper with a length or gauge field must do
+  the same, or its number will be misread after a flip.
 - Palette colours were darkened to the *minimum* that clears WCAG AA 4.5:1.
   If you touch a text colour, re-check the ratio.
