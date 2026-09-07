@@ -18,15 +18,15 @@ import {
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
 import { readShareLink, buildShareUrl } from "./lib/share.js";
 import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
-import { said, sizeText, yarnText, gaugeText, rowText, signed, tableNote, adviceAsText } from "./lib/words.js";
+import { said, adviceAsText } from "./lib/words.js";
 import { C } from "./palette.js";
 import { GrannySquare } from "./components/GrannySquare.jsx";
 import { MeasureBust } from "./components/MeasureBust.jsx";
 import { Nana } from "./components/Nana.jsx";
-import { AdviceCard } from "./components/AdviceCard.jsx";
 import { Toggle } from "./components/Toggle.jsx";
 import { ParseEcho } from "./components/ParseEcho.jsx";
-import { labelStyle, inputStyle, thStyle } from "./components/fieldStyles.js";
+import { Results } from "./components/Results.jsx";
+import { labelStyle, inputStyle } from "./components/fieldStyles.js";
 
 /* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
    where they are pure and covered by tests. See src/lib/parse.js for why the
@@ -786,144 +786,18 @@ export default function NanaKnows() {
           {t("share.note")}
         </p>
 
-        {/* results. The live region is a single sentence, kept in the DOM from
-            the start so it exists before it has anything to say; the cards
-            themselves are not live, and are read from the focused heading at
-            the reader's own pace instead of in one breath. The inner span is
-            keyed by ask, so an identical answer is still re-announced. */}
-        <p role="status" className="sr-only">
-          {results && (
-            <span key={askCount}>
-              {results.error ? t("result.error") : t("status.answer", { best: results.size.best })}
-            </span>
-          )}
-        </p>
-        <div ref={resultsRef} tabIndex={-1} className="nk-results">
-          {results && results.error && (
-            <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
-              <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
-              <p ref={headingRef} tabIndex={-1} className="nk-results-head text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{t("result.error")}</p>
-            </div>
-          )}
-          {results && !results.error && (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3 nk-pop">
-                <div className="shrink-0 mt-1"><Nana size={72} bob={false} label={t("nana.alt")} /></div>
-                <div className="relative rounded-2xl px-4 py-3" style={{ background: "#F3E7EC", border: `2px solid ${C.rose}` }}>
-                  {/* A heading, so the answer has a landmark for a screen reader
-                      to land on; styled as the speech-bubble line it always was. */}
-                  <h2 ref={headingRef} tabIndex={-1} className="nk-results-head text-sm italic" style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 400, color: C.roseDark }}>
-                    {t("result.intro", { proverb })}
-                  </h2>
-                </div>
-              </div>
-              <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText(t, results)}</AdviceCard>
-              <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText(t, results)}</AdviceCard>
-              <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText(t, results, craft)}</AdviceCard>
-              <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText(t, results)}</AdviceCard>
-
-              {/* Every size side by side. Columns only appear when there is
-                  something honest to put in them: "comes out" needs both
-                  gauges, yarn needs a yardage list, the basket verdict needs
-                  a stocked basket. Units come from said(), so the table keeps
-                  the system it was asked in, like the cards above it. */}
-              {results.table && (
-                <div className="rounded-2xl overflow-hidden nk-pop" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-                  <div style={{ height: 8, background: C.rose }} />
-                  <div className="p-4 sm:p-5">
-                    <h3 className="mb-3 text-base font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.espresso }}>
-                      {t("table.title")}
-                    </h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm" style={{ borderCollapse: "collapse", fontVariantNumeric: "tabular-nums" }}>
-                        <caption className="sr-only">{t("table.caption")}</caption>
-                        <thead>
-                          <tr>
-                            <th scope="col" className="py-2 pr-3 text-left align-bottom" style={thStyle}>
-                              {t("table.size", { lenU: said(t, results).lenU })}
-                            </th>
-                            {results.table.gaugeAdjusted && (
-                              <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                                {t("table.comesOut", { lenU: said(t, results).lenU })}
-                              </th>
-                            )}
-                            <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                              {t("table.vsAim", { target: results.table.target, lenU: said(t, results).lenU })}
-                            </th>
-                            {results.table.hasYards && (
-                              <th scope="col" className="py-2 px-3 text-right align-bottom" style={thStyle}>
-                                {t("table.yarn", { yarnU: said(t, results).yarnU })}
-                              </th>
-                            )}
-                            {results.table.hasVerdicts && (
-                              <th scope="col" className="py-2 pl-3 text-right align-bottom" style={thStyle}>
-                                {t("table.basket")}
-                              </th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {results.table.rows.map((r, i) => (
-                            <tr key={i} style={{ borderTop: `1.5px dashed ${C.line}`, background: r.best ? "#F3E7EC" : "transparent" }}>
-                              {/* The pick is marked with words, not colour alone:
-                                  the tinted row means nothing to a screen reader
-                                  or in a greyscale print. */}
-                              <th scope="row" className="py-2 pr-3 text-left align-top">
-                                <span className="font-bold" style={{ color: C.espresso }}>{r.size}</span>
-                                {r.best && (
-                                  <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseDark }}>
-                                    {t("table.pick")}
-                                  </span>
-                                )}
-                                {r.runnerUp && (
-                                  <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageDark }}>
-                                    {t("table.closeCall")}
-                                  </span>
-                                )}
-                              </th>
-                              {results.table.gaugeAdjusted && (
-                                <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{r.actual}</td>
-                              )}
-                              <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{signed(r.diff)}</td>
-                              {results.table.hasYards && (
-                                <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>
-                                  {r.need !== null ? r.need : "—"}
-                                </td>
-                              )}
-                              {results.table.hasVerdicts && (
-                                <td
-                                  className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
-                                  style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageDark : C.roseDark }}
-                                >
-                                  {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said(t, results).yarnU }) : "—"}
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {(results.table.gaugeAdjusted || results.table.hasVerdicts) && (
-                      <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: "#826E5A" }}>
-                        {tableNote(t, results)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
-                  {t("copy.button")}
-                </button>
-                <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
-                  {t("copy.print")}
-                </button>
-                <span role="status" style={{ color: "#826E5A" }}>{copyMsg ? t(copyMsg) : ""}</span>
-              </div>
-            </div>
-          )}
-        </div>
+        <Results
+          t={t}
+          results={results}
+          craft={craft}
+          proverb={proverb}
+          askCount={askCount}
+          resultsRef={resultsRef}
+          headingRef={headingRef}
+          copyAdvice={copyAdvice}
+          printAdvice={printAdvice}
+          copyMsg={copyMsg}
+        />
 
         {/* how the math works */}
         <details className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
