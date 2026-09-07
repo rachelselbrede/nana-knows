@@ -11,22 +11,19 @@ import {
   metresToYards,
   gaugePer4inToPer10cm,
   gaugePer10cmToPer4in,
-  swatchToGauge,
-  gramsToSkeins,
-  r1,
 } from "./lib/parse.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
 import { readShareLink, buildShareUrl } from "./lib/share.js";
 import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
-import { said, adviceAsText } from "./lib/words.js";
+import { adviceAsText } from "./lib/words.js";
 import { C } from "./palette.js";
 import { GrannySquare } from "./components/GrannySquare.jsx";
-import { MeasureBust } from "./components/MeasureBust.jsx";
 import { Nana } from "./components/Nana.jsx";
 import { Toggle } from "./components/Toggle.jsx";
-import { ParseEcho } from "./components/ParseEcho.jsx";
+import { PatternCard } from "./components/PatternCard.jsx";
+import { YouCard } from "./components/YouCard.jsx";
+import { BasketCard } from "./components/BasketCard.jsx";
 import { Results } from "./components/Results.jsx";
-import { labelStyle, inputStyle } from "./components/fieldStyles.js";
 
 /* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
    where they are pure and covered by tests. See src/lib/parse.js for why the
@@ -49,20 +46,6 @@ export default function NanaKnows() {
   const [easeIdx, setEaseIdx] = useState(2);
   const [myGauge, setMyGauge] = useState("");
   const [myRowGauge, setMyRowGauge] = useState("");
-
-  /* The swatch helper's scratch fields. Never saved, never shared: they are
-     the working-out, and the two gauge fields above are the answer. */
-  const [swatchSts, setSwatchSts] = useState("");
-  const [swatchAcross, setSwatchAcross] = useState("");
-  const [swatchRows, setSwatchRows] = useState("");
-  const [swatchTall, setSwatchTall] = useState("");
-  const [swatchUsed, setSwatchUsed] = useState(false);
-  /* The weighing helper's scratch, likewise. */
-  const [weighSkein, setWeighSkein] = useState("");
-  const [weighHave, setWeighHave] = useState("");
-  const [weighUsed, setWeighUsed] = useState(false);
-  /* The substitution helper's one field: the gauge printed on a ball band. */
-  const [bandGauge, setBandGauge] = useState("");
 
   const [perSkein, setPerSkein] = useState("");
   const [skeins, setSkeins] = useState("");
@@ -111,10 +94,6 @@ export default function NanaKnows() {
     setMyGauge(convertOne(myGauge, gauge));
     setPatternRowGauge(convertOne(patternRowGauge, gauge));
     setMyRowGauge(convertOne(myRowGauge, gauge));
-    /* The helper's widths are lengths; its counts are just counts. */
-    setSwatchAcross(convertOne(swatchAcross, len));
-    setSwatchTall(convertOne(swatchTall, len));
-    setBandGauge(convertOne(bandGauge, gauge));
     setResults(null); // old advice is in the old units
     setUnits(next);
     /* Say so. Eight fields just changed and the advice vanished; to a screen
@@ -133,6 +112,24 @@ export default function NanaKnows() {
   }));
 
   const proverbs = t(craft === "knit" ? "proverbs.knit" : "proverbs.crochet");
+
+  /* Everything the cards draw and write, in two bags, so the cards can be
+     ordinary components and the state can stay here where askNana, the
+     link and the notebook all need it. */
+  const fields = { patternGauge, patternRowGauge, sizesText, yardsText, bust, easeIdx, myGauge, myRowGauge, perSkein, skeins };
+  const setters = {
+    patternGauge: setPatternGauge,
+    patternRowGauge: setPatternRowGauge,
+    sizesText: setSizesText,
+    yardsText: setYardsText,
+    bust: setBust,
+    easeIdx: setEaseIdx,
+    myGauge: setMyGauge,
+    myRowGauge: setMyRowGauge,
+    perSkein: setPerSkein,
+    skeins: setSkeins,
+  };
+  const labels = { inch, units, lenU, yarnU, gaugeLabel, rowGaugeLabel, swatchSpan };
 
   /* Where the first numbers come from, settled in one place because the two
      sources interact. A shared link wins whatever it carries. The notebook —
@@ -159,22 +156,11 @@ export default function NanaKnows() {
     if (link && link.craft) setCraft(link.craft);
     else if (notebook && notebook.craft) setCraft(notebook.craft);
 
-    const setter = {
-      patternGauge: setPatternGauge,
-      patternRowGauge: setPatternRowGauge,
-      sizesText: setSizesText,
-      yardsText: setYardsText,
-      bust: setBust,
-      myGauge: setMyGauge,
-      myRowGauge: setMyRowGauge,
-      perSkein: setPerSkein,
-      skeins: setSkeins,
-    };
     let remembered = false;
     if (notebook) {
       const nb = notebookInUnits(notebook, finalUnits);
       if (nb.easeIdx !== null) setEaseIdx(nb.easeIdx);
-      Object.entries(nb.fields).forEach(([field, v]) => setter[field](v));
+      Object.entries(nb.fields).forEach(([field, v]) => setters[field](v));
       remembered = Object.keys(nb.fields).length > 0;
     }
 
@@ -183,7 +169,7 @@ export default function NanaKnows() {
       return;
     }
     if (link.easeIdx !== null) setEaseIdx(link.easeIdx);
-    Object.entries(link.fields).forEach(([field, v]) => setter[field](v));
+    Object.entries(link.fields).forEach(([field, v]) => setters[field](v));
 
     /* Enough to answer: sizes from the link, a measurement from either. */
     const msg = remembered ? "share.loadedRemembered" : "share.loaded";
@@ -329,69 +315,6 @@ export default function NanaKnows() {
   };
 
   const proverb = proverbs[proverbIdx % proverbs.length];
-
-  /* ---------- the swatch helper ----------
-     Live arithmetic, but nothing lands in the gauge fields until the knitter
-     says so: a half-typed width would otherwise overwrite a gauge she had
-     entered by hand. `swatchUsed` is a flag, not a sentence, so the
-     confirmation re-words itself on a language switch like everything else. */
-  const swatchStsGauge = swatchToGauge(swatchSts, swatchAcross, swatchSpan);
-  const swatchRowsGauge = swatchToGauge(swatchRows, swatchTall, swatchSpan);
-  const swatchReady = swatchStsGauge !== null || swatchRowsGauge !== null;
-  const applySwatch = () => {
-    if (!swatchReady) return;
-    if (swatchStsGauge !== null) setMyGauge(String(swatchStsGauge));
-    if (swatchRowsGauge !== null) setMyRowGauge(String(swatchRowsGauge));
-    setSwatchUsed(true);
-  };
-  /* Typing in a helper again means its confirmation no longer describes what
-     is in the field above; retire it rather than let it lie. */
-  const scratchEdit = (set, retire) => (e) => {
-    set(e.target.value);
-    retire(false);
-  };
-  /* Helper inputs sit inside the big form, so Enter would ask Nana with a
-     number she has not been handed yet. Apply instead. */
-  const applyOnEnter = (apply) => (e) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    apply();
-  };
-  const editSwatch = (set) => scratchEdit(set, setSwatchUsed);
-  const onSwatchKey = applyOnEnter(applySwatch);
-
-  /* ---------- the weighing helper ----------
-     Grams over grams-per-skein is skeins, which drops into the field the yarn
-     card already reads, so nothing downstream has to know about grams. The
-     yardage shown alongside is worked from the rounded skeins figure, so it is
-     exactly what the card will go on to use. */
-  const weighSkeins = gramsToSkeins(weighHave, weighSkein);
-  const weighPer = parseOne(perSkein);
-  const weighYards = weighSkeins !== null && weighPer !== null ? r1(weighSkeins * weighPer) : null;
-  const applyWeigh = () => {
-    if (weighSkeins === null) return;
-    setSkeins(String(weighSkeins));
-    setWeighUsed(true);
-  };
-  const editWeigh = (set) => scratchEdit(set, setWeighUsed);
-  const onWeighKey = applyOnEnter(applyWeigh);
-
-  /* ---------- the substitution helper ----------
-     Nothing to apply: it only advises, live, from the band gauge against the
-     pattern's. The ball count comes from the yarn card's own cushioned need,
-     so the two cannot disagree — and it can only be counted once Nana has
-     been asked, because before that there is no size to count for. */
-  const substitute = adviseSubstitute({ patternGauge, bandGauge });
-  const substituteNeed = results && results.yarn && results.yarn.buffered ? results.yarn.buffered : null;
-  const substituteBalls = ballsFor(substituteNeed, perSkein);
-  const substituteBallsText = () => {
-    if (substitute === null || substitute.kind === "askPattern") return "";
-    if (substituteBalls !== null) {
-      return t("substitute.balls", { balls: substituteBalls, best: results.size.best, buffered: substituteNeed, yarnU: said(t, results).yarnU });
-    }
-    if (substituteNeed === null) return t("substitute.askFirst");
-    return t("substitute.needPerSkein", { yarnU });
-  };
 
   /* A shared link filled the form; run Nana once the inputs have settled. */
   useEffect(() => {
@@ -542,217 +465,9 @@ export default function NanaKnows() {
           className="flex flex-col gap-5"
         >
 
-          {/* card: pattern */}
-          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-            <div className="flex items-center gap-2 mb-4">
-              <GrannySquare />
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.pattern")}</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.patternGauge", { gaugeLabel })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternGauge} onChange={(e) => setPatternGauge(e.target.value)} placeholder={ph.gauge} />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.patternRowGauge", { rowGaugeLabel })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={patternRowGauge} onChange={(e) => setPatternRowGauge(e.target.value)} placeholder={ph.rowGauge} />
-              </label>
-              {/* The two list fields use htmlFor rather than wrapping, so the
-                  echo sits outside the label: folded inside, its whole running
-                  text becomes part of the input's accessible name and mutates
-                  on every keystroke. aria-describedby is the right channel.
-                  No inputMode here — the iOS decimal pad has no comma key, and
-                  these fields are exactly where commas get typed. */}
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label htmlFor="nk-sizes" style={labelStyle}>{t("field.finishedSizes", { lenU })}</label>
-                <input id="nk-sizes" aria-describedby="nk-sizes-echo" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={sizesText} onChange={(e) => setSizesText(e.target.value)} placeholder={ph.sizes} />
-                <ParseEcho id="nk-sizes-echo" text={sizesText} t={t} />
-              </div>
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <label htmlFor="nk-yards" style={labelStyle}>{t("field.yarnNeeded", { yarnU })}</label>
-                <input id="nk-yards" aria-describedby="nk-yards-echo" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={yardsText} onChange={(e) => setYardsText(e.target.value)} placeholder={ph.yards} />
-                <ParseEcho id="nk-yards-echo" text={yardsText} t={t} />
-              </div>
-            </div>
-          </section>
-
-          {/* card: you */}
-          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-            <div className="flex items-center gap-2 mb-4">
-              <GrannySquare />
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.you")}</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.bust", { lenU })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={bust} onChange={(e) => setBust(e.target.value)} placeholder={ph.bust} />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.fit")}</span>
-                <select style={inputStyle} className="mt-auto px-3 py-2.5 text-sm nk-focus" value={easeIdx} onChange={(e) => setEaseIdx(Number(e.target.value))}>
-                  {easeOptions.map((o, i) => (
-                    <option key={i} value={i}>{o.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.swatchGauge", { gaugeLabel })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myGauge} onChange={(e) => setMyGauge(e.target.value)} placeholder={ph.myGauge} />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.swatchRowGauge", { rowGaugeLabel })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="mt-auto px-3 py-2.5 text-sm" value={myRowGauge} onChange={(e) => setMyRowGauge(e.target.value)} placeholder={ph.myRowGauge} />
-              </label>
-            </div>
-
-            {/* the swatch helper */}
-            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
-              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
-                {t("swatch.summary")}
-              </summary>
-              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
-                <p className="mb-3">{t("swatch.intro", { spanLabel: `${swatchSpan} ${lenU}` })}</p>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("swatch.stitches")}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchSts} onChange={editSwatch(setSwatchSts)} onKeyDown={onSwatchKey} placeholder={ph.swatchStitches} />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("swatch.across", { lenU })}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchAcross} onChange={editSwatch(setSwatchAcross)} onKeyDown={onSwatchKey} placeholder={ph.swatchAcross} />
-                  </label>
-                  {/* Always in the DOM, so the live region exists before it has
-                      anything to announce. */}
-                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
-                    {swatchStsGauge !== null ? t("swatch.stitchesOut", { gauge: swatchStsGauge, gaugeLabel }) : ""}
-                  </p>
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("swatch.rows")}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchRows} onChange={editSwatch(setSwatchRows)} onKeyDown={onSwatchKey} placeholder={ph.swatchRows} />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("swatch.tall", { lenU })}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={swatchTall} onChange={editSwatch(setSwatchTall)} onKeyDown={onSwatchKey} placeholder={ph.swatchTall} />
-                  </label>
-                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
-                    {swatchRowsGauge !== null ? t("swatch.rowsOut", { gauge: swatchRowsGauge, rowGaugeLabel }) : ""}
-                  </p>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={applySwatch}
-                    disabled={!swatchReady}
-                    className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
-                  >
-                    {t("swatch.use")}
-                  </button>
-                  <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{swatchUsed ? t("swatch.used") : ""}</span>
-                </div>
-                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("swatch.tip")}</p>
-              </div>
-            </details>
-
-            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
-              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
-                {t("measure.summary")}
-              </summary>
-              <div className="px-4 pb-4 flex flex-col sm:flex-row gap-4 items-start">
-                <div className="shrink-0 mx-auto sm:mx-0">
-                  <MeasureBust label={t("measure.alt")} />
-                </div>
-                <div className="text-sm" style={{ color: C.espresso }}>
-                  <p className="mb-2">{t("measure.intro")}</p>
-                  <ol className="list-decimal pl-5 flex flex-col gap-1.5">
-                    {t("measure.steps").map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ol>
-                  <p className="mt-3" style={{ color: C.sageDark }}>{t("measure.tip")}</p>
-                </div>
-              </div>
-            </details>
-          </section>
-
-          {/* card: yarn basket */}
-          <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
-            <div className="flex items-center gap-2 mb-4">
-              <GrannySquare />
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontSize: 22 }}>{t("card.basket")}</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.perSkein", { yarnU })}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={perSkein} onChange={(e) => setPerSkein(e.target.value)} placeholder={ph.perSkein} />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span style={labelStyle}>{t("field.skeinsYouHave")}</span>
-                <input inputMode="decimal" autoComplete="off" enterKeyHint="go" style={inputStyle} className="px-3 py-2.5 text-sm" value={skeins} onChange={(e) => setSkeins(e.target.value)} placeholder={ph.skeins} />
-              </label>
-            </div>
-
-            {/* the weighing helper */}
-            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
-              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
-                {t("weigh.summary")}
-              </summary>
-              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
-                <p className="mb-3">{t("weigh.intro")}</p>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("weigh.skeinWeighs")}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={weighSkein} onChange={editWeigh(setWeighSkein)} onKeyDown={onWeighKey} placeholder={ph.weighSkein} />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("weigh.haveWeighs")}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={weighHave} onChange={editWeigh(setWeighHave)} onKeyDown={onWeighKey} placeholder={ph.weighHave} />
-                  </label>
-                  <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
-                    {weighSkeins !== null ? t("weigh.out", { skeins: weighSkeins, yards: weighYards, yarnU }) : ""}
-                  </p>
-                </div>
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={applyWeigh}
-                    disabled={weighSkeins === null}
-                    className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
-                  >
-                    {t("weigh.use")}
-                  </button>
-                  <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{weighUsed ? t("weigh.used") : ""}</span>
-                </div>
-                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("weigh.tip")}</p>
-              </div>
-            </details>
-
-            {/* the substitution helper */}
-            <details className="mt-4 rounded-xl" style={{ background: C.oat, border: `1.5px dashed ${C.line}` }}>
-              <summary className="cursor-pointer px-4 py-3 text-sm nk-focus" style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: C.sageDark }}>
-                {t("substitute.summary")}
-              </summary>
-              <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
-                <p className="mb-3">{t("substitute.intro")}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span style={labelStyle}>{t("substitute.bandGauge", { gaugeLabel })}</span>
-                    <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={bandGauge} onChange={(e) => setBandGauge(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }} placeholder={ph.bandGauge} />
-                  </label>
-                </div>
-                {/* Two live lines: the verdict, then the ball count. Warn-toned
-                    verdicts wear the rose, like the cards. */}
-                <p className="mt-2 text-sm" role="status" style={{ minHeight: "1.2em", color: substitute && substitute.tone === "warn" ? C.roseDark : C.sageDark }}>
-                  {substitute ? t(`substitute.${substitute.kind}`, { ...substitute, gaugeLabel, craft }) : ""}
-                </p>
-                <p className="mt-1 text-xs" role="status" style={{ minHeight: "1.2em", color: C.sageDark }}>
-                  {substituteBallsText()}
-                </p>
-                <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("substitute.tip")}</p>
-              </div>
-            </details>
-          </section>
+          <PatternCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} />
+          <YouCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} easeOptions={easeOptions} />
+          <BasketCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} craft={craft} results={results} />
 
           {/* ask button */}
           <button
