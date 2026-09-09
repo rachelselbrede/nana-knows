@@ -11,7 +11,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test \"src/**/*.test.js\""
+    "test": "node --test \"src/**/*.test.js\"",
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:update": "node scripts/smoke.mjs --update"
   },
   "dependencies": {
     "react": "^19.2.8",

@@ -41,6 +41,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # The smoke run drives the built site through the runner's Chrome —
+      # every load path, every helper, every card — and compares what it saw
+      # with scripts/smoke.golden.txt. What the unit suite cannot see, this
+      # can, and it stands between a broken page and the live site.
+      - run: npm run smoke
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

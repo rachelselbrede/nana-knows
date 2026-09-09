@@ -18,3 +18,17 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+
+  # The same smoke run the deploy makes, so a pull request also says whether
+  # the page still behaves — not only whether the sums add up.
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run smoke

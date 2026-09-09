@@ -1,0 +1,417 @@
+=== cards, table, copy, language, gauge scaling ===
+{
+ "en": {
+  "size": "\nFollow the size 48. At your gauge those instructions come out about 41.1 in around, even though the pattern calls that size 48 in. You measure 38 in and chose classic comfy (+2 in), so you are aiming for about 40 in.",
+  "yarn": "\nYou have 1320 yds and the size 48 calls for about 1200 yds. Even with Nana's 10% just-in-case cushion (1320 yds), you are all set. Cast on with a clear conscience. The pattern quotes 1400 yds for this size, but your stitches are smaller than its gauge, so Nana reckons about 1200 yds in your hands. That is a rough guide, dear, which is exactly what the cushion is for.",
+  "table": {
+   "headers": [
+    "Size (in)",
+    "Comes out (in)",
+    "vs your aim (40 in)",
+    "Yarn (yds)",
+    "Your basket"
+   ],
+   "rows": [
+    "32 | 27.4 | -12.6 | 771 | plenty",
+    "36 | 30.9 | -9.1 | 857 | plenty",
+    "40 | 34.3 | -5.7 | 943 | plenty",
+    "44 | 37.7 | -2.3 | 1071 | plenty",
+    "48Nana's pick | 41.1 | +1.1 | 1200 | plenty",
+    "52 | 44.6 | +4.6 | 1329 | short 142 yds"
+   ],
+   "note": "“Comes out” is what each size would really measure in your hands. The yarn column is scaled for your gauge too, as a rough guide. The basket column already includes Nana's 10% just-in-case cushion."
+  }
+ },
+ "copied": "The right size\nFollow the size 48. At your gauge those instructions come out about 41.1 in around, even though the pattern calls that size 48 in. You measure 38 in and chose classic comfy (+2 in), so you are aiming for about 40 in.\n\nYour yarn basket\nYou have 1320 yds and the size 48 calls for about 1200 yds. Even with Nana's 10% just-in-case cushion (1320 yds), you are all set. Cast on with a clear conscience. The pattern quotes 1400 yds for this size, but your stitches are smaller than its gauge, so Nana reckons about 1200 yds in your hands. That is a rough guide, dear, which is exactly what the cushion is for.\n\nYour tension\nYour stitches are a touch tighter than the pattern's (21 vs 18 stitches per 4 in), so in your hands the size 48 instructions would come out near 41.1 in. Nana already picked your size with that in mind. If you would rather match the pattern exactly, go up about 1.5 sizes on your needle and swatch again.\n\nYour length\nYour rows are tighter than the pattern's (26 vs 24 rows per 4 in). Where it says work 100 rows, you would reach about 15.4 in instead of 16.7 in — so work about 108 rows to arrive at the same length. Measure your body and sleeves as you go rather than trusting the row count alone, and you will be fine.\n\nEvery size at a glance\n32 in → 27.4 in · 771 yds · plenty\n36 in → 30.9 in · 857 yds · plenty\n40 in → 34.3 in · 943 yds · plenty\n44 in → 37.7 in · 1071 yds · plenty\n48 in → 41.1 in · 1200 yds · plenty — Nana's pick\n52 in → 44.6 in · 1329 yds · short 142 yds",
+ "es": {
+  "size": "\nSigue la talla 48. Con tu muestra, esas instrucciones te salen cerca de 41.1 in de contorno, aunque el patrón llame a esa talla 48 in. Tú mides 38 in y elegiste cómodo de siempre (+2 in), así que buscas unos 40 in.",
+  "yarn": "\nTienes 1320 yds y la talla 48 pide alrededor de 1200 yds. Incluso con el colchoncito del 10 % de Nana por si acaso (1320 yds), te sobra. Monta los puntos con la conciencia tranquila. El patrón indica 1400 yds para esta talla, pero tus puntos son más chicos que los de su muestra, así que Nana calcula unos 1200 yds en tus manos. Es un cálculo aproximado, mi vida, y justo para eso está el colchoncito.",
+  "note": "«Te saldría» es lo que cada talla mediría de verdad en tus manos. La columna de lana también está ajustada a tu muestra, como cálculo aproximado. La columna de la canasta ya incluye el colchoncito del 10 % de Nana por si acaso.",
+  "row48": "48La elegida de Nana | 41.1 | +1.1 | 1200 | de sobra"
+ },
+ "crochet": "\nYour stitches are a touch tighter than the pattern's (21 vs 18 stitches per 4 in), so in your hands the size 48 instructions would come out near 41.1 in. Nana already picked your size with that in mind. If you would rather match the pattern exactly, go up about 1.5 sizes on your hook and swatch again.",
+ "loose": {
+  "yarn": "\nYou have 1320 yds and the size 36 calls for about 1125 yds. Even with Nana's 10% just-in-case cushion (1238 yds), you are all set. Cast on with a clear conscience. The pattern quotes 1000 yds for this size, but your stitches are bigger than its gauge, so Nana reckons about 1125 yds in your hands. That is a rough guide, dear, which is exactly what the cushion is for.",
+  "row40": "40 | 45 | +5 | 1238 | just enough"
+ },
+ "match": {
+  "yarn": "\nYou have 1320 yds and the size 40 calls for about 1100 yds. Even with Nana's 10% just-in-case cushion (1210 yds), you are all set. Cast on with a clear conscience.",
+  "note": "“Comes out” is what each size would really measure in your hands. The basket column already includes Nana's 10% just-in-case cushion."
+ }
+}
+errors: none
+
+=== units flip after asking ===
+{
+ "asked": true,
+ "afterFlip": {
+  "answered": false,
+  "fields": [
+   "17.7",
+   "23.6",
+   "81.3, 91.4, 101.6, 111.8, 121.9, 132.1",
+   "823, 914.4, 1005.8, 1143, 1280.2, 1417.3",
+   "96.5",
+   "20.7",
+   "25.6",
+   "",
+   ""
+  ],
+  "message": "Nana redid your numbers in centimetres and metres, dear."
+ },
+ "metric": {
+  "headers": [
+   "Size (cm)",
+   "Comes out (cm)",
+   "vs your aim (101.5 cm)",
+   "Yarn (m)",
+   "Your basket"
+  ],
+  "pick": "121.9Nana's pick104.2+2.71095plenty"
+ }
+}
+errors: none
+
+=== the swatch helper ===
+{
+ "filled": {
+  "statuses": [
+   "That makes 20.7 stitches per 4 in.",
+   "That makes 26.7 rows per 4 in.",
+   ""
+  ],
+  "buttonDisabled": false
+ },
+ "afterUse": {
+  "fields": [
+   "20.7",
+   "26.7"
+  ],
+  "used": "Nana popped those into your swatch fields above."
+ },
+ "afterEdit": {
+  "used": "",
+  "sts": "That makes 21.6 stitches per 4 in."
+ },
+ "afterEnter": {
+  "fields": [
+   "21.6",
+   "26.7"
+  ],
+  "used": "Nana popped those into your swatch fields above.",
+  "askedNana": false
+ },
+ "es": {
+  "statuses": [
+   "Eso da 21.6 puntos por 4 in.",
+   "Eso da 26.7 filas por 4 in.",
+   "Nana ya los anotó arriba, en los campos de tu muestra."
+  ]
+ },
+ "cm": {
+  "widths": [
+   "10.8",
+   "11.4"
+  ],
+  "statuses": [
+   "Eso da 21.3 puntos por 10 cm.",
+   "Eso da 26.3 filas por 10 cm.",
+   "Nana ya los anotó arriba, en los campos de tu muestra."
+  ],
+  "fields": [
+   "21.3",
+   "26.3"
+  ]
+ },
+ "back": {
+  "widths": [
+   "4.3",
+   "4.5"
+  ],
+  "fields": [
+   "21.6",
+   "26.7"
+  ]
+ }
+}
+errors: none
+
+=== the weighing helper ===
+{
+ "labels": [
+  "A full skein weighs (g)",
+  "Your yarn weighs altogether (g)"
+ ],
+ "noPerSkein": {
+  "statuses": [
+   "That is about 3.5 skeins' worth.",
+   ""
+  ],
+  "disabled": false
+ },
+ "withPerSkein": {
+  "statuses": [
+   "That is about 3.5 skeins' worth, around 770 yds.",
+   ""
+  ]
+ },
+ "afterUse": {
+  "skeins": "3.5",
+  "used": "Nana wrote that into “Skeins you have”."
+ },
+ "oneSkein": {
+  "statuses": [
+   "That is about one skein's worth, around 220 yds.",
+   ""
+  ]
+ },
+ "afterEnter": {
+  "skeins": "0.7",
+  "used": "Nana wrote that into “Skeins you have”.",
+  "askedNana": false
+ },
+ "es": {
+  "summary": "¿Pesas tu lana en vez de contarla?",
+  "statuses": [
+   "Eso es como 0.7 madejas, unos 154 yds.",
+   "Nana lo anotó en «Madejas que tienes»."
+  ]
+ },
+ "cm": {
+  "statuses": [
+   "Eso es como 0.7 madejas, unos 140.8 m.",
+   "Nana lo anotó en «Madejas que tienes»."
+  ],
+  "perSkein": "201.2",
+  "grams": [
+   "50",
+   "37"
+  ]
+ }
+}
+errors: none
+
+=== the substitution helper ===
+{
+ "noPatternGauge": [
+  "Pop the pattern's gauge into the first card, dear, and Nana can compare the two.",
+  ""
+ ],
+ "close": [
+  "Only 1 stitch finer than the pattern's yarn — the same weight, near enough. Swatch it; you may want to go up a needle size.",
+  "Ask Nana for your size and she will count how many balls you would need."
+ ],
+ "stretch": [
+  "About 3 stitches finer than the pattern's yarn, so roughly 1.5 needle sizes away. It can be coaxed, but the fabric will come out looser and lighter than the designer's. Swatch before you commit, dear.",
+  "Ask Nana for your size and she will count how many balls you would need."
+ ],
+ "no": [
+  "That is a different weight of yarn altogether — 4 stitches finer than the pattern calls for. Nana would look for something closer, dear.",
+  "Ask Nana for your size and she will count how many balls you would need."
+ ],
+ "match": [
+  "The band matches the pattern's gauge (18 vs 18 stitches per 4 in). A promising substitute — swatch to be sure.",
+  "Ask Nana for your size and she will count how many balls you would need."
+ ],
+ "heavier": "About 3 stitches heavier than the pattern's yarn, so roughly 1.5 needle sizes away. It can be coaxed, but the fabric will come out denser and stiffer than the designer's. Swatch before you commit, dear.",
+ "crochet": "About 3 stitches heavier than the pattern's yarn, so roughly 1.5 hook sizes away. It can be coaxed, but the fabric will come out denser and stiffer than the designer's. Swatch before you commit, dear.",
+ "afterAsk": [
+  "Only 1 stitch finer than the pattern's yarn — the same weight, near enough. Swatch it; you may want to go up a needle size.",
+  "For the size 40 you would want about 6 balls of it (1210 yds, cushion included)."
+ ],
+ "noPerSkein": "Tell Nana the yds per skein above and she will count how many balls you would need.",
+ "es": [
+  "Solo 1 punto más fina que la lana del patrón: el mismo grosor, o casi. Haz la muestra; quizá quieras subir un número de aguja.",
+  "Para la talla 40 necesitarías unos 6 ovillos (1210 yds, con colchón incluido)."
+ ],
+ "cm": {
+  "band": "18.7",
+  "lines": [
+   "Solo 1 punto más fina que la lana del patrón: el mismo grosor, o casi. Haz la muestra; quizá quieras subir un número de aguja.",
+   "Pregúntale a Nana tu talla y ella contará cuántos ovillos necesitarías."
+  ]
+ }
+}
+errors: none
+
+=== a line pasted from the pattern ===
+{
+ "placeholders": [
+  "e.g. 32 (36, 40, 44, 48, 52)",
+  "e.g. 900 (1000, 1100, 1250, 1400, 1550)"
+ ],
+ "sizesEcho": "Nana read: 32, 36, 40, 44, 48, 52.",
+ "yardsEcho": "Nana read: 900, 1000, 1100, 1250, 1400, 1550. She read only what came after the colon.",
+ "noSpacesEcho": "Nana read: 32, 36, 40, 44, 48, 52.",
+ "rangeEcho": "Nana read: 32, 36. She took the dash as two separate numbers.",
+ "esYardsEcho": "Nana leyó: 900, 1000, 1100, 1250, 1400, 1550. Leyó solo lo que venía después de los dos puntos."
+}
+errors: none
+
+=== what a screen reader hears ===
+{
+ "beforeAsk": {
+  "liveExists": true,
+  "liveText": "",
+  "resultsAriaLive": null
+ },
+ "afterAsk": {
+  "liveText": "Nana has your answer, dear: the size 48. The details are just below.",
+  "focused": "H2.nk-results-head :: Here is what Nana thinks, dear:",
+  "headings": [
+   "H2: Here is what Nana thinks, dear:",
+   "H3: The right size",
+   "H3: Your yarn basket",
+   "H3: Your tension",
+   "H3: Your length",
+   "H3: Every size at a glance"
+  ]
+ },
+ "es": {
+  "liveText": "Nana ya tiene tu respuesta, mi vida: la talla 48. Los detalles vienen justo abajo."
+ },
+ "errorCase": {
+  "liveText": "Before Nana can advise, she needs two things: the finished sizes your pattern offers, and your own measurement. Fill those in and ask again, dear.",
+  "focused": "P.nk-results-head :: Before Nana can advise, she needs two things: the finished sizes your pattern offers, and your own measurement. Fill those in and ask again, dear."
+ }
+}
+errors: none
+
+=== the two notes at the foot ===
+{
+ "designers": {
+  "summary": "Are you a designer?",
+  "steps": 3,
+  "intro": "Put Nana in your pattern. Fill in only the pattern card above — gauge, sizes, yardage — leave the rest blank, and copy the link. Anyone who follows it finds Nana with your numbers already in place, and with their own measurements from her notebook if she has met them before, so she answers the moment they arrive."
+ },
+ "math": [
+  "Size: your body measurement plus your chosen ease gives a target. Nana picks the pattern size whose finished measurement lands closest to it. If you gave her your own gauge, she first adjusts each size to how it would really come out in your hands.",
+  "Yarn: she reads the yardage for your size — scaled for your gauge if she has it, since smaller stitches take less yarn and bigger ones more — adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.",
+  "Tension: finished width is stitch count divided by gauge. If your gauge differs from the pattern's, the same instructions produce a different size, so she does that arithmetic for you.",
+  "Length: stitch gauge only ever decides how wide a thing comes out. Row gauge decides how long. Nana works out how far the pattern's row counts would actually take you, and how many rows you would need instead to land at the length it intended."
+ ],
+ "order": [
+  "Help me count my swatch",
+  "How do I measure myself?",
+  "Weighing your yarn instead?",
+  "Will this yarn work instead?",
+  "How does Nana figure it out?",
+  "Are you a designer?"
+ ],
+ "es": [
+  "Ayúdame a contar mi muestra",
+  "¿Cómo me mido?",
+  "¿Pesas tu lana en vez de contarla?",
+  "¿Me sirve esta otra lana?",
+  "¿Cómo lo calcula Nana?",
+  "¿Diseñas patrones?"
+ ]
+}
+errors: none
+
+=== remember me, forget me, share ===
+{
+ "link": {
+  "search": "?lang=en&u=in&c=knit&pg=18&s=32%2C+36&b=38&mg=21",
+  "message": "Nana read: 32, 36."
+ },
+ "remembered": {
+  "stored": {
+   "units": "in",
+   "craft": "knit",
+   "bust": "38",
+   "easeIdx": 2,
+   "myGauge": "21",
+   "myRowGauge": "",
+   "perSkein": "",
+   "skeins": ""
+  },
+  "message": "Nana read: 32, 36."
+ },
+ "forgotten": {
+  "stored": null,
+  "message": "Nana read: 32, 36."
+ }
+}
+errors: none
+
+=== load paths and the notebook ===
+{
+ "noLink": {
+  "bust": "38",
+  "units": "in / yds",
+  "fields": [
+   "",
+   "",
+   "",
+   "",
+   "38",
+   "21",
+   "26",
+   "",
+   ""
+  ],
+  "msg": "Nana remembered you from last time.",
+  "answered": false,
+  "size": null
+ },
+ "designerLinkInches": {
+  "bust": "38",
+  "units": "in / yds",
+  "fields": [
+   "18",
+   "24",
+   "32,36,40,44,48,52",
+   "900,1000,1100,1250,1400,1550",
+   "38",
+   "21",
+   "26",
+   "",
+   ""
+  ],
+  "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
+  "answered": true,
+  "size": "48"
+ },
+ "designerLinkCentimetres": {
+  "bust": "96.5",
+  "units": "cm / m",
+  "fields": [
+   "17.7",
+   "23.6",
+   "81,91,102,112,122,132",
+   "825,915,1005,1145,1280,1420",
+   "96.5",
+   "20.7",
+   "25.6",
+   "",
+   ""
+  ],
+  "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
+  "answered": true,
+  "size": "122"
+ },
+ "personalLink": {
+  "bust": "40",
+  "units": "in / yds",
+  "fields": [
+   "",
+   "",
+   "32,36,40,44,48,52",
+   "",
+   "40",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "msg": "Nana opened this from a shared link.",
+  "answered": true,
+  "size": "40"
+ },
+ "longParam": {
+  "bustLength": 120,
+  "answered": true
+ }
+}
+errors: none

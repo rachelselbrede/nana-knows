@@ -54,6 +54,11 @@ merged and deployed on 31 August 2026, and since then:
   app and came back identical. The review's `hooks/useNotebook.js` became
   `lib/notebook.js` instead: pure functions over a storage argument beat a
   hook for testing.
+- **The smoke run** (`scripts/smoke.mjs`, 8 September 2026) — the headless
+  harness that verified the split, made part of the repo: ten scenarios over
+  the built site, a golden transcript in `scripts/smoke.golden.txt`, run by
+  both workflows before anything deploys. `npm run smoke:update` re-records
+  it after a deliberate change.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and

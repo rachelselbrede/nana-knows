@@ -5,3 +5,4 @@ dev-dist
 *.log
 .claude/
 .fuse_hidden*
+scripts/smoke.last.txt

@@ -12,10 +12,22 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
 npm test         # node --test "src/**/*.test.js"  — 280 tests, ~75ms, zero dependencies
+npm run build && npm run smoke   # drive the built site through headless Chrome and
+                                 # diff what it saw against scripts/smoke.golden.txt
+npm run smoke:update             # re-record the golden after a deliberate change
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
 the directory argument as a module path.
+
+The smoke run (`scripts/smoke.mjs`, no dependencies) is the check the unit
+suite cannot make: it fills the real page, asks Nana, flips units and language,
+drives every helper, follows a designer's link into a seeded notebook, and
+writes down every sentence it read. Any difference from the golden transcript
+fails, and so does any console error. **A deliberate change to what the visitor
+sees must come with `npm run smoke:update` and the re-recorded golden in the
+same commit** — the diff is the record of what changed for her. It runs in CI
+before every deploy, on the runner's Chrome.
 
 ## Architecture
 

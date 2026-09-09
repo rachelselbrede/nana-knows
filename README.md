@@ -69,6 +69,14 @@ npm test
 runs the arithmetic suite — 280 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
+```bash
+npm run build && npm run smoke
+```
+
+drives the built site through headless Chrome — every load path, every helper,
+every card — and compares what it saw with the recorded transcript in
+`scripts/`. The deploy runs it too, so a page that misbehaves never goes live.
+
 ## Deploying
 
 Pushing to the `main` branch triggers `.github/workflows/deploy.yml`, which runs
