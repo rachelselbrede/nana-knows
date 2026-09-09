@@ -161,7 +161,8 @@ that register; it is most of what makes the repo pleasant to read.
   the same, or its number will be misread after a flip.
 - Text colours were darkened (or, by night, lightened) to the *minimum* that
   clears WCAG AA 4.5:1 — including on the rose tint behind the intro bubble
-  and the picked table row, which the first review did not measure. Two
-  pairings still sit under it and are known: white on the rose Ask button
-  (3.2:1, which passes as large text) and on the selected craft and unit
-  pills, which do not.
+  and the picked table row, which the first review did not measure. The one
+  pairing that sits under it is white on the rose Ask button, at 3.2:1, which
+  is large type and passes the 3:1 that large type needs; `npm run contrast`
+  checks it at that bar. The pressed pills use roseDark for exactly this
+  reason.

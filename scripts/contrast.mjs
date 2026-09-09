@@ -2,7 +2,7 @@
 /* Every text role in both palettes against every background it sits on,
    scored the WCAG way. The palette says "measured, not guessed"; this is the
    measuring. Fails if any pairing is under 4.5:1. */
-import { LIGHT, DARK, TEXT_ON } from "../src/palette.js";
+import { LIGHT, DARK, TEXT_ON, LARGE_TEXT_ON } from "../src/palette.js";
 
 const channel = (v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
 const luminance = (hex) => {
@@ -22,6 +22,14 @@ for (const [name, palette] of [["light", LIGHT], ["dark", DARK]]) {
       const r = ratio(palette[text], palette[bg]);
       if (r < 4.5) failures += 1;
       return `${bg} ${r.toFixed(2)}${r < 4.5 ? " ✗" : ""}`;
+    });
+    console.log(`${text.padEnd(12)} ${cells.join("   ")}`);
+  }
+  for (const [text, backgrounds] of Object.entries(LARGE_TEXT_ON)) {
+    const cells = backgrounds.map((bg) => {
+      const r = ratio(palette[text], palette[bg]);
+      if (r < 3) failures += 1;
+      return `${bg} ${r.toFixed(2)} (large type)${r < 3 ? " ✗" : ""}`;
     });
     console.log(`${text.padEnd(12)} ${cells.join("   ")}`);
   }

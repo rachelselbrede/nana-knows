@@ -17,9 +17,12 @@ export const Toggle = ({ value, current, set, children }) => (
     className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
     style={{
       fontFamily: "'Nunito', sans-serif",
-      background: current === value ? C.rose : "transparent",
+      /* roseDark behind the white label, not rose: white on the lighter rose
+         is 3.2:1, which is fine for the Ask button's large type and not for a
+         14px pill. The unpressed pill keeps the rose text on no fill. */
+      background: current === value ? C.roseDark : "transparent",
       color: current === value ? C.onAccent : C.roseText,
-      border: `2px solid ${current === value ? C.rose : C.line}`,
+      border: `2px solid ${current === value ? C.roseDark : C.line}`,
     }}
   >
     {children}

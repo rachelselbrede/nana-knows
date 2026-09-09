@@ -74,7 +74,11 @@ export const TEXT_ON = {
   placeholder: ["field"],
   roseText: ["oat", "card", "roseTint"],
   sageText: ["oat", "card", "roseTint"],
+  onAccent: ["roseDark", "sageDark"],
 };
+
+/* Large type (the Ask button) may sit on the lighter rose: 3:1 is the bar. */
+export const LARGE_TEXT_ON = { onAccent: ["rose"] };
 
 /* The illustrations' own colours. Fixed on purpose: see above. */
 export const ART = {
