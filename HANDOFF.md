@@ -59,6 +59,12 @@ merged and deployed on 31 August 2026, and since then:
   the built site, a golden transcript in `scripts/smoke.golden.txt`, run by
   both workflows before anything deploys. `npm run smoke:update` re-records
   it after a deliberate change.
+- **Dark mode** (8 September 2026) — the palette became CSS custom properties
+  with `LIGHT` and `DARK` sets in `src/palette.js`, swapped by
+  `prefers-color-scheme` and forced light in print; the illustrations keep a
+  fixed `ART` set. Measuring the tints turned up rose and sage text at 4.0:1
+  on the picked row and the intro bubble; both text tones were darkened by the
+  minimum that clears it. `npm run contrast` keeps the numbers honest.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -258,7 +264,9 @@ components/           26 files: the cards, the helpers (each owning its scratch
 NanaKnows.jsx         ~390 lines: state, effects, askNana, handlers, composition
 ```
 
-Still open, and now cheap: Tailwind v4 is installed but almost unused for colour. Moving the `C`
+Done differently: dark mode came from making the palette custom properties
+rather than from Tailwind's `@theme`, which turned out to be the smaller
+change. Still open: Tailwind v4 is installed but almost unused for colour. Moving the `C`
 palette into an `@theme` block in `index.css` would let you write
 `bg-card border-line text-espresso`, delete several hundred lines of inline style
 objects, and make a `prefers-color-scheme: dark` variant a small change instead

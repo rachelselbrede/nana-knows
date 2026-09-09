@@ -48,6 +48,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - **Remembers you if you ask** — "Nana, remember my numbers" saves your details
   in your own browser (localStorage) and nowhere else.
 - **Installs as an app** and works offline, for yarn shops with no signal.
+- **Easy on the eyes.** Follows your device's dark mode, keeps still when you
+  ask for less motion, clears WCAG AA contrast by day and by night, and reads
+  well to a screen reader. Nana's face stays Nana's face either way.
 
 ![Nana's four advice cards: the right size, your yarn basket, your tension, your length](docs/images/nana-advice.png)
 

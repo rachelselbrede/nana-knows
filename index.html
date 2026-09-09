@@ -72,7 +72,18 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Nunito:wght@400;700;800&display=swap"
       rel="stylesheet"
     />
-    <meta name="theme-color" content="#FBF6EC" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#FBF6EC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1E1916" media="(prefers-color-scheme: dark)" />
+    <!-- The page paints its own colours the moment it loads; this is only
+         so the instant before React arrives is not a cream flash in the dark,
+         and so the no-JavaScript note can be read either way. -->
+    <style>
+      @media (prefers-color-scheme: dark) {
+        body { background: #1e1916 !important; }
+        noscript p { color: #f3eae0 !important; }
+      }
+    </style>
 
     <!-- Add to home screen on iOS (relative so it survives a base change) -->
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />

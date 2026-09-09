@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "test": "node --test \"src/**/*.test.js\"",
     "smoke": "node scripts/smoke.mjs",
-    "smoke:update": "node scripts/smoke.mjs --update"
+    "smoke:update": "node scripts/smoke.mjs --update",
+    "contrast": "node scripts/contrast.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

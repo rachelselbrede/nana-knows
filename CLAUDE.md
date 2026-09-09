@@ -15,6 +15,7 @@ npm test         # node --test "src/**/*.test.js"  — 280 tests, ~75ms, zero de
 npm run build && npm run smoke   # drive the built site through headless Chrome and
                                  # diff what it saw against scripts/smoke.golden.txt
 npm run smoke:update             # re-record the golden after a deliberate change
+npm run contrast                 # WCAG ratios for every text role, light and dark
 ```
 
 The quoted glob in `test` matters. Bare `node --test src/` fails: this Node treats
@@ -146,11 +147,21 @@ that register; it is most of what makes the repo pleasant to read.
   `/` if a custom domain ever lands.
 - Pushing to `main` deploys. The workflow now runs `npm test` first, so a failing
   suite blocks the site update.
-- Tailwind v4 is installed but barely used for colour — every colour is an inline
-  `style={{}}` off the `C` palette object in `src/palette.js`.
+- Every colour is an inline `style={{}}` off `C` in `src/palette.js`, and `C`
+  holds CSS custom properties, not hexes: the numbers are `LIGHT` and `DARK`,
+  written at the root by `GlobalStyle` (dark under `prefers-color-scheme`,
+  light again in print). Name roles (`ink`, `label`, `roseText`), never hues,
+  and never type a hex into a component. The illustrations use the fixed `ART`
+  set and do not change with the theme. `npm run contrast` measures every text
+  role on every background it sits on, in both palettes; run it after touching
+  a colour.
 - The helpers keep their own scratch state and follow the unit toggle through
   `useUnitFlip` in `components/scratch.js`; the parent's `switchUnits` converts
   only the fields it owns. A new helper with a length or gauge field must do
   the same, or its number will be misread after a flip.
-- Palette colours were darkened to the *minimum* that clears WCAG AA 4.5:1.
-  If you touch a text colour, re-check the ratio.
+- Text colours were darkened (or, by night, lightened) to the *minimum* that
+  clears WCAG AA 4.5:1 — including on the rose tint behind the intro bubble
+  and the picked table row, which the first review did not measure. Two
+  pairings still sit under it and are known: white on the rose Ask button
+  (3.2:1, which passes as large text) and on the selected craft and unit
+  pills, which do not.

@@ -1,4 +1,4 @@
-import { C, LIGHT, declarations } from "../palette.js";
+import { C, LIGHT, DARK, declarations } from "../palette.js";
 
 /* ---------- the stylesheet ----------
    The few rules Tailwind cannot express — the bob, the pop, the focus ring,
@@ -9,7 +9,10 @@ export function GlobalStyle() {
     <style>{`
       /* The palette, as custom properties: every C.* in the components resolves
          here. GlobalStyle owns the numbers; the components own only the roles. */
-      :root { ${declarations(LIGHT)} }
+      :root { color-scheme: light dark; ${declarations(LIGHT)} }
+      /* By night, the same roles in the DARK set. Nothing else has to know:
+         the components name roles, and the roles change underneath them. */
+      @media (prefers-color-scheme: dark) { :root { ${declarations(DARK)} } }
       .nk-bob { animation: nkbob 4s ease-in-out infinite; }
       @keyframes nkbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
       .nk-pop { animation: nkpop .4s ease-out both; }
@@ -48,6 +51,8 @@ export function GlobalStyle() {
       @media print {
         .nk-noprint { display: none !important; }
         body { background: #FFFFFF !important; }
+        /* Paper is light whatever the screen was. */
+        :root { ${declarations(LIGHT)} }
         .nk-results, .nk-results * {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;

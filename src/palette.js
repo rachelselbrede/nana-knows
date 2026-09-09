@@ -29,12 +29,51 @@ export const LIGHT = {
   butterTint: "#FDF0E4",
   rose: "#D4718C",
   roseDark: "#AF546F",
-  roseText: "#AF546F",
+  roseText: "#A44D67",
   sage: "#7E9B76",
   sageDark: "#5C7956",
-  sageText: "#5C7956",
+  sageText: "#54714E",
   butter: "#E9B44C",
   onAccent: "#FFFFFF",
+};
+
+/* The same roles by night. Backgrounds go to deep espresso browns rather
+   than grey, so the page still feels like Nana's kitchen; the accents keep
+   their hue but the text tones lighten, since a rose that clears 4.5:1 on
+   cream is far from clearing it on brown. Checked by scripts/contrast.mjs. */
+export const DARK = {
+  oat: "#1E1916",
+  card: "#292220",
+  field: "#332B27",
+  line: "#4A3E37",
+  espresso: "#F3EAE0",
+  ink: "#E4D8CA",
+  label: "#CDBBA7",
+  muted: "#B9A894",
+  tagline: "#D9CCBC",
+  placeholder: "#A2937F",
+  roseTint: "#3A2A30",
+  butterTint: "#3A2F22",
+  rose: "#D4718C",
+  roseDark: "#AF546F",
+  roseText: "#EC93AB",
+  sage: "#7E9B76",
+  sageDark: "#5C7956",
+  sageText: "#A9C4A0",
+  butter: "#E9B44C",
+  onAccent: "#FFFFFF",
+};
+
+/* Where each text role can sit, for the contrast check. */
+export const TEXT_ON = {
+  espresso: ["oat", "card", "field", "roseTint", "butterTint"],
+  ink: ["oat", "card", "roseTint"],
+  label: ["oat", "card"],
+  muted: ["oat", "card"],
+  tagline: ["oat"],
+  placeholder: ["field"],
+  roseText: ["oat", "card", "roseTint"],
+  sageText: ["oat", "card", "roseTint"],
 };
 
 /* The illustrations' own colours. Fixed on purpose: see above. */
