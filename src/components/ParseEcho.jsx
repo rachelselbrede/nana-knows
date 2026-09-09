@@ -12,7 +12,7 @@ export const ParseEcho = ({ id, text, t }) => {
   const { values, issues } = parseNumberList(text);
   const quiet = values.length === 0 || (values.length === 1 && issues.length === 0);
   return (
-    <span id={id} role="status" className="text-xs" style={{ color: C.sageDark }}>
+    <span id={id} role="status" className="text-xs" style={{ color: C.sageText }}>
       {quiet
         ? ""
         : t("echo.read", { list: values.join(", ") }) +

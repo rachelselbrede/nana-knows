@@ -26,7 +26,7 @@ export function Results({ t, results, craft, proverb, askCount, resultsRef, head
       </p>
       <div ref={resultsRef} tabIndex={-1} className="nk-results">
         {results && results.error && (
-          <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: "#FDF0E4", border: `2px dashed ${C.butter}` }}>
+          <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: C.butterTint, border: `2px dashed ${C.butter}` }}>
             <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
             <p ref={headingRef} tabIndex={-1} className="nk-results-head text-sm leading-relaxed" style={{ fontFamily: "'Nunito', sans-serif" }}>{t("result.error")}</p>
           </div>
@@ -35,10 +35,10 @@ export function Results({ t, results, craft, proverb, askCount, resultsRef, head
           <div className="flex flex-col gap-4">
             <div className="flex items-start gap-3 nk-pop">
               <div className="shrink-0 mt-1"><Nana size={72} bob={false} label={t("nana.alt")} /></div>
-              <div className="relative rounded-2xl px-4 py-3" style={{ background: "#F3E7EC", border: `2px solid ${C.rose}` }}>
+              <div className="relative rounded-2xl px-4 py-3" style={{ background: C.roseTint, border: `2px solid ${C.rose}` }}>
                 {/* A heading, so the answer has a landmark for a screen reader
                     to land on; styled as the speech-bubble line it always was. */}
-                <h2 ref={headingRef} tabIndex={-1} className="nk-results-head text-sm italic" style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 400, color: C.roseDark }}>
+                <h2 ref={headingRef} tabIndex={-1} className="nk-results-head text-sm italic" style={{ fontFamily: "'Nunito', sans-serif", fontWeight: 400, color: C.roseText }}>
                   {t("result.intro", { proverb })}
                 </h2>
               </div>
@@ -51,13 +51,13 @@ export function Results({ t, results, craft, proverb, askCount, resultsRef, head
             <SizeTable t={t} results={results} />
 
             <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
-              <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
+              <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageText }}>
                 {t("copy.button")}
               </button>
-              <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
+              <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseText }}>
                 {t("copy.print")}
               </button>
-              <span role="status" style={{ color: "#826E5A" }}>{copyMsg ? t(copyMsg) : ""}</span>
+              <span role="status" style={{ color: C.label }}>{copyMsg ? t(copyMsg) : ""}</span>
             </div>
           </div>
         )}

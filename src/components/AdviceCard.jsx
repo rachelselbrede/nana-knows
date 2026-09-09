@@ -17,7 +17,7 @@ export function AdviceCard({ color, title, children, tone }) {
         </h3>
         <p
           className="text-sm leading-relaxed"
-          style={{ color: tone === "warn" ? C.roseDark : "#5C4B3E" }}
+          style={{ color: tone === "warn" ? C.roseText : C.ink }}
         >
           {children}
         </p>

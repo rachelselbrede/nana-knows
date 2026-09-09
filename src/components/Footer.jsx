@@ -10,7 +10,7 @@ export function Footer({ t }) {
       <div className="flex justify-center gap-2 mb-3" aria-hidden="true">
         <GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} /><GrannySquare size={14} />
       </div>
-      <p className="text-xs" style={{ color: "#826E5A" }}>
+      <p className="text-xs" style={{ color: C.label }}>
         {t("footer.privacy")}
       </p>
       <p className="text-xs mt-3">
@@ -19,7 +19,7 @@ export function Footer({ t }) {
           target="_blank"
           rel="noreferrer noopener"
           className="nk-focus nk-link font-bold rounded"
-          style={{ color: C.roseDark }}
+          style={{ color: C.roseText }}
         >
           {t("footer.learnNext")}
           <span className="sr-only"> {t("footer.newTab")}</span>

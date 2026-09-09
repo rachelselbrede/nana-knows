@@ -18,7 +18,7 @@ export const Toggle = ({ value, current, set, children }) => (
     style={{
       fontFamily: "'Nunito', sans-serif",
       background: current === value ? C.rose : "transparent",
-      color: current === value ? "#FFF" : C.roseDark,
+      color: current === value ? C.onAccent : C.roseText,
       border: `2px solid ${current === value ? C.rose : C.line}`,
     }}
   >

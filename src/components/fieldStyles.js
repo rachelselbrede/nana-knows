@@ -9,10 +9,10 @@ export const labelStyle = {
   fontSize: 11,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
-  color: "#826E5A",
+  color: C.label,
 };
 export const inputStyle = {
-  background: "#FFFFFF",
+  background: C.field,
   border: `2px solid ${C.line}`,
   borderRadius: 12,
   color: C.espresso,
@@ -24,5 +24,5 @@ export const thStyle = {
   fontFamily: "'Nunito', sans-serif",
   fontWeight: 800,
   fontSize: 12,
-  color: "#826E5A",
+  color: C.label,
 };

@@ -7,13 +7,13 @@ export function RememberRow({ t, rememberMe, forgetMe, shareLink, saveMsg }) {
     <>
       {/* remember me */}
       <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
-        <button type="button" onClick={rememberMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageDark }}>
+        <button type="button" onClick={rememberMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageText }}>
           {t("remember.save")}
         </button>
-        <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: "#7F6F5C" }}>
+        <button type="button" onClick={forgetMe} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.muted }}>
           {t("remember.forget")}
         </button>
-        <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseDark }}>
+        <button type="button" onClick={shareLink} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseText }}>
           {t("share.button")}
         </button>
         {/* Always in the tree so the live region exists before the first
@@ -21,9 +21,9 @@ export function RememberRow({ t, rememberMe, forgetMe, shareLink, saveMsg }) {
             some screen readers. The span holds a key, not a sentence, so the
             little confirmations follow a language switch like the advice
             cards do. */}
-        <span role="status" style={{ color: "#826E5A" }}>{saveMsg ? t(saveMsg) : ""}</span>
+        <span role="status" style={{ color: C.label }}>{saveMsg ? t(saveMsg) : ""}</span>
       </div>
-      <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: "#7F6F5C" }}>
+      <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: "'Nunito', sans-serif", color: C.muted }}>
         {t("share.note")}
       </p>
     </>

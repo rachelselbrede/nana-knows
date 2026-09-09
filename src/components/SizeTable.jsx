@@ -47,36 +47,36 @@ export function SizeTable({ t, results }) {
             </thead>
             <tbody>
               {results.table.rows.map((r, i) => (
-                <tr key={i} style={{ borderTop: `1.5px dashed ${C.line}`, background: r.best ? "#F3E7EC" : "transparent" }}>
+                <tr key={i} style={{ borderTop: `1.5px dashed ${C.line}`, background: r.best ? C.roseTint : "transparent" }}>
                   {/* The pick is marked with words, not colour alone:
                       the tinted row means nothing to a screen reader
                       or in a greyscale print. */}
                   <th scope="row" className="py-2 pr-3 text-left align-top">
                     <span className="font-bold" style={{ color: C.espresso }}>{r.size}</span>
                     {r.best && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseDark }}>
+                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseText }}>
                         {t("table.pick")}
                       </span>
                     )}
                     {r.runnerUp && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageDark }}>
+                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageText }}>
                         {t("table.closeCall")}
                       </span>
                     )}
                   </th>
                   {results.table.gaugeAdjusted && (
-                    <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{r.actual}</td>
+                    <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>{r.actual}</td>
                   )}
-                  <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>{signed(r.diff)}</td>
+                  <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>{signed(r.diff)}</td>
                   {results.table.hasYards && (
-                    <td className="py-2 px-3 text-right align-top" style={{ color: "#5C4B3E" }}>
+                    <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>
                       {r.need !== null ? r.need : "—"}
                     </td>
                   )}
                   {results.table.hasVerdicts && (
                     <td
                       className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
-                      style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageDark : C.roseDark }}
+                      style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageText : C.roseText }}
                     >
                       {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said(t, results).yarnU }) : "—"}
                     </td>
@@ -87,7 +87,7 @@ export function SizeTable({ t, results }) {
           </table>
         </div>
         {(results.table.gaugeAdjusted || results.table.hasVerdicts) && (
-          <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: "#826E5A" }}>
+          <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: C.label }}>
             {tableNote(t, results)}
           </p>
         )}

@@ -27,7 +27,7 @@ export function Header({ t, lang, setLang }) {
               style={{
                 fontFamily: "'Nunito', sans-serif",
                 background: lang === "en" ? C.sageDark : "transparent",
-                color: lang === "en" ? "#FFF" : C.sageDark,
+                color: lang === "en" ? C.onAccent : C.sageText,
               }}
             >
               {t("lang.en")}
@@ -45,7 +45,7 @@ export function Header({ t, lang, setLang }) {
               style={{
                 fontFamily: "'Nunito', sans-serif",
                 background: lang === "es" ? C.sageDark : "transparent",
-                color: lang === "es" ? "#FFF" : C.sageDark,
+                color: lang === "es" ? C.onAccent : C.sageText,
               }}
             >
               {t("lang.es")}
@@ -63,10 +63,10 @@ export function Header({ t, lang, setLang }) {
             >
               Nana Knows
             </h1>
-            <p className="mt-2 text-sm sm:text-base" style={{ fontFamily: "'Nunito', sans-serif", color: "#6B5847" }}>
+            <p className="mt-2 text-sm sm:text-base" style={{ fontFamily: "'Nunito', sans-serif", color: C.tagline }}>
               {t("header.tagline")}
             </p>
-            <p className="mt-2 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageDark }}>
+            <p className="mt-2 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageText }}>
               {t("header.badge")}
             </p>
           </div>

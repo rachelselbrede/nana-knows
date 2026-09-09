@@ -18,7 +18,7 @@ export function MeasureGuide({ t }) {
               <li key={i}>{s}</li>
             ))}
           </ol>
-          <p className="mt-3" style={{ color: C.sageDark }}>{t("measure.tip")}</p>
+          <p className="mt-3" style={{ color: C.sageText }}>{t("measure.tip")}</p>
         </div>
       </div>
     </Disclosure>

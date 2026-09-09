@@ -356,7 +356,7 @@ export default function NanaKnows() {
           <button
             type="submit"
             className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: "#FFF", boxShadow: `0 4px 0 ${C.roseDark}` }}
+            style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: C.onAccent, boxShadow: `0 4px 0 ${C.roseDark}` }}
           >
             {t("button.ask")}
           </button>

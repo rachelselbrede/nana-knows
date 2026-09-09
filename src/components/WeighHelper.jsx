@@ -40,7 +40,7 @@ export function WeighHelper({ t, yarnU, perSkein, ph, setSkeins }) {
             <span style={labelStyle}>{t("weigh.haveWeighs")}</span>
             <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={have} onChange={edit(setHave)} onKeyDown={onKey} placeholder={ph.weighHave} />
           </label>
-          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageText, minHeight: "1.2em" }}>
             {skeins !== null ? t("weigh.out", { skeins, yards, yarnU }) : ""}
           </p>
         </div>
@@ -50,13 +50,13 @@ export function WeighHelper({ t, yarnU, perSkein, ph, setSkeins }) {
             onClick={apply}
             disabled={skeins === null}
             className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
+            style={{ background: C.sageDark, color: C.onAccent, fontFamily: "'Nunito', sans-serif" }}
           >
             {t("weigh.use")}
           </button>
-          <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{used ? t("weigh.used") : ""}</span>
+          <span role="status" className="text-xs" style={{ color: C.label }}>{used ? t("weigh.used") : ""}</span>
         </div>
-        <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("weigh.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("weigh.tip")}</p>
       </div>
     </Disclosure>
   );

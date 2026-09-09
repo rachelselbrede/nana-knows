@@ -1,4 +1,4 @@
-import { C } from "../palette.js";
+import { C, LIGHT, declarations } from "../palette.js";
 
 /* ---------- the stylesheet ----------
    The few rules Tailwind cannot express — the bob, the pop, the focus ring,
@@ -7,6 +7,9 @@ import { C } from "../palette.js";
 export function GlobalStyle() {
   return (
     <style>{`
+      /* The palette, as custom properties: every C.* in the components resolves
+         here. GlobalStyle owns the numbers; the components own only the roles. */
+      :root { ${declarations(LIGHT)} }
       .nk-bob { animation: nkbob 4s ease-in-out infinite; }
       @keyframes nkbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
       .nk-pop { animation: nkpop .4s ease-out both; }
@@ -38,7 +41,7 @@ export function GlobalStyle() {
         background-size: 20px 13px;
         background-repeat: repeat-x;
       }
-      input::placeholder, textarea::placeholder { color: #817464; }
+      input::placeholder, textarea::placeholder { color: ${C.placeholder}; }
       summary { cursor: pointer; }
       /* Print just Nana's advice, so it can go in a project bag. The form,
          toggles, buttons and footer drop away; the header keeps her face. */

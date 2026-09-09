@@ -50,7 +50,7 @@ export function SwatchHelper({ t, units, lenU, gaugeLabel, rowGaugeLabel, swatch
           </label>
           {/* Always in the DOM, so the live region exists before it has
               anything to announce. */}
-          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageText, minHeight: "1.2em" }}>
             {stsGauge !== null ? t("swatch.stitchesOut", { gauge: stsGauge, gaugeLabel }) : ""}
           </p>
           <label className="flex flex-col gap-1.5">
@@ -61,7 +61,7 @@ export function SwatchHelper({ t, units, lenU, gaugeLabel, rowGaugeLabel, swatch
             <span style={labelStyle}>{t("swatch.tall", { lenU })}</span>
             <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={tall} onChange={edit(setTall)} onKeyDown={onKey} placeholder={ph.swatchTall} />
           </label>
-          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageDark, minHeight: "1.2em" }}>
+          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageText, minHeight: "1.2em" }}>
             {rowsGauge !== null ? t("swatch.rowsOut", { gauge: rowsGauge, rowGaugeLabel }) : ""}
           </p>
         </div>
@@ -71,13 +71,13 @@ export function SwatchHelper({ t, units, lenU, gaugeLabel, rowGaugeLabel, swatch
             onClick={apply}
             disabled={!ready}
             className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: C.sageDark, color: "#FFFFFF", fontFamily: "'Nunito', sans-serif" }}
+            style={{ background: C.sageDark, color: C.onAccent, fontFamily: "'Nunito', sans-serif" }}
           >
             {t("swatch.use")}
           </button>
-          <span role="status" className="text-xs" style={{ color: "#826E5A" }}>{used ? t("swatch.used") : ""}</span>
+          <span role="status" className="text-xs" style={{ color: C.label }}>{used ? t("swatch.used") : ""}</span>
         </div>
-        <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("swatch.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("swatch.tip")}</p>
       </div>
     </Disclosure>
   );

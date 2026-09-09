@@ -42,13 +42,13 @@ export function SubstituteHelper({ t, units, gaugeLabel, yarnU, craft, patternGa
         </div>
         {/* Two live lines: the verdict, then the ball count. Warn-toned
             verdicts wear the rose, like the cards. */}
-        <p className="mt-2 text-sm" role="status" style={{ minHeight: "1.2em", color: verdict && verdict.tone === "warn" ? C.roseDark : C.sageDark }}>
+        <p className="mt-2 text-sm" role="status" style={{ minHeight: "1.2em", color: verdict && verdict.tone === "warn" ? C.roseText : C.sageText }}>
           {verdict ? t(`substitute.${verdict.kind}`, { ...verdict, gaugeLabel, craft }) : ""}
         </p>
-        <p className="mt-1 text-xs" role="status" style={{ minHeight: "1.2em", color: C.sageDark }}>
+        <p className="mt-1 text-xs" role="status" style={{ minHeight: "1.2em", color: C.sageText }}>
           {ballsText()}
         </p>
-        <p className="mt-3 text-xs" style={{ color: C.sageDark }}>{t("substitute.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("substitute.tip")}</p>
       </div>
     </Disclosure>
   );
