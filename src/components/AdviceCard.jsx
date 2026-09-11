@@ -1,4 +1,5 @@
 import { C } from "../palette.js";
+import { SERIF } from "../type.js";
 
 /* ---------- advice card ---------- */
 export function AdviceCard({ color, title, children, tone }) {
@@ -11,7 +12,7 @@ export function AdviceCard({ color, title, children, tone }) {
       <div className="p-4 sm:p-5">
         <h3
           className="mb-2 text-base font-bold"
-          style={{ fontFamily: "'Fraunces', serif", color: C.espresso }}
+          style={{ fontFamily: SERIF, color: C.espresso }}
         >
           {title}
         </h3>

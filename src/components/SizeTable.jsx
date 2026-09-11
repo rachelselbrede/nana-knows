@@ -1,6 +1,7 @@
 import { C } from "../palette.js";
 import { thStyle } from "./fieldStyles.js";
 import { said, signed, tableNote } from "../lib/words.js";
+import { SERIF, SANS } from "../type.js";
 
 /* ---------- every size at a glance ----------
    Every size side by side. Columns only appear when there is
@@ -14,7 +15,7 @@ export function SizeTable({ t, results }) {
     <div className="rounded-2xl overflow-hidden nk-pop" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
       <div style={{ height: 8, background: C.rose }} />
       <div className="p-4 sm:p-5">
-        <h3 className="mb-3 text-base font-bold" style={{ fontFamily: "'Fraunces', serif", color: C.espresso }}>
+        <h3 className="mb-3 text-base font-bold" style={{ fontFamily: SERIF, color: C.espresso }}>
           {t("table.title")}
         </h3>
         <div className="overflow-x-auto">
@@ -54,12 +55,12 @@ export function SizeTable({ t, results }) {
                   <th scope="row" className="py-2 pr-3 text-left align-top">
                     <span className="font-bold" style={{ color: C.espresso }}>{r.size}</span>
                     {r.best && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.roseText }}>
+                      <span className="block text-[11px] font-bold" style={{ fontFamily: SANS, color: C.roseText }}>
                         {t("table.pick")}
                       </span>
                     )}
                     {r.runnerUp && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageText }}>
+                      <span className="block text-[11px] font-bold" style={{ fontFamily: SANS, color: C.sageText }}>
                         {t("table.closeCall")}
                       </span>
                     )}
@@ -76,7 +77,7 @@ export function SizeTable({ t, results }) {
                   {results.table.hasVerdicts && (
                     <td
                       className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
-                      style={{ fontFamily: "'Nunito', sans-serif", color: r.stash === "plenty" ? C.sageText : C.roseText }}
+                      style={{ fontFamily: SANS, color: r.stash === "plenty" ? C.sageText : C.roseText }}
                     >
                       {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said(t, results).yarnU }) : "—"}
                     </td>
@@ -87,7 +88,7 @@ export function SizeTable({ t, results }) {
           </table>
         </div>
         {(results.table.gaugeAdjusted || results.table.hasVerdicts) && (
-          <p className="mt-3 text-xs" style={{ fontFamily: "'Nunito', sans-serif", color: C.label }}>
+          <p className="mt-3 text-xs" style={{ fontFamily: SANS, color: C.label }}>
             {tableNote(t, results)}
           </p>
         )}

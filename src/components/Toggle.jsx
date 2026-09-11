@@ -1,4 +1,5 @@
 import { C } from "../palette.js";
+import { SANS } from "../type.js";
 
 /* ---------- shared small pieces ----------
    These live at module scope on purpose. Defined inside the component they
@@ -16,7 +17,7 @@ export const Toggle = ({ value, current, set, children }) => (
     aria-pressed={current === value}
     className="nk-focus px-3 py-1.5 text-sm font-bold rounded-full transition-colors"
     style={{
-      fontFamily: "'Nunito', sans-serif",
+      fontFamily: SANS,
       /* roseDark behind the white label, not rose: white on the lighter rose
          is 3.2:1, which is fine for the Ask button's large type and not for a
          14px pill. The unpressed pill keeps the rose text on no fill. */

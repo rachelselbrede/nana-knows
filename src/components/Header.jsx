@@ -1,5 +1,6 @@
 import { C } from "../palette.js";
 import { Nana } from "./Nana.jsx";
+import { SERIF, SANS } from "../type.js";
 
 /* ---------- the top of the page ----------
    The language switch, Nana herself, the title and the tagline, and the
@@ -25,7 +26,7 @@ export function Header({ t, lang, setLang }) {
               lang="en"
               className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
               style={{
-                fontFamily: "'Nunito', sans-serif",
+                fontFamily: SANS,
                 background: lang === "en" ? C.sageDark : "transparent",
                 color: lang === "en" ? C.onAccent : C.sageText,
               }}
@@ -43,7 +44,7 @@ export function Header({ t, lang, setLang }) {
               lang="es"
               className="nk-focus px-3 py-1 text-xs font-bold transition-colors"
               style={{
-                fontFamily: "'Nunito', sans-serif",
+                fontFamily: SANS,
                 background: lang === "es" ? C.sageDark : "transparent",
                 color: lang === "es" ? C.onAccent : C.sageText,
               }}
@@ -59,14 +60,14 @@ export function Header({ t, lang, setLang }) {
           <div className="pb-2">
             <h1
               className="leading-none"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, fontSize: "clamp(34px, 8vw, 52px)" }}
+              style={{ fontFamily: SERIF, fontWeight: 900, fontSize: "clamp(34px, 8vw, 52px)" }}
             >
               Nana Knows
             </h1>
-            <p className="mt-2 text-sm sm:text-base" style={{ fontFamily: "'Nunito', sans-serif", color: C.tagline }}>
+            <p className="mt-2 text-base" style={{ fontFamily: SERIF, color: C.tagline }}>
               {t("header.tagline")}
             </p>
-            <p className="mt-2 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif", color: C.sageText }}>
+            <p className="mt-2 text-xs font-bold" style={{ fontFamily: SANS, color: C.sageText }}>
               {t("header.badge")}
             </p>
           </div>

@@ -65,6 +65,12 @@ merged and deployed on 31 August 2026, and since then:
   fixed `ART` set. Measuring the tints turned up rose and sage text at 4.0:1
   on the picked row and the intro bubble; both text tones were darkened by the
   minimum that clears it. `npm run contrast` keeps the numbers honest.
+- **New type, self-hosted** (10 September 2026) — Alegreya and Alegreya Sans
+  from `public/fonts`, replacing Fraunces and Nunito from Google Fonts, which
+  were the page's only third-party request and the one thing an installed
+  Nana could not have offline. Running text is now the serif, labels are
+  sentence case, figures are lining. `src/type.js` is the one place a family
+  is named.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and

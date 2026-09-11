@@ -4,6 +4,7 @@ import { labelStyle, inputStyle } from "./fieldStyles.js";
 import { Disclosure } from "./Disclosure.jsx";
 import { scratchEdit, applyOnEnter, useUnitFlip } from "./scratch.js";
 import { swatchToGauge, convertOne, inchesToCm, cmToInches } from "../lib/parse.js";
+import { SANS } from "../type.js";
 
 /* ---------- the swatch helper ----------
    Live arithmetic, but nothing lands in the gauge fields until the knitter
@@ -71,7 +72,7 @@ export function SwatchHelper({ t, units, lenU, gaugeLabel, rowGaugeLabel, swatch
             onClick={apply}
             disabled={!ready}
             className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: C.sageDark, color: C.onAccent, fontFamily: "'Nunito', sans-serif" }}
+            style={{ background: C.sageDark, color: C.onAccent, fontFamily: SANS }}
           >
             {t("swatch.use")}
           </button>

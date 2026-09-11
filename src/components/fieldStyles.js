@@ -1,14 +1,15 @@
 import { C } from "../palette.js";
+import { SANS } from "../type.js";
 
 /* ---------- shared field styles ----------
    The same label, input and table-header look on every card, kept out of the
    components so the three cards and the results table cannot drift apart. */
+/* Sentence case, bold, in the sans: a label should read like a note on a
+   pattern, not like a heading on a dashboard. */
 export const labelStyle = {
-  fontFamily: "'Nunito', sans-serif",
-  fontWeight: 800,
-  fontSize: 11,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
+  fontFamily: SANS,
+  fontWeight: 700,
+  fontSize: 13.5,
   color: C.label,
 };
 export const inputStyle = {
@@ -16,13 +17,12 @@ export const inputStyle = {
   border: `2px solid ${C.line}`,
   borderRadius: 12,
   color: C.espresso,
-  fontFamily: "'Nunito', sans-serif",
+  fontFamily: SANS,
 };
-/* Table headers wear the label colour but not the uppercase letter-spacing:
-   five spaced-out columns of capitals wrap into tall stacks on a phone. */
+/* Table headers wear the label look a size smaller. */
 export const thStyle = {
-  fontFamily: "'Nunito', sans-serif",
-  fontWeight: 800,
-  fontSize: 12,
+  fontFamily: SANS,
+  fontWeight: 700,
+  fontSize: 12.5,
   color: C.label,
 };

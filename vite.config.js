@@ -42,7 +42,7 @@ export default defineConfig({
         // The manifest is not in this list because the plugin precaches it
         // itself; naming it here listed it twice, the same double-entry that
         // includeManifestIcons below was set to prevent for the icons.
-        globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         // og-image is only ever fetched by link-preview scrapers, so there is no
         // reason to push 70KB of it into every visitor's offline cache.
         globIgnores: ["og-image.png"],

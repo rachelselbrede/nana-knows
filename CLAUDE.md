@@ -155,6 +155,11 @@ that register; it is most of what makes the repo pleasant to read.
   set and do not change with the theme. `npm run contrast` measures every text
   role on every background it sits on, in both palettes; run it after touching
   a colour.
+- The type is Alegreya (serif, running text and headings) and Alegreya Sans
+  (labels, fields, buttons), self-hosted from `public/fonts` with their OFL
+  licences beside them; the page makes no third-party request at all. Components
+  say `SERIF` or `SANS` from `src/type.js` and never name a family; the
+  `@font-face` rules and the lining-figures rule are in `src/index.css`.
 - The helpers keep their own scratch state and follow the unit toggle through
   `useUnitFlip` in `components/scratch.js`; the parent's `switchUnits` converts
   only the fields it owns. A new helper with a length or gauge field must do

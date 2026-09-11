@@ -28,6 +28,7 @@ import { PatternCard } from "./components/PatternCard.jsx";
 import { YouCard } from "./components/YouCard.jsx";
 import { BasketCard } from "./components/BasketCard.jsx";
 import { Results } from "./components/Results.jsx";
+import { SERIF } from "./type.js";
 
 /* Parsing, unit conversion and all of Nana's arithmetic now live in src/lib,
    where they are pure and covered by tests. See src/lib/parse.js for why the
@@ -356,7 +357,7 @@ export default function NanaKnows() {
           <button
             type="submit"
             className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 900, background: C.rose, color: C.onAccent, boxShadow: `0 4px 0 ${C.roseDark}` }}
+            style={{ fontFamily: SERIF, fontWeight: 900, background: C.rose, color: C.onAccent, boxShadow: `0 4px 0 ${C.roseDark}` }}
           >
             {t("button.ask")}
           </button>

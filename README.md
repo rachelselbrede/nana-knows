@@ -137,9 +137,10 @@ Got another idea? Open an issue: "Tell Nana what to learn next" in the footer.
 
 ## Privacy
 
-Nana collects nothing. There is no backend, no analytics, and no cookies. Saved
-numbers live only in the visitor's own browser, and a shared link carries its
-numbers in the link itself.
+Nana collects nothing. There is no backend, no analytics, and no cookies. The
+page makes no request to anyone but its own host: even the type is served from
+here. Saved numbers live only in the visitor's own browser, and a shared link
+carries its numbers in the link itself.
 
 ## License
 

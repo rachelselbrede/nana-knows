@@ -1,5 +1,46 @@
 @import "tailwindcss";
 
+/* Alegreya and Alegreya Sans, self-hosted: see src/type.js for why. The
+   variable files carry every weight the page uses; the sans needs only
+   regular and bold. font-display: swap, so text never waits on a font. */
+@font-face {
+  font-family: "Alegreya";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/Alegreya-VF.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya";
+  font-style: italic;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/Alegreya-Italic-VF.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/AlegreyaSans-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/AlegreyaSans-Bold.woff2") format("woff2");
+}
+
+/* Alegreya sets small for its size, so the whole scale goes up a notch. */
+html {
+  font-size: 17px;
+}
+
+/* Running text is the serif. Figures are lining and tabular everywhere:
+   Alegreya's old-style numerals are lovely in prose, but this is a page of
+   measurements, and "40 in" must look like a number, not a word. */
 body {
-  font-family: "Nunito", sans-serif;
+  font-family: "Alegreya", Georgia, serif;
+  font-variant-numeric: lining-nums tabular-nums;
 }

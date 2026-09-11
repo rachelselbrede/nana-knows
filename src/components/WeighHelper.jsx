@@ -4,6 +4,7 @@ import { labelStyle, inputStyle } from "./fieldStyles.js";
 import { Disclosure } from "./Disclosure.jsx";
 import { scratchEdit, applyOnEnter } from "./scratch.js";
 import { gramsToSkeins, parseOne, r1 } from "../lib/parse.js";
+import { SANS } from "../type.js";
 
 /* ---------- the weighing helper ----------
    Grams over grams-per-skein is skeins, which drops into the field the yarn
@@ -50,7 +51,7 @@ export function WeighHelper({ t, yarnU, perSkein, ph, setSkeins }) {
             onClick={apply}
             disabled={skeins === null}
             className="nk-focus px-4 py-2 rounded-xl text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: C.sageDark, color: C.onAccent, fontFamily: "'Nunito', sans-serif" }}
+            style={{ background: C.sageDark, color: C.onAccent, fontFamily: SANS }}
           >
             {t("weigh.use")}
           </button>
