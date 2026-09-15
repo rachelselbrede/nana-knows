@@ -328,7 +328,7 @@ export default {
     askFirst: "Pregúntale a Nana tu talla y ella contará cuántos ovillos necesitarías.",
     needPerSkein: ({ yarnU }) =>
       `Dile a Nana los ${yarnU} por madeja arriba y ella contará cuántos ovillos necesitarías.`,
-    tip: "Que la muestra coincida es la primera prueba, no la última: la fibra, la torsión y la caída deciden si el suéter va a colgar como el de la foto. Haz la muestra, lávala y confía en ella.",
+    tip: "Que la muestra coincida es la primera prueba, no la última: la fibra, la torsión y la caída deciden si el suéter va a colgar como el de la foto. Haz la muestra y lávala.",
   },
 
   /* Cómo poner a Nana en un patrón. Va al pie de la página, sin estorbar a

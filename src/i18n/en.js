@@ -327,7 +327,7 @@ export default {
     askFirst: "Ask Nana for your size and she will count how many balls you would need.",
     needPerSkein: ({ yarnU }) =>
       `Tell Nana the ${yarnU} per skein above and she will count how many balls you would need.`,
-    tip: "A matching gauge is the first test, not the last: fibre, twist and drape decide whether the sweater will hang like the one in the picture. Swatch, wash the swatch, and trust it.",
+    tip: "A matching gauge is the first test, not the last: fibre, twist and drape decide whether the sweater will hang like the one in the picture. Swatch, and wash the swatch.",
   },
 
   /* How to put Nana in a pattern. Sits at the foot of the page, out of the
