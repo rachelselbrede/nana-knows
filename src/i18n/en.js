@@ -140,10 +140,10 @@ export default {
     alt: "A soft measuring tape wrapped around the fullest part of the bust, level all the way round",
     steps: [
       "Wear the bra or layer you plan to wear under the finished piece, so the fit matches real life.",
-      "Wrap the tape around the fullest part of your bust, usually right across the nipple line.",
+      "Wrap the tape around the fullest part of your bust.",
       "Keep the tape level, snug but not squeezing, and parallel to the floor all the way round.",
       "Breathe out gently and read the number where the tape meets, without pulling it tight.",
-      "Take it twice. If the two readings differ, use the larger one and trust it.",
+      "Take it twice. If the two readings differ, use the larger one.",
     ],
     tip: "No helper and no full-length mirror? Measure a sweater that already fits you well, laid flat, and double the width across the chest.",
   },
