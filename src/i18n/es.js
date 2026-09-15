@@ -161,7 +161,7 @@ export default {
     rowsOut: ({ gauge, rowGaugeLabel }) => `Eso da ${gauge} ${rowGaugeLabel}.`,
     use: "Usar estos números",
     used: "Nana ya los anotó arriba, en los campos de tu muestra.",
-    tip: "Mide en el centro de la muestra, lejos de los bordes, y cuenta también los medios puntos. Si la prenda terminada se va a lavar, lava y deja reposar la muestra antes: ese es el número honesto.",
+    tip: "Mide en el centro de la muestra, lejos de los bordes, y cuenta también los medios puntos. Si la prenda terminada se va a lavar, lava y deja reposar la muestra antes.",
   },
 
   /* La ayuda con la báscula. Una báscula de cocina sabe cuánto queda de un
@@ -176,7 +176,7 @@ export default {
       `Eso es como ${skeins === 1 ? "una madeja" : `${skeins} madejas`}${yards !== null ? `, unos ${yards} ${yarnU}` : ""}.`,
     use: "Usar ese número",
     used: "Nana lo anotó en «Madejas que tienes».",
-    tip: "Pesa la lana sin la etiqueta ni el carrete, y si un ovillo ya está empezado, pesa lo que queda en vez de adivinar.",
+    tip: "Pesa la lana sin la etiqueta ni el carrete, y si un ovillo ya está empezado, pesa lo que queda.",
   },
 
   save: {

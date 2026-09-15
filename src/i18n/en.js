@@ -162,7 +162,7 @@ export default {
     rowsOut: ({ gauge, rowGaugeLabel }) => `That makes ${gauge} ${rowGaugeLabel}.`,
     use: "Use these numbers",
     used: "Nana popped those into your swatch fields above.",
-    tip: "Measure in the middle of the swatch, away from the edges, and count the half stitches too. If the finished piece will be washed, wash and rest the swatch first — that is the honest number.",
+    tip: "Measure in the middle of the swatch, away from the edges, and count the half stitches too. If the finished piece will be washed, wash and rest the swatch first.",
   },
 
   /* The weighing helper. A kitchen scale knows what is left of a part-used
@@ -177,7 +177,7 @@ export default {
       `That is about ${skeins === 1 ? "one skein's worth" : `${skeins} skeins' worth`}${yards !== null ? `, around ${yards} ${yarnU}` : ""}.`,
     use: "Use that number",
     used: "Nana wrote that into “Skeins you have”.",
-    tip: "Weigh the yarn without its band or bobbin, and if a ball has been wound off, weigh what is left rather than guessing.",
+    tip: "Weigh the yarn without its band or bobbin, and if a ball has been wound off, weigh what is left.",
   },
 
   save: {
