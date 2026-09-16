@@ -228,7 +228,7 @@ export default {
       askBasket: ({ need, yarnU }) =>
         `Esa talla pide alrededor de ${need} ${yarnU}. Dile a Nana qué tienes en tu canasta (${yarnU} por madeja y cuántas) y ella revisará si alcanza.`,
       allSet: ({ have, best, need, buffered, yarnU }) =>
-        `Tienes ${have} ${yarnU} y la talla ${best} pide alrededor de ${need} ${yarnU}. Incluso con el colchoncito del 10 % de Nana por si acaso (${buffered} ${yarnU}), te sobra. Monta los puntos con la conciencia tranquila.`,
+        `Tienes ${have} ${yarnU} y la talla ${best} pide alrededor de ${need} ${yarnU}. Incluso con el colchoncito del 10 % de Nana por si acaso (${buffered} ${yarnU}), te sobra.`,
       justCovers: ({ have, need, buffered, yarnU }) =>
         `Tienes ${have} ${yarnU} y el patrón pide ${need} ${yarnU}. Alcanza, pero por muy poco. A Nana le gusta un colchón del 10 % (${buffered} ${yarnU}), así que una madeja más la dejaría dormir tranquila.`,
       short: ({ have, need, buffered, shortAmt, moreSkeins, yarnU }) =>
@@ -265,7 +265,7 @@ export default {
       match: ({ urg, prg, rowGaugeLabel }) =>
         `Tus filas también coinciden con el patrón (${urg} contra ${prg} ${rowGaugeLabel}). Teje los largos tal como están y saldrán bien.`,
       off: ({ tighter, urg, prg, rowGaugeLabel, yours, intended, lenU, needed }) =>
-        `Tus filas quedan ${tighter ? "más apretadas" : "más flojas"} que las del patrón (${urg} contra ${prg} ${rowGaugeLabel}). Donde dice tejer 100 filas, tú llegarías a unos ${yours} ${lenU} en vez de ${intended} ${lenU}, así que teje unas ${needed} filas para llegar al mismo largo. Ve midiendo tu cuerpo y tus mangas mientras avanzas en lugar de confiar solo en la cuenta de filas, y todo te va a salir muy bien.`,
+        `Tus filas quedan ${tighter ? "más apretadas" : "más flojas"} que las del patrón (${urg} contra ${prg} ${rowGaugeLabel}). Donde dice tejer 100 filas, tú llegarías a unos ${yours} ${lenU} en vez de ${intended} ${lenU}, así que teje unas ${needed} filas para llegar al mismo largo. Ve midiendo tu cuerpo y tus mangas mientras avanzas, no solo por la cuenta de filas.`,
     },
   },
 

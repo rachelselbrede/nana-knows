@@ -227,7 +227,7 @@ export default {
       askBasket: ({ need, yarnU }) =>
         `That size calls for about ${need} ${yarnU}. Tell Nana what is in your basket (${yarnU} per skein and how many) and she will check if it is enough.`,
       allSet: ({ have, best, need, buffered, yarnU }) =>
-        `You have ${have} ${yarnU} and the size ${best} calls for about ${need} ${yarnU}. Even with Nana's 10% just-in-case cushion (${buffered} ${yarnU}), you are all set. Cast on with a clear conscience.`,
+        `You have ${have} ${yarnU} and the size ${best} calls for about ${need} ${yarnU}. Even with Nana's 10% just-in-case cushion (${buffered} ${yarnU}), you are all set.`,
       justCovers: ({ have, need, buffered, yarnU }) =>
         `You have ${have} ${yarnU} and the pattern asks for ${need} ${yarnU}. That covers it, but only just. Nana likes a 10% cushion (${buffered} ${yarnU}), so one more skein would help her sleep at night.`,
       short: ({ have, need, buffered, shortAmt, moreSkeins, yarnU }) =>
@@ -265,7 +265,7 @@ export default {
       match: ({ urg, prg, rowGaugeLabel }) =>
         `Your rows match the pattern too (${urg} vs ${prg} ${rowGaugeLabel}). Work the lengths as written and they will come out right.`,
       off: ({ tighter, urg, prg, rowGaugeLabel, yours, intended, lenU, needed }) =>
-        `Your rows are ${tighter ? "tighter" : "looser"} than the pattern's (${urg} vs ${prg} ${rowGaugeLabel}). Where it says work 100 rows, you would reach about ${yours} ${lenU} instead of ${intended} ${lenU} — so work about ${needed} rows to arrive at the same length. Measure your body and sleeves as you go rather than trusting the row count alone, and you will be fine.`,
+        `Your rows are ${tighter ? "tighter" : "looser"} than the pattern's (${urg} vs ${prg} ${rowGaugeLabel}). Where it says work 100 rows, you would reach about ${yours} ${lenU} instead of ${intended} ${lenU} — so work about ${needed} rows to arrive at the same length. Measure your body and sleeves as you go, not by row count alone.`,
     },
   },
 
