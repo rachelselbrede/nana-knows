@@ -100,13 +100,23 @@ export default {
     weighSkein: "p. ej. 100",
     weighHave: "p. ej. 350",
     bandGauge: "p. ej. 20",
+    projectName: "p. ej. la chaqueta azul",
   }),
 
   button: { ask: "Pregúntale a Nana" },
 
   remember: {
+    name: "Nombre del proyecto",
     save: "Nana, recuerda mis números",
     forget: "Olvídame",
+    forgetOne: "Olvidar este proyecto",
+  },
+
+  /* El selector de las hojas del cuaderno. Una hoja guardada de antes de que
+     las hojas tuvieran nombre no tiene, y se llama así al momento de mostrarla. */
+  notebook: {
+    label: "El cuaderno de Nana",
+    unnamed: "Hoja sin nombre",
   },
 
   copy: {
@@ -181,10 +191,14 @@ export default {
 
   save: {
     remembered: "Nana te recordó de la vez pasada.",
+    rememberedAs: ({ name }) => `Nana se acordó de «${name}» de la vez pasada.`,
     written: "Anotado en el cuaderno de Nana. Guardado solo para ti, en este navegador.",
+    writtenAs: ({ name }) => `Anotado en el cuaderno de Nana como «${name}». Guardado solo para ti, en este navegador.`,
+    opened: ({ name }) => `Nana abrió «${name}» de su cuaderno.`,
     notHandy:
       "El cuaderno de Nana no está a la mano ahora, mi vida. Tus números siguen sirviendo para esta visita.",
-    forgotten: "Nana arrancó la hoja. Todo olvidado.",
+    forgotten: "Nana arrancó todas las hojas. Todo olvidado.",
+    forgottenOne: ({ name }) => `Nana arrancó la hoja de «${name}».`,
     redoneIn: "Nana pasó tus números a pulgadas y yardas, mi vida.",
     redoneCm: "Nana pasó tus números a centímetros y metros, mi vida.",
   },

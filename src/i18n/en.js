@@ -101,13 +101,23 @@ export default {
     weighSkein: "e.g. 100",
     weighHave: "e.g. 350",
     bandGauge: "e.g. 20",
+    projectName: "e.g. the blue cardigan",
   }),
 
   button: { ask: "Ask Nana" },
 
   remember: {
+    name: "Project name",
     save: "Nana, remember my numbers",
     forget: "Forget me",
+    forgetOne: "Forget this project",
+  },
+
+  /* The picker over the notebook's pages. A page saved before pages had
+     names has none, and is called this at render time. */
+  notebook: {
+    label: "Nana's notebook",
+    unnamed: "Unnamed page",
   },
 
   copy: {
@@ -182,10 +192,14 @@ export default {
 
   save: {
     remembered: "Nana remembered you from last time.",
+    rememberedAs: ({ name }) => `Nana remembered “${name}” from last time.`,
     written: "Written in Nana's notebook. Saved just for you, in this browser.",
+    writtenAs: ({ name }) => `Written in Nana's notebook as “${name}”. Saved just for you, in this browser.`,
+    opened: ({ name }) => `Nana opened “${name}” from her notebook.`,
     notHandy:
       "Nana's notebook is not handy right now, dear. Your numbers still work for this visit.",
-    forgotten: "Nana tore out the page. All forgotten.",
+    forgotten: "Nana tore out every page. All forgotten.",
+    forgottenOne: ({ name }) => `Nana tore out the page for “${name}”.`,
     redoneIn: "Nana redid your numbers in inches and yards, dear.",
     redoneCm: "Nana redid your numbers in centimetres and metres, dear.",
   },

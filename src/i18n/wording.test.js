@@ -307,6 +307,23 @@ for (const lang of LANGS) {
   });
 }
 
+/* ---------- the notebook's little confirmations ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the notebook has words`, () => {
+    test("every message that names a page, and the labels around it", () => {
+      for (const key of ["rememberedAs", "writtenAs", "opened", "forgottenOne"]) {
+        const text = say(lang, `save.${key}`, { name: "the blue cardigan" });
+        assertSentence(text, `${lang} save/${key}`);
+        assert.ok(text.includes("the blue cardigan"), `${lang} save/${key} lost the name: ${text}`);
+      }
+      for (const key of ["notebook.label", "notebook.unnamed", "remember.name", "remember.forgetOne"]) {
+        assert.ok(say(lang, key).length > 3, `${lang} ${key} is too short to be a label`);
+      }
+      assert.ok(say(lang, "ph", { inch: true }).projectName, `${lang} ph.projectName is missing`);
+    });
+  });
+}
+
 /* ---------- yardage scaled for gauge ---------- */
 for (const lang of LANGS) {
   describe(`${lang}: the gauge postscript on the yarn card`, () => {

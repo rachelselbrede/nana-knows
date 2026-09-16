@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 280 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 299 tests, ~75ms, zero dependencies
 npm run build && npm run smoke   # drive the built site through headless Chrome and
                                  # diff what it saw against scripts/smoke.golden.txt
 npm run smoke:update             # re-record the golden after a deliberate change
@@ -45,18 +45,21 @@ src/
   lib/words.js        results -> sentences, through t(). Runs at render; tested
                       against both dictionaries without React.
   lib/share.js        shared links: read (validated, capped), build, PERSONAL_KEYS
-  lib/notebook.js     the localStorage notebook: read (validated), convert into
-                      the link's units, write, clear. Takes the storage as an arg.
+  lib/notebook.js     the localStorage notebook: a list of named pages, one per
+                      project, each holding the whole form. read (validated; an
+                      old single page is migrated in unnamed), openPage,
+                      personalOnly, convert into the link's units, writePage,
+                      forgetPage, clear. Takes the storage as an arg.
   components/         Header, Toggles, PatternCard, YouCard (SwatchHelper,
                       MeasureGuide), BasketCard (WeighHelper, SubstituteHelper),
-                      RememberRow, Results, SizeTable, MathNote, DesignersNote,
+                      ProjectPicker, RememberRow, Results, SizeTable, MathNote, DesignersNote,
                       Footer, GlobalStyle; and the small pieces they share:
                       FormCard, Disclosure, AdviceCard, Toggle, ParseEcho, Nana,
                       GrannySquare, MeasureBust, fieldStyles, scratch
   i18n/index.jsx      I18nProvider / useI18n / t(). ~90 lines.
   i18n/en.js          152 keys
   i18n/es.js          152 keys, same shape
-  *.test.js           parse 77, advice 78, words 15, share 10, notebook 9, wording 91
+  *.test.js           parse 77, advice 78, words 15, share 10, notebook 26, wording 93
 ```
 
 ### The load-bearing idea
@@ -96,12 +99,16 @@ heuristic wins every case, so `parseNumberList` returns `{values, issues}` and
 **Order is preserved** in parsed lists — yardage lines up with sizes by position.
 
 **First-load precedence:** a shared link wins whatever it carries. The saved
-notebook (personal fields only) is opened as well *unless* the link carries
-personal params of its own (`PERSONAL_KEYS`: b, mg, mrg, ps, sk, e) — mixing
-your numbers with someone else's would be wrong, but a designer's pattern-only
-link plus your notebook is the whole point. Notebook numbers are converted into
-the link's units on the way in. For language: `?lang` beats saved `nana-lang`
-beats `navigator.language`.
+notebook is a list of named pages, one per project, each holding the whole
+form. With no link, the page last opened is restored whole, pattern and all.
+With a link, only the *personal* fields of that page are opened as well,
+converted into the link's units, and not even those *unless* the link carries
+no personal params of its own (`PERSONAL_KEYS`: b, mg, mrg, ps, sk, e) —
+mixing your numbers with someone else's would be wrong, but a designer's
+pattern-only link plus your measurements is the whole point. Pattern numbers
+never come out of the notebook while a link is open: a designer's link that
+omits yardage must not be quietly completed from a different pattern. For
+language: `?lang` beats saved `nana-lang` beats `navigator.language`.
 
 **Unit abbreviations** (`in`, `cm`, `yds`, `m`) live in the component and are not
 translated. Dictionary numbers keep period decimals so they survive `parseList`.

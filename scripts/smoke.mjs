@@ -62,6 +62,7 @@ const enter = (el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Ente
 const answered = () => /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText);
 const openDetails = (re) => { const d = Array.from(document.querySelectorAll('summary')).find(s => re.test(s.textContent)).closest('details'); d.open = true; return d; };
 const statusesIn = (d) => Array.from(d.querySelectorAll('[role="status"]')).map(s => s.textContent.trim());
+const pills = () => Array.from(document.querySelectorAll('[aria-labelledby="nk-notebook-label"] button')).map(b => b.textContent.trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : ''));
 const fillFixture = () => {
   fill(byPh('e.g. 18'), '18'); fill(byPh('e.g. 24'), '24');
   fill(document.querySelector('#nk-sizes'), '32, 36, 40, 44, 48, 52');
@@ -239,21 +240,34 @@ return out;`,
     js: String.raw`
 window.__copied = null; navigator.clipboard.writeText = (s) => { window.__copied = s; return Promise.resolve(); };
 fill(byPh('e.g. 18'), '18'); fill(document.querySelector('#nk-sizes'), '32, 36'); fill(byPh('e.g. 38'), '38'); fill(byPh('e.g. 19'), '21'); await sleep(50);
-const msg = () => Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).filter(Boolean).find(t => /Nana|Link|Written|Copied/.test(t)) || '';
+const msg = () => document.querySelector('#nk-save-status').textContent.trim();
+const nb = () => JSON.parse(localStorage.getItem('nana-notebook'));
+const nameField = () => document.querySelector('input[placeholder="e.g. the blue cardigan"]');
+const fields = () => Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value);
 const out = {};
 clickBtn(/Copy a link/); await sleep(200);
 out.link = { search: new URL(window.__copied).search, message: msg() };
 clickBtn(/remember my numbers/); await sleep(150);
-out.remembered = { stored: JSON.parse(localStorage.getItem('nana-notebook')), message: msg() };
+out.remembered = { stored: nb(), pills: pills(), message: msg() };
+fill(nameField(), 'the blue cardigan'); await sleep(50);
+clickBtn(/remember my numbers/); await sleep(150);
+out.named = { pages: nb().pages.map(p => p.name), open: nb().open, pills: pills(), message: msg() };
+fill(nameField(), 'the green blanket'); fill(document.querySelector('#nk-sizes'), '40, 44'); fill(byPh('e.g. 38'), '42'); await sleep(50);
+clickBtn(/remember my numbers/); await sleep(150);
+out.second = { pages: nb().pages.map(p => p.name), open: nb().open, pills: pills(), forgetThis: Array.from(document.querySelectorAll('button')).some(b => /Forget this project/.test(b.textContent)), message: msg() };
+clickBtn(/^the blue cardigan$/); await sleep(200);
+out.opened = { fields: fields(), name: nameField().value, open: nb().open, pills: pills(), message: msg() };
+clickBtn(/Forget this project/); await sleep(150);
+out.forgotThis = { pages: nb().pages.map(p => p.name), pills: pills(), forgetThis: Array.from(document.querySelectorAll('button')).some(b => /Forget this project/.test(b.textContent)), message: msg() };
 clickBtn(/^Forget me$/); await sleep(150);
-out.forgotten = { stored: localStorage.getItem('nana-notebook'), message: msg() };
+out.forgotten = { stored: localStorage.getItem('nana-notebook'), pills: pills(), message: msg() };
 return out;`,
   },
 ];
 
 /* Load paths need more than one navigation, and a seeded notebook, so they
    are written against the page directly rather than as one script. */
-const READ = String.raw`JSON.stringify({ bust: document.querySelectorAll('form input')[4].value, units: Array.from(document.querySelectorAll('button')).find(b => /in \/ yds|cm \/ m/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true').textContent.trim(), fields: Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value), msg: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).filter(Boolean).find(t => /Nana (opened|remembered|abrió)/.test(t)) || '', answered: /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText), size: (document.body.innerText.match(/(?:Follow|Make) the size (\d+)/) || [])[1] || null })`;
+const READ = String.raw`JSON.stringify({ bust: document.querySelectorAll('form input')[4].value, units: Array.from(document.querySelectorAll('button')).find(b => /in \/ yds|cm \/ m/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true').textContent.trim(), fields: Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value), msg: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).filter(Boolean).find(t => /Nana (opened|remembered|abrió)/.test(t)) || '', answered: /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText), size: (document.body.innerText.match(/(?:Follow|Make) the size (\d+)/) || [])[1] || null, pills: Array.from(document.querySelectorAll('[aria-labelledby="nk-notebook-label"] button')).map(b => b.textContent.trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')) })`;
 
 async function loadPaths(page) {
   await page.go(BASE + "?lang=en");
@@ -266,6 +280,19 @@ async function loadPaths(page) {
   await page.go(BASE + "?s=32,36,40,44,48,52&b=40&u=in&lang=en"); out.personalLink = await read();
   await page.go(BASE + "?s=32,36,40&b=" + "9".repeat(5000) + "&lang=en");
   out.longParam = { bustLength: await page.eval("document.querySelectorAll('form input')[4].value.length"), answered: await page.eval("/Here is what Nana thinks/.test(document.body.innerText)") };
+
+  /* A notebook of two pages, the second one open and holding a pattern. On a
+     plain visit it comes back whole; under a designer's link only its
+     personal fields do, and the link's pattern — three sizes, no row gauge —
+     stays exactly as the link had it. */
+  const twoPages = JSON.stringify({ open: "the blue cardigan", pages: [
+    { name: "the green blanket", units: "cm", craft: "crochet", easeIdx: 3, sizesText: "100, 120", bust: "96" },
+    { name: "the blue cardigan", units: "in", craft: "knit", easeIdx: 2, patternGauge: "18", patternRowGauge: "24", sizesText: "32, 36, 40, 44, 48, 52", yardsText: "900, 1000, 1100, 1250, 1400, 1550", bust: "38", myGauge: "21", myRowGauge: "26", perSkein: "220", skeins: "6" },
+  ] });
+  await page.go(BASE + "?lang=en");
+  await page.eval(`localStorage.setItem('nana-notebook', ${JSON.stringify(twoPages)}); true`);
+  await page.go(BASE + "?lang=en"); out.twoPagesNoLink = await read();
+  await page.go(BASE + "?s=32,36,40&y=900,1000,1100&pg=18&u=in&c=knit&lang=en"); out.twoPagesDesignerLink = await read();
   return out;
 }
 

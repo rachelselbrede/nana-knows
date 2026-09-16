@@ -72,6 +72,15 @@ merged and deployed on 31 August 2026, and since then:
   sentence case, figures are lining. `src/type.js` is the one place a family
   is named.
 
+- **Multiple saved projects** (15 September 2026) — the notebook became a list
+  of named pages, one per project, each holding the whole form rather than the
+  knitter's fields alone. A name field beside "remember my numbers", a row of
+  pills above the cards to open one, and "Forget this project" once there are
+  two. An old single-page notebook is migrated into an unnamed page on first
+  read, and naming it renames it rather than copying it. With no link the last
+  page opens whole; with a designer's link only its personal fields chip in,
+  as before, so the precedence rules in `CLAUDE.md` still hold.
+
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
 clicked through, together with a day of fixes that came out of a full audit:
@@ -195,7 +204,7 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 280 tests, 46 suites, all passing, ~75 ms, zero dependencies.
+- 299 tests, 50 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
 - Both dictionaries at 152 keys, parity enforced by test in both directions,
@@ -245,8 +254,8 @@ Ordered by value per hour. All respect the no-backend rule.
    `yarnAtGauge()` in `advice.js` scales the pattern's figure by `pg/ug` for
    the yarn card and the table alike, with a postscript that shows the
    pattern's number beside Nana's and calls it a rough guide.
-4. **Multiple saved projects** — a named picker over the same localStorage. The
-   natural follow-on now that share links exist.
+4. ~~**Multiple saved projects.**~~ Shipped 15 September 2026; see the top of
+   this file. `lib/notebook.js` holds the pages, `ProjectPicker` the pills.
 5. **Grams as well as yards.** Half shipped 1 September 2026: the basket can
    be weighed ("Weighing your yarn instead?", backed by `gramsToSkeins()` in
    `parse.js`) and the result lands in the skeins field. Still open: a
@@ -260,9 +269,10 @@ the split looks like now is the tree in `CLAUDE.md`; the short version:
 
 ```
 lib/share.js          readShareLink, buildShareUrl, PERSONAL_KEYS, MAX_PARAM — tested
-lib/notebook.js       read (validated), notebookInUnits, write, clear — tested;
-                      pure functions over a storage argument, where the review
-                      had sketched a hook
+lib/notebook.js       named pages: read (validated, old page migrated), openPage,
+                      personalOnly, notebookInUnits, writePage, forgetPage,
+                      markOpen, clear — tested; pure functions over a storage
+                      argument, where the review had sketched a hook
 lib/words.js          the render-time sentences, tested against both dictionaries
 components/           26 files: the cards, the helpers (each owning its scratch
                       and following the unit toggle itself), Results, SizeTable,

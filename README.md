@@ -45,8 +45,10 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
   Nana's answer to a friend or bookmark a project without any server seeing it.
 - **Goes in the project bag**: print just the advice, or copy it as text for
   your Ravelry notes.
-- **Remembers you if you ask** — "Nana, remember my numbers" saves your details
-  in your own browser (localStorage) and nowhere else.
+- **Remembers your projects if you ask** — give the numbers a name and press
+  "Nana, remember my numbers"; the whole form is saved in your own browser
+  (localStorage) and nowhere else. Keep a sweater and a blanket going at once
+  and switch between them.
 - **Installs as an app** and works offline, for yarn shops with no signal.
 - **Easy on the eyes.** Follows your device's dark mode, keeps still when you
   ask for less motion, clears WCAG AA contrast by day and by night, and reads
@@ -69,7 +71,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 280 tests on Node's built-in runner, no test
+runs the arithmetic suite — 299 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ```bash
@@ -126,9 +128,6 @@ nothing to record it with.
 Ideas worth doing, not built yet. Nothing here is promised, and none of it
 should break the "no backend, nothing collected" rule.
 
-- **Multiple saved projects** — "remember my numbers" currently holds one set.
-  Saving several named projects (still in localStorage) would let someone keep
-  a sweater and a blanket going at once.
 - **A pattern that counts in balls or grams** — turning "7 (8, 9) balls of
   50 g" into yardage per size from the band's numbers, so the yardage field is
   not the only way in.

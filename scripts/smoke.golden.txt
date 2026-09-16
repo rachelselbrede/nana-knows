@@ -313,24 +313,91 @@ errors: none
 {
  "link": {
   "search": "?lang=en&u=in&c=knit&pg=18&s=32%2C+36&b=38&mg=21",
-  "message": "Nana read: 32, 36."
+  "message": "Link copied. Send it to a friend and Nana will greet them with the very same numbers."
  },
  "remembered": {
   "stored": {
-   "units": "in",
-   "craft": "knit",
-   "bust": "38",
-   "easeIdx": 2,
-   "myGauge": "21",
-   "myRowGauge": "",
-   "perSkein": "",
-   "skeins": ""
+   "open": "",
+   "pages": [
+    {
+     "name": "",
+     "units": "in",
+     "craft": "knit",
+     "easeIdx": 2,
+     "patternGauge": "18",
+     "patternRowGauge": "",
+     "sizesText": "32, 36",
+     "yardsText": "",
+     "bust": "38",
+     "myGauge": "21",
+     "myRowGauge": "",
+     "perSkein": "",
+     "skeins": ""
+    }
+   ]
   },
-  "message": "Nana read: 32, 36."
+  "pills": [
+   "Unnamed page *"
+  ],
+  "message": "Written in Nana's notebook. Saved just for you, in this browser."
+ },
+ "named": {
+  "pages": [
+   "the blue cardigan"
+  ],
+  "open": "the blue cardigan",
+  "pills": [
+   "the blue cardigan *"
+  ],
+  "message": "Written in Nana's notebook as “the blue cardigan”. Saved just for you, in this browser."
+ },
+ "second": {
+  "pages": [
+   "the blue cardigan",
+   "the green blanket"
+  ],
+  "open": "the green blanket",
+  "pills": [
+   "the blue cardigan",
+   "the green blanket *"
+  ],
+  "forgetThis": true,
+  "message": "Written in Nana's notebook as “the green blanket”. Saved just for you, in this browser."
+ },
+ "opened": {
+  "fields": [
+   "18",
+   "",
+   "32, 36",
+   "",
+   "38",
+   "21",
+   "",
+   "",
+   ""
+  ],
+  "name": "the blue cardigan",
+  "open": "the blue cardigan",
+  "pills": [
+   "the blue cardigan *",
+   "the green blanket"
+  ],
+  "message": "Nana opened “the blue cardigan” from her notebook."
+ },
+ "forgotThis": {
+  "pages": [
+   "the green blanket"
+  ],
+  "pills": [
+   "the green blanket"
+  ],
+  "forgetThis": false,
+  "message": "Nana tore out the page for “the blue cardigan”."
  },
  "forgotten": {
   "stored": null,
-  "message": "Nana read: 32, 36."
+  "pills": [],
+  "message": "Nana tore out every page. All forgotten."
  }
 }
 errors: none
@@ -353,7 +420,10 @@ errors: none
   ],
   "msg": "Nana remembered you from last time.",
   "answered": false,
-  "size": null
+  "size": null,
+  "pills": [
+   "Unnamed page *"
+  ]
  },
  "designerLinkInches": {
   "bust": "38",
@@ -371,7 +441,10 @@ errors: none
   ],
   "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
   "answered": true,
-  "size": "48"
+  "size": "48",
+  "pills": [
+   "Unnamed page"
+  ]
  },
  "designerLinkCentimetres": {
   "bust": "96.5",
@@ -389,7 +462,10 @@ errors: none
   ],
   "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
   "answered": true,
-  "size": "122"
+  "size": "122",
+  "pills": [
+   "Unnamed page"
+  ]
  },
  "personalLink": {
   "bust": "40",
@@ -407,11 +483,58 @@ errors: none
   ],
   "msg": "Nana opened this from a shared link.",
   "answered": true,
-  "size": "40"
+  "size": "40",
+  "pills": [
+   "Unnamed page"
+  ]
  },
  "longParam": {
   "bustLength": 120,
   "answered": true
+ },
+ "twoPagesNoLink": {
+  "bust": "38",
+  "units": "in / yds",
+  "fields": [
+   "18",
+   "24",
+   "32, 36, 40, 44, 48, 52",
+   "900, 1000, 1100, 1250, 1400, 1550",
+   "38",
+   "21",
+   "26",
+   "",
+   ""
+  ],
+  "msg": "Nana remembered “the blue cardigan” from last time.",
+  "answered": false,
+  "size": null,
+  "pills": [
+   "the green blanket",
+   "the blue cardigan *"
+  ]
+ },
+ "twoPagesDesignerLink": {
+  "bust": "38",
+  "units": "in / yds",
+  "fields": [
+   "18",
+   "",
+   "32,36,40",
+   "900,1000,1100",
+   "38",
+   "21",
+   "26",
+   "",
+   ""
+  ],
+  "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
+  "answered": true,
+  "size": "40",
+  "pills": [
+   "the green blanket",
+   "the blue cardigan"
+  ]
  }
 }
 errors: none

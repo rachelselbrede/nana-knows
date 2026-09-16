@@ -14,12 +14,24 @@ import {
 } from "./lib/parse.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./lib/advice.js";
 import { readShareLink, buildShareUrl } from "./lib/share.js";
-import { readNotebook, notebookInUnits, writeNotebook, clearNotebook } from "./lib/notebook.js";
+import {
+  readNotebook,
+  openPage,
+  personalOnly,
+  notebookInUnits,
+  writePage,
+  forgetPage,
+  markOpen,
+  clearNotebook,
+  cleanName,
+  PAGE_FIELDS,
+} from "./lib/notebook.js";
 import { adviceAsText } from "./lib/words.js";
 import { C } from "./palette.js";
 import { GlobalStyle } from "./components/GlobalStyle.jsx";
 import { Header } from "./components/Header.jsx";
 import { Toggles } from "./components/Toggles.jsx";
+import { ProjectPicker } from "./components/ProjectPicker.jsx";
 import { RememberRow } from "./components/RememberRow.jsx";
 import { MathNote } from "./components/MathNote.jsx";
 import { DesignersNote } from "./components/DesignersNote.jsx";
@@ -61,6 +73,12 @@ export default function NanaKnows() {
   const [results, setResults] = useState(null);
   const [proverbIdx, setProverbIdx] = useState(0);
   const [saveMsg, setSaveMsg] = useState("");
+  /* The notebook's pages, for the picker; which page the form was loaded
+     from, if any; and the name typed to save under — the same as the open
+     page only until she edits it, which is how "save as" happens. */
+  const [notebook, setNotebook] = useState(null);
+  const [openName, setOpenName] = useState(null);
+  const [pageName, setPageName] = useState("");
   const [copyMsg, setCopyMsg] = useState("");
   const [pendingAutoRun, setPendingAutoRun] = useState(false);
   /* Counts asks, so the status line is re-inserted — and so re-announced —
@@ -138,8 +156,9 @@ export default function NanaKnows() {
 
   /* Where the first numbers come from, settled in one place because the two
      sources interact. A shared link wins whatever it carries. The notebook —
-     the knitter's own measurements, saved in this browser — is opened as
-     well, unless the link carries personal numbers of its own, in which case
+     the knitter's saved projects, in this browser — opens its last page as
+     well: the whole page on a plain visit, and only her own fields under a
+     link, unless the link carries personal numbers of its own, in which case
      mixing hers with someone else's would be wrong. So a designer's link,
      which holds only the pattern, arrives with the knitter's bust, gauge and
      basket already filled in, and when that adds up to enough, Nana answers
@@ -147,30 +166,42 @@ export default function NanaKnows() {
      src/lib, where it is tested; this effect only decides who wins. */
   useEffect(() => {
     const link = readShareLink(window.location.search);
-    let notebook = null;
-    if (!link || !link.hasPersonal) {
-      try {
-        notebook = readNotebook(localStorage);
-      } catch (e) {
-        /* no storage at all, and that is fine */
-      }
+    let nb = null;
+    try {
+      nb = readNotebook(localStorage);
+    } catch (e) {
+      /* no storage at all, and that is fine */
     }
-    const finalUnits = (link && link.units) ?? (notebook && notebook.units) ?? null;
+    setNotebook(nb);
+    /* Which page, and how much of it. The pattern never comes out of the
+       notebook while a link is open: a designer's link that leaves out the
+       yardage must not be quietly completed from a different pattern. */
+    let page = openPage(nb);
+    if (link && link.hasPersonal) page = null;
+    else if (link) page = personalOnly(page);
+
+    const finalUnits = (link && link.units) ?? (page && page.units) ?? null;
     if (finalUnits) setUnits(finalUnits);
 
     if (link && link.craft) setCraft(link.craft);
-    else if (notebook && notebook.craft) setCraft(notebook.craft);
+    else if (page && page.craft) setCraft(page.craft);
 
     let remembered = false;
-    if (notebook) {
-      const nb = notebookInUnits(notebook, finalUnits);
-      if (nb.easeIdx !== null) setEaseIdx(nb.easeIdx);
-      Object.entries(nb.fields).forEach(([field, v]) => setters[field](v));
-      remembered = Object.keys(nb.fields).length > 0;
+    if (page) {
+      const p = notebookInUnits(page, finalUnits);
+      if (p.easeIdx !== null) setEaseIdx(p.easeIdx);
+      Object.entries(p.fields).forEach(([field, v]) => setters[field](v));
+      remembered = Object.keys(p.fields).length > 0;
     }
 
     if (!link) {
-      if (notebook) setSaveMsg("save.remembered");
+      if (page) {
+        /* The form is that page, so the pill is pressed and the name is
+           ready to save under. Under a link it is not, and neither is set. */
+        setOpenName(page.name);
+        setPageName(page.name);
+        setSaveMsg(page.name ? { key: "save.rememberedAs", params: { name: page.name } } : "save.remembered");
+      }
       return;
     }
     if (link.easeIdx !== null) setEaseIdx(link.easeIdx);
@@ -178,7 +209,7 @@ export default function NanaKnows() {
 
     /* Enough to answer: sizes from the link, a measurement from either. */
     const msg = remembered ? "share.loadedRemembered" : "share.loaded";
-    if (link.fields.sizesText && (link.fields.bust || (notebook && notebook.fields.bust))) {
+    if (link.fields.sizesText && (link.fields.bust || (page && page.fields.bust))) {
       loadedMsg.current = msg;
       setPendingAutoRun(true);
     } else {
@@ -187,12 +218,56 @@ export default function NanaKnows() {
   }, []);
 
   const rememberMe = () => {
+    const name = cleanName(pageName);
     try {
-      writeNotebook(localStorage, { units, craft, easeIdx, bust, myGauge, myRowGauge, perSkein, skeins });
-      setSaveMsg("save.written");
+      writePage(
+        localStorage,
+        { name, units, craft, easeIdx, patternGauge, patternRowGauge, sizesText, yardsText, bust, myGauge, myRowGauge, perSkein, skeins },
+        openName
+      );
+      setNotebook(readNotebook(localStorage));
+      setOpenName(name);
+      setPageName(name);
+      setSaveMsg(name ? { key: "save.writtenAs", params: { name } } : "save.written");
     } catch (e) {
       setSaveMsg("save.notHandy");
     }
+  };
+
+  /* Open a page whole: its units and craft, its ease, every field — and no
+     advice, since the numbers it was worked out from have just changed. */
+  const openProject = (name) => {
+    const page = notebook && notebook.pages.find((p) => p.name === name);
+    if (!page) return;
+    if (page.units) setUnits(page.units);
+    if (page.craft) setCraft(page.craft);
+    setEaseIdx(page.easeIdx ?? 2);
+    PAGE_FIELDS.forEach((f) => setters[f](page.fields[f] ?? ""));
+    setResults(null);
+    setOpenName(name);
+    setPageName(name);
+    try {
+      markOpen(localStorage, name);
+    } catch (e) {
+      /* the choice still holds for this visit */
+    }
+    setSaveMsg({ key: "save.opened", params: { name } });
+  };
+
+  /* Tear out the page the form came from, and leave the rest. */
+  const forgetThis = () => {
+    if (openName === null) return;
+    const name = openName;
+    let nb = null;
+    try {
+      forgetPage(localStorage, name);
+      nb = readNotebook(localStorage);
+    } catch (e) {
+      /* ignore */
+    }
+    setNotebook(nb);
+    setOpenName(null);
+    setSaveMsg({ key: "save.forgottenOne", params: { name } });
   };
 
   const shareLink = async () => {
@@ -223,6 +298,9 @@ export default function NanaKnows() {
     } catch (e) {
       /* ignore */
     }
+    setNotebook(null);
+    setOpenName(null);
+    setPageName("");
     setSaveMsg("save.forgotten");
   };
 
@@ -338,6 +416,7 @@ export default function NanaKnows() {
 
       <main className="max-w-2xl mx-auto px-5 py-7 flex flex-col gap-5">
         <Toggles t={t} craft={craft} setCraft={setCraft} units={units} switchUnits={switchUnits} />
+        <ProjectPicker t={t} pages={notebook ? notebook.pages : []} openName={openName} openProject={openProject} />
 
         {/* Everything from here to the Ask button is one form, so that pressing
             Enter in any field asks Nana, as a visitor would expect. */}
@@ -363,7 +442,18 @@ export default function NanaKnows() {
           </button>
         </form>
 
-        <RememberRow t={t} rememberMe={rememberMe} forgetMe={forgetMe} shareLink={shareLink} saveMsg={saveMsg} />
+        <RememberRow
+          t={t}
+          pageName={pageName}
+          setPageName={setPageName}
+          ph={ph}
+          rememberMe={rememberMe}
+          forgetMe={forgetMe}
+          forgetThis={forgetThis}
+          canForgetThis={openName !== null && !!notebook && notebook.pages.length >= 2}
+          shareLink={shareLink}
+          saveMsg={saveMsg}
+        />
 
         <Results
           t={t}
