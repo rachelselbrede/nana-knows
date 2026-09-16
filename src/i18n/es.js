@@ -25,7 +25,7 @@ export default {
   header: {
     tagline:
       "Cuéntale a Nana Purl sobre tu patrón, tu lana y sobre ti. Ella te dirá qué talla tejer, si tu lana va a alcanzar y qué anda haciendo tu muestra.",
-    badge: "Gratis para siempre · Sin cuenta · Dos agujas y crochet bienvenidos",
+    badge: "Gratis para siempre · No necesitas cuenta · Dos agujas y crochet bienvenidos",
   },
 
   toggle: {

@@ -26,7 +26,7 @@ export default {
   header: {
     tagline:
       "Tell Nana Purl about your pattern, your yarn, and yourself. She will tell you what size to make, whether your stash will stretch, and what your gauge is up to.",
-    badge: "Free forever · No account · Knit and crochet welcome",
+    badge: "Free forever · No account needed · Knit and crochet welcome",
   },
 
   toggle: {
