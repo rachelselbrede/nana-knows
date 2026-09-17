@@ -37,7 +37,7 @@ before every deploy, on the runner's Chrome.
 
 ```
 src/
-  NanaKnows.jsx       ~390 lines: all state, the unit switch, the mount effect
+  NanaKnows.jsx       ~550 lines: all state, the unit switch, the mount effect
                       that settles link against notebook, askNana, the share /
                       remember / copy handlers, and the composition of the rest
   palette.js          the C palette; every colour in the app

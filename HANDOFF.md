@@ -225,7 +225,7 @@ near-zero value. Still open if you disagree.
   building, so a red suite blocks the live site.
 - Both dictionaries at 152 keys, parity enforced by test in both directions,
   including that a key is the same *kind* of thing (string vs function) in each.
-- `NanaKnows.jsx` is about 390 lines; the rest is in `src/components` (26 files) and `src/lib`.
+- `NanaKnows.jsx` is about 550 lines since Prettier unfolded it; the rest is in `src/components` (28 files) and `src/lib`.
 
 ---
 
