@@ -46,6 +46,11 @@ the same commit**: its diff is the record of what changed for her. If the
 golden changed and you did not mean it to, that is the smoke run doing its
 job.
 
+If the change shows in the README's pictures — the top of the form, Nana's
+four cards, the size table — retake them with `npm run build && npm run
+shots` and commit them too. When nothing visible moved, the script rewrites
+the same bytes and `git status` stays quiet.
+
 ## The habits that hold the place up
 
 `CLAUDE.md` has the full list under "Invariants", with the reason for each.

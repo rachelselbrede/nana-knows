@@ -18,6 +18,7 @@ npm run format:check             # what CI runs; both this and lint gate the dep
 npm run build && npm run smoke   # drive the built site through headless Chrome and
                                  # diff what it saw against scripts/smoke.golden.txt
 npm run smoke:update             # re-record the golden after a deliberate change
+npm run build && npm run shots   # retake the README's three pictures into docs/images
 npm run contrast                 # WCAG ratios for every text role, light and dark
 ```
 
@@ -32,6 +33,12 @@ fails, and so does any console error. **A deliberate change to what the visitor
 sees must come with `npm run smoke:update` and the re-recorded golden in the
 same commit** — the diff is the record of what changed for her. It runs in CI
 before every deploy, on the runner's Chrome.
+
+`scripts/shots.mjs` photographs the same built page for the README: 780 px
+wide, light palette, the smoke run's fixture, the proverb pinned. Against an
+unchanged build it rewrites the three PNGs byte for byte, so `git status` after
+`npm run shots` says whether the pictures are stale. Both scripts drive Chrome
+through `scripts/chrome.mjs`.
 
 ## Architecture
 

@@ -13,36 +13,22 @@
    visitor sees on purpose re-records the golden with `npm run smoke:update`,
    and the diff in that commit shows exactly what changed for her.
 
-   No dependencies: Node's own fetch and WebSocket, the DevTools protocol, and
-   whichever Chrome is installed (CHROME_PATH overrides the search). It serves
-   dist/ with `vite preview`, so run `npm run build` first. */
+   No dependencies: the Chrome it drives is set up in scripts/chrome.mjs, with
+   Node's own fetch and WebSocket. It serves dist/ with `vite preview`, so run
+   `npm run build` first. */
 
-import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { ROOT, baseUrl, serveDist, openChrome } from "./chrome.mjs";
 import en from "../src/i18n/en.js";
 import es from "../src/i18n/es.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const GOLDEN = path.join(ROOT, "scripts", "smoke.golden.txt");
 const LAST = path.join(ROOT, "scripts", "smoke.last.txt");
 const PORT = 4179;
-const BASE = `http://127.0.0.1:${PORT}/nana-knows/`;
+const BASE = baseUrl(PORT);
 const update = process.argv.includes("--update");
-
-const CHROME =
-  process.env.CHROME_PATH ||
-  [
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/usr/bin/google-chrome",
-    "/usr/bin/google-chrome-stable",
-    "/usr/bin/chromium-browser",
-    "/usr/bin/chromium",
-  ].find(existsSync);
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---------- the scenarios ----------
    Each runs in the page as one async function and returns plain data. They
@@ -369,142 +355,6 @@ async function loadPaths(page) {
   return out;
 }
 
-/* ---------- the machinery ---------- */
-
-async function serveDist() {
-  if (!existsSync(path.join(ROOT, "dist", "index.html"))) {
-    throw new Error("dist/ is missing — run `npm run build` first");
-  }
-  const vite = path.join(ROOT, "node_modules", "vite", "bin", "vite.js");
-  const server = spawn(
-    process.execPath,
-    [vite, "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"],
-    { cwd: ROOT, stdio: "ignore" },
-  );
-  for (let i = 0; i < 80; i++) {
-    try {
-      if ((await fetch(BASE)).ok) return server;
-    } catch (e) {
-      /* not up yet */
-    }
-    await sleep(250);
-  }
-  server.kill();
-  throw new Error("the preview server never answered");
-}
-
-async function openChrome() {
-  if (!CHROME) throw new Error("no Chrome found; set CHROME_PATH");
-  const profile = mkdtempSync(path.join(tmpdir(), "nana-smoke-"));
-  const port = 9377;
-  const flags = [
-    "--headless=new",
-    "--disable-gpu",
-    "--hide-scrollbars",
-    `--remote-debugging-port=${port}`,
-    "--window-size=900,1400",
-    `--user-data-dir=${profile}`,
-  ];
-  if (process.platform === "linux") flags.push("--disable-dev-shm-usage");
-  if (process.env.CI) flags.push("--no-sandbox");
-  const chrome = spawn(CHROME, [...flags, "about:blank"], { stdio: "ignore" });
-  let targets = null;
-  for (let i = 0; i < 80 && !targets; i++) {
-    try {
-      targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
-    } catch (e) {
-      await sleep(250);
-    }
-  }
-  if (!targets) throw new Error("Chrome never answered on its debugging port");
-  const target = targets.find((t) => t.type === "page");
-  const ws = new WebSocket(target.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => {
-    ws.onopen = resolve;
-    ws.onerror = reject;
-  });
-
-  let id = 0;
-  const pending = new Map();
-  const errors = [];
-  ws.onmessage = (ev) => {
-    const m = JSON.parse(ev.data);
-    if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") {
-      errors.push(
-        "console.error: " +
-          m.params.args
-            .map((a) => a.value ?? a.description ?? "")
-            .join(" ")
-            .slice(0, 200),
-      );
-    }
-    if (m.method === "Runtime.exceptionThrown") {
-      errors.push(
-        "exception: " +
-          (
-            m.params.exceptionDetails.exception?.description || m.params.exceptionDetails.text
-          ).slice(0, 200),
-      );
-    }
-    if (m.id && pending.has(m.id)) {
-      pending.get(m.id)(m);
-      pending.delete(m.id);
-    }
-  };
-  const send = (method, params = {}) =>
-    new Promise((res) => {
-      const i = ++id;
-      pending.set(i, res);
-      ws.send(JSON.stringify({ id: i, method, params }));
-    });
-  await send("Runtime.enable");
-  await send("Page.enable");
-
-  const evaluate = async (expression) => {
-    const r = await send("Runtime.evaluate", {
-      expression,
-      returnByValue: true,
-      awaitPromise: true,
-    });
-    if (r.result?.exceptionDetails) {
-      throw new Error(
-        "in the page: " +
-          (r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text),
-      );
-    }
-    return r.result?.result?.value;
-  };
-  const go = async (url) => {
-    await send("Page.navigate", { url });
-    for (let i = 0; i < 60; i++) {
-      if (await evaluate("!!document.querySelector('#nk-sizes')")) break;
-      await sleep(100);
-    }
-    await sleep(150);
-  };
-  /* Chrome keeps writing to its profile for a moment after the kill signal,
-     so wait for it to leave before sweeping the directory away. */
-  const close = async () => {
-    try {
-      ws.close();
-    } catch (e) {
-      /* already gone */
-    }
-    const gone = new Promise((resolve) => {
-      chrome.once("exit", resolve);
-      setTimeout(resolve, 3000);
-    });
-    chrome.kill();
-    await gone;
-    try {
-      rmSync(profile, { recursive: true, force: true });
-    } catch (e) {
-      /* a temp dir; the OS will get it */
-    }
-  };
-  return { go, eval: evaluate, errors, close };
-}
-
 const PROVERBS = [
   ...en.proverbs.knit,
   ...en.proverbs.crochet,
@@ -514,7 +364,7 @@ const PROVERBS = [
 const normalise = (text) => PROVERBS.reduce((s, p) => s.split(p).join("<proverb>"), text);
 
 async function main() {
-  const server = await serveDist();
+  const server = await serveDist(PORT);
   let page;
   const transcript = [];
   try {

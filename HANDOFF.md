@@ -96,6 +96,11 @@ merged and deployed on 31 August 2026, and since then:
   holding ESLint's major until `eslint-plugin-react` supports 10. Private
   vulnerability reporting is a repository setting and is still off;
   `SECURITY.md` is written to work either way.
+- **The shots script** (16 September 2026) — `npm run shots` retakes the
+  README's three pictures from the built site: same width, same fixture as
+  the smoke run, proverb pinned, byte-identical when nothing visible has
+  changed. The headless Chrome it and the smoke run both drive moved out of
+  `smoke.mjs` into `scripts/chrome.mjs`; the smoke transcript did not move.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
