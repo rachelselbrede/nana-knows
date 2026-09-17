@@ -101,6 +101,11 @@ merged and deployed on 31 August 2026, and since then:
   the smoke run, proverb pinned, byte-identical when nothing visible has
   changed. The headless Chrome it and the smoke run both drive moved out of
   `smoke.mjs` into `scripts/chrome.mjs`; the smoke transcript did not move.
+- **No manual steps** (16 September 2026) — work goes straight to `main` once
+  verified, and Dependabot's pull requests squash-merge themselves when the
+  suite and the smoke run are green, then start a deploy. Major versions stay
+  open for a look at the page, since the smoke run reads words and not layout.
+  The agreement is written down under "How work lands" in `CLAUDE.md`.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and

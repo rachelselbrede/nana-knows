@@ -36,3 +36,31 @@ jobs:
       - run: npm run format:check
       - run: npm run build
       - run: npm run smoke
+
+  # Dependabot's pull requests merge themselves once both jobs above are
+  # green, so keeping the tools current is nobody's weekly chore. A major
+  # version is left open on purpose: the smoke run reads every word on the
+  # page but never colours or geometry, so a major Tailwind or Vite could
+  # wreck the look of the site and still pass. Those want a pair of eyes.
+  #
+  # A merge made with the workflow's own token does not start other workflows,
+  # which would leave the merged update sitting on main, undeployed, until the
+  # next push. So the deploy is started by hand, which that token may do.
+  automerge:
+    needs: [test, smoke]
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - id: meta
+        uses: dependabot/fetch-metadata@v3
+      - if: steps.meta.outputs.update-type != 'version-update:semver-major'
+        run: |
+          gh pr merge --squash "$PR_URL"
+          gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

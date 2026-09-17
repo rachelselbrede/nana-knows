@@ -40,6 +40,25 @@ unchanged build it rewrites the three PNGs byte for byte, so `git status` after
 `npm run shots` says whether the pictures are stale. Both scripts drive Chrome
 through `scripts/chrome.mjs`.
 
+## How work lands
+
+Rachel does not want manual steps. Work goes **straight to `main`**: verify it
+(`npm test`, `npm run lint`, `npm run format:check`, `npm run build && npm run
+smoke`, and a look in the browser for anything visible), make one commit per
+task, push, and watch the deploy to green. Do not ask before pushing and do
+not leave her a command to run, a button to click or a pull request to merge.
+If a push is rejected, fetch, rebase or merge, and push again. The gates in
+the deploy workflow are what stand between a push and the live site; a red
+run is fixed forward with another commit.
+
+Dependabot's pull requests merge themselves when green (the `automerge` job
+in `test.yml`), except major versions, which stay open because the smoke run
+reads words and not layout: for those, check the page by eye, then merge.
+
+Still ask first for what is neither a push nor a merge and is hard to undo:
+deleting things, rewriting published history, repository settings, a new kind
+of public post.
+
 ## Architecture
 
 ```
@@ -167,8 +186,8 @@ that register; it is most of what makes the repo pleasant to read.
   GitHub reads it on its own).
 - `base: "/nana-knows/"` in `vite.config.js` must match the repo name. Change to
   `/` if a custom domain ever lands.
-- Pushing to `main` deploys. The workflow now runs `npm test` first, so a failing
-  suite blocks the site update.
+- Pushing to `main` deploys. The workflow runs the suite, the linter, the
+  format check and the smoke run first, so a failure blocks the site update.
 - Every colour is an inline `style={{}}` off `C` in `src/palette.js`, and `C`
   holds CSS custom properties, not hexes: the numbers are `LIGHT` and `DARK`,
   written at the root by `GlobalStyle` (dark under `prefers-color-scheme`,
