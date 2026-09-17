@@ -1,0 +1,35 @@
+# Nana has no backend to patch, but she is built with tools that do get
+# patched, and a project nobody is touching is exactly the one that falls
+# behind. Once a week is often enough for a site whose dependencies only run
+# at build time, and grouping keeps it to a pull request or two rather than
+# a dozen. Each one runs the suite and the smoke run before anyone looks.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # What ships to the knitter's browser, on its own so it gets read.
+      runtime:
+        dependency-type: production
+      # The build, the linter, the formatter: one pull request for the lot.
+      tooling:
+        dependency-type: development
+    ignore:
+      # eslint-plugin-react does not support ESLint 10 yet, and a grouped
+      # pull request that cannot install would fail every week. Lift these
+      # two when the plugin's peer range allows 10.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

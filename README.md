@@ -78,6 +78,16 @@ runs the arithmetic suite — 308 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ```bash
+npm run lint && npm run format:check
+```
+
+are ESLint, for real mistakes, and Prettier, so nobody has to argue about
+layout. Both run in CI before anything deploys. Thinking of pitching in?
+[CONTRIBUTING.md](CONTRIBUTING.md) is the short version of the house habits,
+and [SECURITY.md](SECURITY.md) says what would count as a security problem on
+a page with no server.
+
+```bash
 npm run build && npm run smoke
 ```
 

@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 
 import en from "./en.js";
 import es from "./es.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "../lib/advice.js";
+import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute } from "../lib/advice.js";
 import { swatchToGauge, gramsToSkeins, ballsToYardage } from "../lib/parse.js";
 
 const DICTS = { en, es };

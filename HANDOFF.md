@@ -88,6 +88,14 @@ merged and deployed on 31 August 2026, and since then:
   length follows the unit toggle. The smoke run now reads the nine card
   fields by skipping anything inside `<details>`, so a new helper can no
   longer shift which input a scenario thinks is the bust.
+- **Repo furniture** (16 September 2026) — ESLint 9 (flat config, the two
+  classic hook rules, no layout opinions) and Prettier at `printWidth` 100,
+  both run in CI before the build; one formatting commit, listed in
+  `.git-blame-ignore-revs`; `CONTRIBUTING.md` and `SECURITY.md` in the repo's
+  own voice; Dependabot weekly, grouped into runtime, tooling and actions,
+  holding ESLint's major until `eslint-plugin-react` supports 10. Private
+  vulnerability reporting is a repository setting and is still off;
+  `SECURITY.md` is written to work either way.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -244,9 +252,10 @@ This is the biggest gap now that the maths is tested, and it is mostly writing.
 3. **An issue template in Nana's voice.** The footer already invites people to
    "Tell Nana what to learn next" and then drops them on a blank form. Twenty
    lines of YAML, and completely on-brand.
-4. Smaller furniture: `CONTRIBUTING.md`, `SECURITY.md`, Dependabot, ESLint +
-   Prettier (there is no linter at all), and an `engines` field or `.nvmrc`
-   pinning the Node 22 that CI uses.
+4. ~~Smaller furniture.~~ Shipped 16 September 2026: `CONTRIBUTING.md`,
+   `SECURITY.md`, Dependabot (weekly, grouped), ESLint 9 and Prettier with
+   `npm run lint` and `npm run format:check` gating both workflows. The
+   `engines` field landed earlier.
 
 ### Features knitters would actually notice
 

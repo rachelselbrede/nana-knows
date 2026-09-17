@@ -40,6 +40,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # A mistake the linter can see should not reach the live site either.
+      - run: npm run lint
+      - run: npm run format:check
       - run: npm run build
       # The smoke run drives the built site through the runner's Chrome —
       # every load path, every helper, every card — and compares what it saw

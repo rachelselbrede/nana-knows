@@ -12,6 +12,9 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
 npm test         # node --test "src/**/*.test.js"  — 308 tests, ~75ms, zero dependencies
+npm run lint     # ESLint 9: real mistakes only (unused names, the hook rules); no layout opinions
+npm run format   # Prettier, printWidth 100, over src, scripts and the root configs
+npm run format:check             # what CI runs; both this and lint gate the deploy
 npm run build && npm run smoke   # drive the built site through headless Chrome and
                                  # diff what it saw against scripts/smoke.golden.txt
 npm run smoke:update             # re-record the golden after a deliberate change
@@ -150,6 +153,11 @@ that register; it is most of what makes the repo pleasant to read.
 
 ## Gotchas
 
+- ESLint stays on 9 until `eslint-plugin-react` supports 10; Dependabot is told
+  to hold that major in `.github/dependabot.yml`. The one formatting commit is
+  listed in `.git-blame-ignore-revs`
+  (`git config blame.ignoreRevsFile .git-blame-ignore-revs` to use it locally;
+  GitHub reads it on its own).
 - `base: "/nana-knows/"` in `vite.config.js` must match the repo name. Change to
   `/` if a custom domain ever lands.
 - Pushing to `main` deploys. The workflow now runs `npm test` first, so a failing

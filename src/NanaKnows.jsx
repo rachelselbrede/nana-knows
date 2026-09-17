@@ -215,6 +215,9 @@ export default function NanaKnows() {
     } else {
       setSaveMsg(msg);
     }
+    /* Once, on arrival. `setters` is a fresh object every render, so naming
+       it here would settle link against notebook again on every keystroke. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rememberMe = () => {
