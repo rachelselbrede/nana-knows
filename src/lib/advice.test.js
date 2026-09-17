@@ -1,7 +1,15 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "./advice.js";
+import {
+  adviseSize,
+  adviseYarn,
+  adviseGauge,
+  adviseRows,
+  sizeTable,
+  adviseSubstitute,
+  ballsFor,
+} from "./advice.js";
 import { r1 } from "./parse.js";
 
 /* A common worsted sweater pattern, in inches. */
@@ -328,8 +336,14 @@ describe("sizeTable: every size at a glance", () => {
 
   test("one row per size, in the pattern's order", () => {
     const t = table();
-    assert.deepEqual(t.rows.map((r) => r.size), SIZES);
-    assert.deepEqual(t.rows.map((r) => r.need), YARDS);
+    assert.deepEqual(
+      t.rows.map((r) => r.size),
+      SIZES,
+    );
+    assert.deepEqual(
+      t.rows.map((r) => r.need),
+      YARDS,
+    );
   });
 
   test("without a personal gauge, sizes come out as the pattern claims", () => {
@@ -391,7 +405,14 @@ describe("sizeTable: every size at a glance", () => {
   });
 
   test("the best and runner-up rows are the ones adviseSize chose", () => {
-    const s = adviseSize({ sizes: [36, 40], bust: 38, ease: 0, patternGauge: null, myGauge: null, closeGap: 1 });
+    const s = adviseSize({
+      sizes: [36, 40],
+      bust: 38,
+      ease: 0,
+      patternGauge: null,
+      myGauge: null,
+      closeGap: 1,
+    });
     const t = table({ sizes: [36, 40], ease: 0, bestIdx: s.bestIdx, runnerUp: s.runnerUp });
     assert.equal(t.rows[0].best, true);
     assert.equal(t.rows[1].runnerUp, true);
@@ -408,7 +429,13 @@ describe("sizeTable: every size at a glance", () => {
   });
 
   test("fields typed as text still count", () => {
-    const t = table({ bust: "38", perSkein: "220", skeins: "6", patternGauge: "18", myGauge: "21" });
+    const t = table({
+      bust: "38",
+      perSkein: "220",
+      skeins: "6",
+      patternGauge: "18",
+      myGauge: "21",
+    });
     assert.equal(t.gaugeAdjusted, true);
     assert.equal(t.hasVerdicts, true);
   });
@@ -416,12 +443,21 @@ describe("sizeTable: every size at a glance", () => {
 
 describe("adviseRows", () => {
   test("asks for each row gauge in turn", () => {
-    assert.equal(adviseRows({ patternRowGauge: null, myRowGauge: 26, swatchSpan: 4 }).kind, "askPattern");
-    assert.equal(adviseRows({ patternRowGauge: 24, myRowGauge: null, swatchSpan: 4 }).kind, "askYours");
+    assert.equal(
+      adviseRows({ patternRowGauge: null, myRowGauge: 26, swatchSpan: 4 }).kind,
+      "askPattern",
+    );
+    assert.equal(
+      adviseRows({ patternRowGauge: 24, myRowGauge: null, swatchSpan: 4 }).kind,
+      "askYours",
+    );
   });
 
   test("a close row gauge is a match", () => {
-    assert.equal(adviseRows({ patternRowGauge: 24, myRowGauge: 24.1, swatchSpan: 4 }).kind, "match");
+    assert.equal(
+      adviseRows({ patternRowGauge: 24, myRowGauge: 24.1, swatchSpan: 4 }).kind,
+      "match",
+    );
   });
 
   test("more rows per swatch means a shorter piece, and more rows to work", () => {
@@ -451,8 +487,14 @@ describe("adviseRows", () => {
     /* 24.3 against 24 clears the quarter-row tolerance, but the remedy works
        out to 101 rows where the pattern says 100 — counting noise. Nana should
        not send anyone to re-swatch over that. */
-    assert.equal(adviseRows({ patternRowGauge: 24, myRowGauge: 24.3, swatchSpan: 4 }).kind, "match");
-    assert.equal(adviseRows({ patternRowGauge: 50, myRowGauge: 50.3, swatchSpan: 10 }).kind, "match");
+    assert.equal(
+      adviseRows({ patternRowGauge: 24, myRowGauge: 24.3, swatchSpan: 4 }).kind,
+      "match",
+    );
+    assert.equal(
+      adviseRows({ patternRowGauge: 50, myRowGauge: 50.3, swatchSpan: 10 }).kind,
+      "match",
+    );
   });
 
   test("a missing swatch span falls back to four inches instead of NaN", () => {
@@ -462,7 +504,10 @@ describe("adviseRows", () => {
   });
 
   test("row gauges typed as text keep their halves too", () => {
-    assert.equal(adviseRows({ patternRowGauge: "24,5", myRowGauge: "24.5", swatchSpan: 10 }).kind, "match");
+    assert.equal(
+      adviseRows({ patternRowGauge: "24,5", myRowGauge: "24.5", swatchSpan: 10 }).kind,
+      "match",
+    );
   });
 });
 
@@ -471,8 +516,14 @@ describe("adviseYarn: scaled for the knitter's gauge", () => {
      stitch is 18/21 the size, so the same instructions eat 18/21 the yarn. */
   const at = (over) =>
     adviseYarn({
-      yards: YARDS, sizes: SIZES, bestIdx: 4, perSkein: 220, skeins: 7,
-      patternGauge: 18, myGauge: 21, ...over,
+      yards: YARDS,
+      sizes: SIZES,
+      bestIdx: 4,
+      perSkein: 220,
+      skeins: 7,
+      patternGauge: 18,
+      myGauge: 21,
+      ...over,
     });
 
   test("a tight knitter's bigger size wants less yarn than the pattern printed", () => {
@@ -514,14 +565,27 @@ describe("adviseYarn: scaled for the knitter's gauge", () => {
 
   test("the table's yarn column and verdicts agree with the card at every size", () => {
     const tbl = sizeTable({
-      sizes: SIZES, yards: YARDS, bust: 38, ease: 2, patternGauge: 18, myGauge: 21,
-      perSkein: 220, skeins: 6, bestIdx: 4, runnerUp: null,
+      sizes: SIZES,
+      yards: YARDS,
+      bust: 38,
+      ease: 2,
+      patternGauge: 18,
+      myGauge: 21,
+      perSkein: 220,
+      skeins: 6,
+      bestIdx: 4,
+      runnerUp: null,
     });
     assert.equal(tbl.yarnAdjusted, true);
     tbl.rows.forEach((row, i) => {
       const card = adviseYarn({
-        yards: YARDS, sizes: SIZES, bestIdx: i, perSkein: 220, skeins: 6,
-        patternGauge: 18, myGauge: 21,
+        yards: YARDS,
+        sizes: SIZES,
+        bestIdx: i,
+        perSkein: 220,
+        skeins: 6,
+        patternGauge: 18,
+        myGauge: 21,
       });
       assert.equal(row.need, card.need, `size ${row.size}`);
       assert.equal(row.patternNeed, YARDS[i]);
@@ -532,8 +596,16 @@ describe("adviseYarn: scaled for the knitter's gauge", () => {
 
   test("the table only claims an adjustment when a number actually moved", () => {
     const tbl = sizeTable({
-      sizes: SIZES, yards: YARDS, bust: 38, ease: 2, patternGauge: 18, myGauge: 18,
-      perSkein: 220, skeins: 6, bestIdx: 2, runnerUp: null,
+      sizes: SIZES,
+      yards: YARDS,
+      bust: 38,
+      ease: 2,
+      patternGauge: 18,
+      myGauge: 18,
+      perSkein: 220,
+      skeins: 6,
+      bestIdx: 2,
+      runnerUp: null,
     });
     assert.equal(tbl.yarnAdjusted, false);
     assert.equal(tbl.rows[4].need, 1400);

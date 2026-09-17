@@ -15,8 +15,7 @@ export const ParseEcho = ({ id, text, t }) => {
     <span id={id} role="status" className="text-xs" style={{ color: C.sageText }}>
       {quiet
         ? ""
-        : t("echo.read", { list: values.join(", ") }) +
-          issues.map((i) => t(`echo.${i}`)).join("")}
+        : t("echo.read", { list: values.join(", ") }) + issues.map((i) => t(`echo.${i}`)).join("")}
     </span>
   );
 };

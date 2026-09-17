@@ -8,8 +8,7 @@ const STORAGE_KEY = "nana-lang";
 const I18nContext = createContext(null);
 
 /* Walk a dotted key path through a dictionary object. */
-const lookup = (dict, key) =>
-  key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
+const lookup = (dict, key) => key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
 
 /* Work out which language to show on first paint. URL wins (so shared
    ?lang=es links keep their language), then a saved choice, then the
@@ -42,7 +41,7 @@ export function I18nProvider({ children }) {
       const val = lookup(DICTS[lang], key) ?? lookup(en, key) ?? key;
       return typeof val === "function" ? val(params || {}) : val;
     },
-    [lang]
+    [lang],
   );
 
   const setLang = useCallback((next) => {
@@ -68,21 +67,17 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     const dict = DICTS[lang];
     document.documentElement.lang = lang;
-    document.title = (lookup(dict, "meta.title") ?? lookup(en, "meta.title"));
+    document.title = lookup(dict, "meta.title") ?? lookup(en, "meta.title");
     const desc = document.querySelector('meta[name="description"]');
     if (desc) {
       desc.setAttribute(
         "content",
-        lookup(dict, "meta.description") ?? lookup(en, "meta.description")
+        lookup(dict, "meta.description") ?? lookup(en, "meta.description"),
       );
     }
   }, [lang]);
 
-  return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
-      {children}
-    </I18nContext.Provider>
-  );
+  return <I18nContext.Provider value={{ lang, setLang, t }}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

@@ -35,13 +35,37 @@ export function WeighHelper({ t, yarnU, perSkein, ph, setSkeins }) {
         <div className="grid grid-cols-2 gap-x-3 gap-y-2">
           <label className="flex flex-col gap-1.5">
             <span style={labelStyle}>{t("weigh.skeinWeighs")}</span>
-            <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={skeinWeight} onChange={edit(setSkeinWeight)} onKeyDown={onKey} placeholder={ph.weighSkein} />
+            <input
+              inputMode="decimal"
+              autoComplete="off"
+              enterKeyHint="done"
+              style={inputStyle}
+              className="mt-auto px-3 py-2 text-sm"
+              value={skeinWeight}
+              onChange={edit(setSkeinWeight)}
+              onKeyDown={onKey}
+              placeholder={ph.weighSkein}
+            />
           </label>
           <label className="flex flex-col gap-1.5">
             <span style={labelStyle}>{t("weigh.haveWeighs")}</span>
-            <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={have} onChange={edit(setHave)} onKeyDown={onKey} placeholder={ph.weighHave} />
+            <input
+              inputMode="decimal"
+              autoComplete="off"
+              enterKeyHint="done"
+              style={inputStyle}
+              className="mt-auto px-3 py-2 text-sm"
+              value={have}
+              onChange={edit(setHave)}
+              onKeyDown={onKey}
+              placeholder={ph.weighHave}
+            />
           </label>
-          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageText, minHeight: "1.2em" }}>
+          <p
+            className="col-span-2 text-xs"
+            role="status"
+            style={{ color: C.sageText, minHeight: "1.2em" }}
+          >
             {skeins !== null ? t("weigh.out", { skeins, yards, yarnU }) : ""}
           </p>
         </div>
@@ -55,9 +79,13 @@ export function WeighHelper({ t, yarnU, perSkein, ph, setSkeins }) {
           >
             {t("weigh.use")}
           </button>
-          <span role="status" className="text-xs" style={{ color: C.label }}>{used ? t("weigh.used") : ""}</span>
+          <span role="status" className="text-xs" style={{ color: C.label }}>
+            {used ? t("weigh.used") : ""}
+          </span>
         </div>
-        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("weigh.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>
+          {t("weigh.tip")}
+        </p>
       </div>
     </Disclosure>
   );

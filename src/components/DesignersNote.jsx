@@ -5,7 +5,10 @@ import { SERIF, SANS } from "../type.js";
    the page, out of the knitter's way. */
 export function DesignersNote({ t }) {
   return (
-    <details className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+    <details
+      className="nk-noprint rounded-2xl p-5"
+      style={{ background: C.card, border: `2px dashed ${C.line}` }}
+    >
       <summary className="nk-focus font-bold" style={{ fontFamily: SERIF, fontSize: 18 }}>
         {t("designers.summary")}
       </summary>
@@ -16,7 +19,9 @@ export function DesignersNote({ t }) {
             <li key={i}>{step}</li>
           ))}
         </ol>
-        <p className="mt-3" style={{ color: C.sageText }}>{t("designers.note")}</p>
+        <p className="mt-3" style={{ color: C.sageText }}>
+          {t("designers.note")}
+        </p>
       </div>
     </details>
   );

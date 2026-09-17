@@ -50,31 +50,80 @@ export function BallsHelper({ t, units, yarnU, ph, setYardsText }) {
     <Disclosure summary={t("balls.summary")}>
       <div className="px-4 pb-4 text-sm" style={{ color: C.espresso }}>
         <p className="mb-3">{t("balls.intro")}</p>
-        <div role="group" aria-labelledby="nk-balls-mode" className="mb-3 flex flex-wrap items-center gap-2">
-          <span id="nk-balls-mode" style={labelStyle}>{t("balls.countsIn")}</span>
-          <Toggle value="balls" current={mode} set={switchMode}>{t("balls.inBalls")}</Toggle>
-          <Toggle value="grams" current={mode} set={switchMode}>{t("balls.inGrams")}</Toggle>
+        <div
+          role="group"
+          aria-labelledby="nk-balls-mode"
+          className="mb-3 flex flex-wrap items-center gap-2"
+        >
+          <span id="nk-balls-mode" style={labelStyle}>
+            {t("balls.countsIn")}
+          </span>
+          <Toggle value="balls" current={mode} set={switchMode}>
+            {t("balls.inBalls")}
+          </Toggle>
+          <Toggle value="grams" current={mode} set={switchMode}>
+            {t("balls.inGrams")}
+          </Toggle>
         </div>
         <div className="grid grid-cols-2 gap-x-3 gap-y-2">
           {/* htmlFor and aria-describedby, not a wrapping label, for the same
               reason as the sizes and yardage fields: the echo must not become
               part of the input's name. No inputMode either — commas. */}
           <div className="col-span-2 flex flex-col gap-1.5">
-            <label htmlFor="nk-balls" style={labelStyle}>{t(grams ? "balls.perSizeGrams" : "balls.perSizeBalls")}</label>
-            <input id="nk-balls" aria-describedby="nk-balls-echo" autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="done" style={inputStyle} className="px-3 py-2 text-sm" value={perSize} onChange={edit(setPerSize)} onKeyDown={onKey} placeholder={grams ? ph.gramsList : ph.ballsList} />
+            <label htmlFor="nk-balls" style={labelStyle}>
+              {t(grams ? "balls.perSizeGrams" : "balls.perSizeBalls")}
+            </label>
+            <input
+              id="nk-balls"
+              aria-describedby="nk-balls-echo"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="done"
+              style={inputStyle}
+              className="px-3 py-2 text-sm"
+              value={perSize}
+              onChange={edit(setPerSize)}
+              onKeyDown={onKey}
+              placeholder={grams ? ph.gramsList : ph.ballsList}
+            />
             <ParseEcho id="nk-balls-echo" text={perSize} t={t} />
           </div>
           <label className="flex flex-col gap-1.5">
             <span style={labelStyle}>{t("balls.ballHolds", { yarnU })}</span>
-            <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={ballLength} onChange={edit(setBallLength)} onKeyDown={onKey} placeholder={ph.ballLength} />
+            <input
+              inputMode="decimal"
+              autoComplete="off"
+              enterKeyHint="done"
+              style={inputStyle}
+              className="mt-auto px-3 py-2 text-sm"
+              value={ballLength}
+              onChange={edit(setBallLength)}
+              onKeyDown={onKey}
+              placeholder={ph.ballLength}
+            />
           </label>
           {grams && (
             <label className="flex flex-col gap-1.5">
               <span style={labelStyle}>{t("balls.ballWeighs")}</span>
-              <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={ballGrams} onChange={edit(setBallGrams)} onKeyDown={onKey} placeholder={ph.ballGrams} />
+              <input
+                inputMode="decimal"
+                autoComplete="off"
+                enterKeyHint="done"
+                style={inputStyle}
+                className="mt-auto px-3 py-2 text-sm"
+                value={ballGrams}
+                onChange={edit(setBallGrams)}
+                onKeyDown={onKey}
+                placeholder={ph.ballGrams}
+              />
             </label>
           )}
-          <p className="col-span-2 text-xs" role="status" style={{ color: C.sageText, minHeight: "1.2em" }}>
+          <p
+            className="col-span-2 text-xs"
+            role="status"
+            style={{ color: C.sageText, minHeight: "1.2em" }}
+          >
             {list ? t("balls.out", { list: list.join(", "), yarnU }) : ""}
           </p>
         </div>
@@ -88,9 +137,13 @@ export function BallsHelper({ t, units, yarnU, ph, setYardsText }) {
           >
             {t("balls.use")}
           </button>
-          <span role="status" className="text-xs" style={{ color: C.label }}>{used ? t("balls.used") : ""}</span>
+          <span role="status" className="text-xs" style={{ color: C.label }}>
+            {used ? t("balls.used") : ""}
+          </span>
         </div>
-        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("balls.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>
+          {t("balls.tip")}
+        </p>
       </div>
     </Disclosure>
   );

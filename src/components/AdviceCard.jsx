@@ -10,10 +10,7 @@ export function AdviceCard({ color, title, children, tone }) {
     >
       <div style={{ height: 8, background: color }} />
       <div className="p-4 sm:p-5">
-        <h3
-          className="mb-2 text-base font-bold"
-          style={{ fontFamily: SERIF, color: C.espresso }}
-        >
+        <h3 className="mb-2 text-base font-bold" style={{ fontFamily: SERIF, color: C.espresso }}>
           {title}
         </h3>
         <p

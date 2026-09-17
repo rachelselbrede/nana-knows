@@ -12,14 +12,20 @@ import { SERIF, SANS } from "../type.js";
 export function SizeTable({ t, results }) {
   if (!results.table) return null;
   return (
-    <div className="rounded-2xl overflow-hidden nk-pop" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+    <div
+      className="rounded-2xl overflow-hidden nk-pop"
+      style={{ background: C.card, border: `2px dashed ${C.line}` }}
+    >
       <div style={{ height: 8, background: C.rose }} />
       <div className="p-4 sm:p-5">
         <h3 className="mb-3 text-base font-bold" style={{ fontFamily: SERIF, color: C.espresso }}>
           {t("table.title")}
         </h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm" style={{ borderCollapse: "collapse", fontVariantNumeric: "tabular-nums" }}>
+          <table
+            className="w-full text-sm"
+            style={{ borderCollapse: "collapse", fontVariantNumeric: "tabular-nums" }}
+          >
             <caption className="sr-only">{t("table.caption")}</caption>
             <thead>
               <tr>
@@ -48,27 +54,45 @@ export function SizeTable({ t, results }) {
             </thead>
             <tbody>
               {results.table.rows.map((r, i) => (
-                <tr key={i} style={{ borderTop: `1.5px dashed ${C.line}`, background: r.best ? C.roseTint : "transparent" }}>
+                <tr
+                  key={i}
+                  style={{
+                    borderTop: `1.5px dashed ${C.line}`,
+                    background: r.best ? C.roseTint : "transparent",
+                  }}
+                >
                   {/* The pick is marked with words, not colour alone:
                       the tinted row means nothing to a screen reader
                       or in a greyscale print. */}
                   <th scope="row" className="py-2 pr-3 text-left align-top">
-                    <span className="font-bold" style={{ color: C.espresso }}>{r.size}</span>
+                    <span className="font-bold" style={{ color: C.espresso }}>
+                      {r.size}
+                    </span>
                     {r.best && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: SANS, color: C.roseText }}>
+                      <span
+                        className="block text-[11px] font-bold"
+                        style={{ fontFamily: SANS, color: C.roseText }}
+                      >
                         {t("table.pick")}
                       </span>
                     )}
                     {r.runnerUp && (
-                      <span className="block text-[11px] font-bold" style={{ fontFamily: SANS, color: C.sageText }}>
+                      <span
+                        className="block text-[11px] font-bold"
+                        style={{ fontFamily: SANS, color: C.sageText }}
+                      >
                         {t("table.closeCall")}
                       </span>
                     )}
                   </th>
                   {results.table.gaugeAdjusted && (
-                    <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>{r.actual}</td>
+                    <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>
+                      {r.actual}
+                    </td>
                   )}
-                  <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>{signed(r.diff)}</td>
+                  <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>
+                    {signed(r.diff)}
+                  </td>
                   {results.table.hasYards && (
                     <td className="py-2 px-3 text-right align-top" style={{ color: C.ink }}>
                       {r.need !== null ? r.need : "—"}
@@ -77,9 +101,17 @@ export function SizeTable({ t, results }) {
                   {results.table.hasVerdicts && (
                     <td
                       className="py-2 pl-3 text-right align-top whitespace-nowrap font-bold"
-                      style={{ fontFamily: SANS, color: r.stash === "plenty" ? C.sageText : C.roseText }}
+                      style={{
+                        fontFamily: SANS,
+                        color: r.stash === "plenty" ? C.sageText : C.roseText,
+                      }}
                     >
-                      {r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: said(t, results).yarnU }) : "—"}
+                      {r.stash
+                        ? t(`table.${r.stash}`, {
+                            shortAmt: r.shortAmt,
+                            yarnU: said(t, results).yarnU,
+                          })
+                        : "—"}
                     </td>
                   )}
                 </tr>

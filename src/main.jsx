@@ -9,5 +9,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <I18nProvider>
       <NanaKnows />
     </I18nProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

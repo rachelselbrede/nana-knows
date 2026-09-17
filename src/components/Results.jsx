@@ -10,7 +10,18 @@ import { SANS } from "../type.js";
    `results` holds numbers and kinds; every sentence here is built at render
    through `t`, so a language or craft switch re-words the answer in place.
    The two refs belong to the parent, which moves focus here after asking. */
-export function Results({ t, results, craft, proverb, askCount, resultsRef, headingRef, copyAdvice, printAdvice, copyMsg }) {
+export function Results({
+  t,
+  results,
+  craft,
+  proverb,
+  askCount,
+  resultsRef,
+  headingRef,
+  copyAdvice,
+  printAdvice,
+  copyMsg,
+}) {
   return (
     <>
       {/* results. The live region is a single sentence, kept in the DOM from
@@ -27,38 +38,95 @@ export function Results({ t, results, craft, proverb, askCount, resultsRef, head
       </p>
       <div ref={resultsRef} tabIndex={-1} className="nk-results">
         {results && results.error && (
-          <div className="rounded-2xl p-5 nk-pop flex gap-4 items-start" style={{ background: C.butterTint, border: `2px dashed ${C.butter}` }}>
-            <div className="shrink-0"><Nana size={64} bob={false} label={t("nana.alt")} /></div>
-            <p ref={headingRef} tabIndex={-1} className="nk-results-head text-sm leading-relaxed" style={{ fontFamily: SANS }}>{t("result.error")}</p>
+          <div
+            className="rounded-2xl p-5 nk-pop flex gap-4 items-start"
+            style={{ background: C.butterTint, border: `2px dashed ${C.butter}` }}
+          >
+            <div className="shrink-0">
+              <Nana size={64} bob={false} label={t("nana.alt")} />
+            </div>
+            <p
+              ref={headingRef}
+              tabIndex={-1}
+              className="nk-results-head text-sm leading-relaxed"
+              style={{ fontFamily: SANS }}
+            >
+              {t("result.error")}
+            </p>
           </div>
         )}
         {results && !results.error && (
           <div className="flex flex-col gap-4">
             <div className="flex items-start gap-3 nk-pop">
-              <div className="shrink-0 mt-1"><Nana size={72} bob={false} label={t("nana.alt")} /></div>
-              <div className="relative rounded-2xl px-4 py-3" style={{ background: C.roseTint, border: `2px solid ${C.rose}` }}>
+              <div className="shrink-0 mt-1">
+                <Nana size={72} bob={false} label={t("nana.alt")} />
+              </div>
+              <div
+                className="relative rounded-2xl px-4 py-3"
+                style={{ background: C.roseTint, border: `2px solid ${C.rose}` }}
+              >
                 {/* A heading, so the answer has a landmark for a screen reader
                     to land on; styled as the speech-bubble line it always was. */}
-                <h2 ref={headingRef} tabIndex={-1} className="nk-results-head text-sm italic" style={{ fontFamily: SANS, fontWeight: 400, color: C.roseText }}>
+                <h2
+                  ref={headingRef}
+                  tabIndex={-1}
+                  className="nk-results-head text-sm italic"
+                  style={{ fontFamily: SANS, fontWeight: 400, color: C.roseText }}
+                >
                   {t("result.intro", { proverb })}
                 </h2>
               </div>
             </div>
-            <AdviceCard color={C.rose} title={t("advice.size")}>{sizeText(t, results)}</AdviceCard>
-            <AdviceCard color={C.butter} title={t("advice.yarn")} tone={results.yarn.tone === "warn" ? "warn" : "ok"}>{yarnText(t, results)}</AdviceCard>
-            <AdviceCard color={C.sage} title={t("advice.tension")} tone={results.gauge.tone === "warn" ? "warn" : "ok"}>{gaugeText(t, results, craft)}</AdviceCard>
-            <AdviceCard color={C.sageDark} title={t("advice.length")} tone={results.row.tone === "warn" ? "warn" : "ok"}>{rowText(t, results)}</AdviceCard>
+            <AdviceCard color={C.rose} title={t("advice.size")}>
+              {sizeText(t, results)}
+            </AdviceCard>
+            <AdviceCard
+              color={C.butter}
+              title={t("advice.yarn")}
+              tone={results.yarn.tone === "warn" ? "warn" : "ok"}
+            >
+              {yarnText(t, results)}
+            </AdviceCard>
+            <AdviceCard
+              color={C.sage}
+              title={t("advice.tension")}
+              tone={results.gauge.tone === "warn" ? "warn" : "ok"}
+            >
+              {gaugeText(t, results, craft)}
+            </AdviceCard>
+            <AdviceCard
+              color={C.sageDark}
+              title={t("advice.length")}
+              tone={results.row.tone === "warn" ? "warn" : "ok"}
+            >
+              {rowText(t, results)}
+            </AdviceCard>
 
             <SizeTable t={t} results={results} />
 
-            <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: SANS }}>
-              <button type="button" onClick={copyAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.sageText }}>
+            <div
+              className="nk-noprint flex flex-wrap items-center gap-3 text-sm"
+              style={{ fontFamily: SANS }}
+            >
+              <button
+                type="button"
+                onClick={copyAdvice}
+                className="nk-focus font-bold underline decoration-2 underline-offset-2"
+                style={{ color: C.sageText }}
+              >
                 {t("copy.button")}
               </button>
-              <button type="button" onClick={printAdvice} className="nk-focus font-bold underline decoration-2 underline-offset-2" style={{ color: C.roseText }}>
+              <button
+                type="button"
+                onClick={printAdvice}
+                className="nk-focus font-bold underline decoration-2 underline-offset-2"
+                style={{ color: C.roseText }}
+              >
                 {t("copy.print")}
               </button>
-              <span role="status" style={{ color: C.label }}>{copyMsg ? t(copyMsg) : ""}</span>
+              <span role="status" style={{ color: C.label }}>
+                {copyMsg ? t(copyMsg) : ""}
+              </span>
             </div>
           </div>
         )}

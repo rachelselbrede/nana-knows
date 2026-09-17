@@ -36,7 +36,10 @@ export const PAGE_FIELDS = [...PATTERN_FIELDS, ...PERSONAL_FIELDS];
 
 /* A name is a label on a pill, not a paragraph. */
 export const MAX_NAME = 40;
-export const cleanName = (name) => String(name ?? "").trim().slice(0, MAX_NAME);
+export const cleanName = (name) =>
+  String(name ?? "")
+    .trim()
+    .slice(0, MAX_NAME);
 
 /* One page, validated. Whatever is not a legal value is dropped rather than
    repaired, and every field comes back a string, because that is what the
@@ -130,13 +133,20 @@ export function notebookInUnits(page, units) {
 /* Pages are stored flat — name, units, craft, ease and the fields side by
    side — which is also the old single-page shape, so one reader serves
    both. */
-const flat = (p) => ({ name: p.name, units: p.units, craft: p.craft, easeIdx: p.easeIdx, ...p.fields });
+const flat = (p) => ({
+  name: p.name,
+  units: p.units,
+  craft: p.craft,
+  easeIdx: p.easeIdx,
+  ...p.fields,
+});
 
 /* Whatever is there, tolerantly: one bad byte in storage must not stop a
    save. */
 const current = (storage) => readNotebook(storage) ?? { open: null, pages: [] };
 
-const store = (storage, open, pages) => storage.setItem(NOTEBOOK_KEY, JSON.stringify({ open, pages }));
+const store = (storage, open, pages) =>
+  storage.setItem(NOTEBOOK_KEY, JSON.stringify({ open, pages }));
 
 /* Write a page under its name, replacing a page of that name if there is
    one, and make it the open page. `wasOpen` is the name of the page the form

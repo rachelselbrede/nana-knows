@@ -302,28 +302,70 @@ const READ = String.raw`JSON.stringify({ bust: Array.from(document.querySelector
 
 async function loadPaths(page) {
   await page.go(BASE + "?lang=en");
-  await page.eval(`localStorage.setItem('nana-notebook', JSON.stringify({ units: 'in', craft: 'knit', bust: '38', easeIdx: 2, myGauge: '21', myRowGauge: '26', perSkein: '220', skeins: '6' })); true`);
+  await page.eval(
+    `localStorage.setItem('nana-notebook', JSON.stringify({ units: 'in', craft: 'knit', bust: '38', easeIdx: 2, myGauge: '21', myRowGauge: '26', perSkein: '220', skeins: '6' })); true`,
+  );
   const read = async () => JSON.parse(await page.eval(READ));
   const out = {};
-  await page.go(BASE + "?lang=en"); out.noLink = await read();
-  await page.go(BASE + "?s=32,36,40,44,48,52&y=900,1000,1100,1250,1400,1550&pg=18&prg=24&u=in&c=knit&lang=en"); out.designerLinkInches = await read();
-  await page.go(BASE + "?s=81,91,102,112,122,132&y=825,915,1005,1145,1280,1420&pg=17.7&prg=23.6&u=cm&c=knit&lang=en"); out.designerLinkCentimetres = await read();
-  await page.go(BASE + "?s=32,36,40,44,48,52&b=40&u=in&lang=en"); out.personalLink = await read();
+  await page.go(BASE + "?lang=en");
+  out.noLink = await read();
+  await page.go(
+    BASE + "?s=32,36,40,44,48,52&y=900,1000,1100,1250,1400,1550&pg=18&prg=24&u=in&c=knit&lang=en",
+  );
+  out.designerLinkInches = await read();
+  await page.go(
+    BASE +
+      "?s=81,91,102,112,122,132&y=825,915,1005,1145,1280,1420&pg=17.7&prg=23.6&u=cm&c=knit&lang=en",
+  );
+  out.designerLinkCentimetres = await read();
+  await page.go(BASE + "?s=32,36,40,44,48,52&b=40&u=in&lang=en");
+  out.personalLink = await read();
   await page.go(BASE + "?s=32,36,40&b=" + "9".repeat(5000) + "&lang=en");
-  out.longParam = { bustLength: await page.eval("Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9)[4].value.length"), answered: await page.eval("/Here is what Nana thinks/.test(document.body.innerText)") };
+  out.longParam = {
+    bustLength: await page.eval(
+      "Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9)[4].value.length",
+    ),
+    answered: await page.eval("/Here is what Nana thinks/.test(document.body.innerText)"),
+  };
 
   /* A notebook of two pages, the second one open and holding a pattern. On a
      plain visit it comes back whole; under a designer's link only its
      personal fields do, and the link's pattern — three sizes, no row gauge —
      stays exactly as the link had it. */
-  const twoPages = JSON.stringify({ open: "the blue cardigan", pages: [
-    { name: "the green blanket", units: "cm", craft: "crochet", easeIdx: 3, sizesText: "100, 120", bust: "96" },
-    { name: "the blue cardigan", units: "in", craft: "knit", easeIdx: 2, patternGauge: "18", patternRowGauge: "24", sizesText: "32, 36, 40, 44, 48, 52", yardsText: "900, 1000, 1100, 1250, 1400, 1550", bust: "38", myGauge: "21", myRowGauge: "26", perSkein: "220", skeins: "6" },
-  ] });
+  const twoPages = JSON.stringify({
+    open: "the blue cardigan",
+    pages: [
+      {
+        name: "the green blanket",
+        units: "cm",
+        craft: "crochet",
+        easeIdx: 3,
+        sizesText: "100, 120",
+        bust: "96",
+      },
+      {
+        name: "the blue cardigan",
+        units: "in",
+        craft: "knit",
+        easeIdx: 2,
+        patternGauge: "18",
+        patternRowGauge: "24",
+        sizesText: "32, 36, 40, 44, 48, 52",
+        yardsText: "900, 1000, 1100, 1250, 1400, 1550",
+        bust: "38",
+        myGauge: "21",
+        myRowGauge: "26",
+        perSkein: "220",
+        skeins: "6",
+      },
+    ],
+  });
   await page.go(BASE + "?lang=en");
   await page.eval(`localStorage.setItem('nana-notebook', ${JSON.stringify(twoPages)}); true`);
-  await page.go(BASE + "?lang=en"); out.twoPagesNoLink = await read();
-  await page.go(BASE + "?s=32,36,40&y=900,1000,1100&pg=18&u=in&c=knit&lang=en"); out.twoPagesDesignerLink = await read();
+  await page.go(BASE + "?lang=en");
+  out.twoPagesNoLink = await read();
+  await page.go(BASE + "?s=32,36,40&y=900,1000,1100&pg=18&u=in&c=knit&lang=en");
+  out.twoPagesDesignerLink = await read();
   return out;
 }
 
@@ -334,7 +376,11 @@ async function serveDist() {
     throw new Error("dist/ is missing — run `npm run build` first");
   }
   const vite = path.join(ROOT, "node_modules", "vite", "bin", "vite.js");
-  const server = spawn(process.execPath, [vite, "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], { cwd: ROOT, stdio: "ignore" });
+  const server = spawn(
+    process.execPath,
+    [vite, "preview", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"],
+    { cwd: ROOT, stdio: "ignore" },
+  );
   for (let i = 0; i < 80; i++) {
     try {
       if ((await fetch(BASE)).ok) return server;
@@ -351,7 +397,14 @@ async function openChrome() {
   if (!CHROME) throw new Error("no Chrome found; set CHROME_PATH");
   const profile = mkdtempSync(path.join(tmpdir(), "nana-smoke-"));
   const port = 9377;
-  const flags = ["--headless=new", "--disable-gpu", "--hide-scrollbars", `--remote-debugging-port=${port}`, "--window-size=900,1400", `--user-data-dir=${profile}`];
+  const flags = [
+    "--headless=new",
+    "--disable-gpu",
+    "--hide-scrollbars",
+    `--remote-debugging-port=${port}`,
+    "--window-size=900,1400",
+    `--user-data-dir=${profile}`,
+  ];
   if (process.platform === "linux") flags.push("--disable-dev-shm-usage");
   if (process.env.CI) flags.push("--no-sandbox");
   const chrome = spawn(CHROME, [...flags, "about:blank"], { stdio: "ignore" });
@@ -366,7 +419,10 @@ async function openChrome() {
   if (!targets) throw new Error("Chrome never answered on its debugging port");
   const target = targets.find((t) => t.type === "page");
   const ws = new WebSocket(target.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+  await new Promise((resolve, reject) => {
+    ws.onopen = resolve;
+    ws.onerror = reject;
+  });
 
   let id = 0;
   const pending = new Map();
@@ -374,21 +430,47 @@ async function openChrome() {
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
     if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") {
-      errors.push("console.error: " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 200));
+      errors.push(
+        "console.error: " +
+          m.params.args
+            .map((a) => a.value ?? a.description ?? "")
+            .join(" ")
+            .slice(0, 200),
+      );
     }
     if (m.method === "Runtime.exceptionThrown") {
-      errors.push("exception: " + (m.params.exceptionDetails.exception?.description || m.params.exceptionDetails.text).slice(0, 200));
+      errors.push(
+        "exception: " +
+          (
+            m.params.exceptionDetails.exception?.description || m.params.exceptionDetails.text
+          ).slice(0, 200),
+      );
     }
-    if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+    if (m.id && pending.has(m.id)) {
+      pending.get(m.id)(m);
+      pending.delete(m.id);
+    }
   };
-  const send = (method, params = {}) => new Promise((res) => { const i = ++id; pending.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
+  const send = (method, params = {}) =>
+    new Promise((res) => {
+      const i = ++id;
+      pending.set(i, res);
+      ws.send(JSON.stringify({ id: i, method, params }));
+    });
   await send("Runtime.enable");
   await send("Page.enable");
 
   const evaluate = async (expression) => {
-    const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+    const r = await send("Runtime.evaluate", {
+      expression,
+      returnByValue: true,
+      awaitPromise: true,
+    });
     if (r.result?.exceptionDetails) {
-      throw new Error("in the page: " + (r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text));
+      throw new Error(
+        "in the page: " +
+          (r.result.exceptionDetails.exception?.description || r.result.exceptionDetails.text),
+      );
     }
     return r.result?.result?.value;
   };
@@ -403,16 +485,32 @@ async function openChrome() {
   /* Chrome keeps writing to its profile for a moment after the kill signal,
      so wait for it to leave before sweeping the directory away. */
   const close = async () => {
-    try { ws.close(); } catch (e) { /* already gone */ }
-    const gone = new Promise((resolve) => { chrome.once("exit", resolve); setTimeout(resolve, 3000); });
+    try {
+      ws.close();
+    } catch (e) {
+      /* already gone */
+    }
+    const gone = new Promise((resolve) => {
+      chrome.once("exit", resolve);
+      setTimeout(resolve, 3000);
+    });
     chrome.kill();
     await gone;
-    try { rmSync(profile, { recursive: true, force: true }); } catch (e) { /* a temp dir; the OS will get it */ }
+    try {
+      rmSync(profile, { recursive: true, force: true });
+    } catch (e) {
+      /* a temp dir; the OS will get it */
+    }
   };
   return { go, eval: evaluate, errors, close };
 }
 
-const PROVERBS = [...en.proverbs.knit, ...en.proverbs.crochet, ...es.proverbs.knit, ...es.proverbs.crochet];
+const PROVERBS = [
+  ...en.proverbs.knit,
+  ...en.proverbs.crochet,
+  ...es.proverbs.knit,
+  ...es.proverbs.crochet,
+];
 const normalise = (text) => PROVERBS.reduce((s, p) => s.split(p).join("<proverb>"), text);
 
 async function main() {
@@ -421,7 +519,16 @@ async function main() {
   const transcript = [];
   try {
     page = await openChrome();
-    const runs = [...SCENARIOS.map((s) => ({ name: s.name, run: async (p) => { await p.go(BASE + "?lang=en"); return p.eval(`(async () => {${PRELUDE}${s.js}\n})()`); } })), { name: "load paths and the notebook", run: loadPaths }];
+    const runs = [
+      ...SCENARIOS.map((s) => ({
+        name: s.name,
+        run: async (p) => {
+          await p.go(BASE + "?lang=en");
+          return p.eval(`(async () => {${PRELUDE}${s.js}\n})()`);
+        },
+      })),
+      { name: "load paths and the notebook", run: loadPaths },
+    ];
     for (const { name, run } of runs) {
       await page.go(BASE + "?lang=en");
       await page.eval("localStorage.clear(); true");
@@ -433,7 +540,9 @@ async function main() {
         result = { FAILED: String(e.message || e) };
       }
       const errs = page.errors.slice(before);
-      transcript.push(`=== ${name} ===\n${normalise(JSON.stringify(result, null, 1))}\nerrors: ${errs.length ? "\n" + errs.join("\n") : "none"}\n`);
+      transcript.push(
+        `=== ${name} ===\n${normalise(JSON.stringify(result, null, 1))}\nerrors: ${errs.length ? "\n" + errs.join("\n") : "none"}\n`,
+      );
       process.stdout.write(`${errs.length || result.FAILED ? "✗" : "✓"} ${name}\n`);
     }
   } finally {
@@ -450,7 +559,9 @@ async function main() {
   }
   if (!existsSync(GOLDEN)) {
     writeFileSync(LAST, actual);
-    console.error("no golden transcript yet — inspect scripts/smoke.last.txt, then run `npm run smoke:update`");
+    console.error(
+      "no golden transcript yet — inspect scripts/smoke.last.txt, then run `npm run smoke:update`",
+    );
     process.exit(1);
   }
   const golden = readFileSync(GOLDEN, "utf8");
@@ -459,9 +570,17 @@ async function main() {
     process.exit(0);
   }
   writeFileSync(LAST, actual);
-  console.error(broken ? "smoke: a scenario failed or the page logged an error" : "smoke: the transcript differs from the golden");
+  console.error(
+    broken
+      ? "smoke: a scenario failed or the page logged an error"
+      : "smoke: the transcript differs from the golden",
+  );
   const diff = spawnSync("diff", ["-u", GOLDEN, LAST], { encoding: "utf8" });
-  console.error(diff.stdout || diff.stderr || "(diff unavailable — compare scripts/smoke.last.txt with scripts/smoke.golden.txt)");
+  console.error(
+    diff.stdout ||
+      diff.stderr ||
+      "(diff unavailable — compare scripts/smoke.last.txt with scripts/smoke.golden.txt)",
+  );
   process.exit(1);
 }
 

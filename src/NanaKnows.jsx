@@ -139,7 +139,18 @@ export default function NanaKnows() {
   /* Everything the cards draw and write, in two bags, so the cards can be
      ordinary components and the state can stay here where askNana, the
      link and the notebook all need it. */
-  const fields = { patternGauge, patternRowGauge, sizesText, yardsText, bust, easeIdx, myGauge, myRowGauge, perSkein, skeins };
+  const fields = {
+    patternGauge,
+    patternRowGauge,
+    sizesText,
+    yardsText,
+    bust,
+    easeIdx,
+    myGauge,
+    myRowGauge,
+    perSkein,
+    skeins,
+  };
   const setters = {
     patternGauge: setPatternGauge,
     patternRowGauge: setPatternRowGauge,
@@ -200,7 +211,9 @@ export default function NanaKnows() {
            ready to save under. Under a link it is not, and neither is set. */
         setOpenName(page.name);
         setPageName(page.name);
-        setSaveMsg(page.name ? { key: "save.rememberedAs", params: { name: page.name } } : "save.remembered");
+        setSaveMsg(
+          page.name ? { key: "save.rememberedAs", params: { name: page.name } } : "save.remembered",
+        );
       }
       return;
     }
@@ -225,8 +238,22 @@ export default function NanaKnows() {
     try {
       writePage(
         localStorage,
-        { name, units, craft, easeIdx, patternGauge, patternRowGauge, sizesText, yardsText, bust, myGauge, myRowGauge, perSkein, skeins },
-        openName
+        {
+          name,
+          units,
+          craft,
+          easeIdx,
+          patternGauge,
+          patternRowGauge,
+          sizesText,
+          yardsText,
+          bust,
+          myGauge,
+          myRowGauge,
+          perSkein,
+          skeins,
+        },
+        openName,
       );
       setNotebook(readNotebook(localStorage));
       setOpenName(name);
@@ -279,7 +306,17 @@ export default function NanaKnows() {
       units,
       craft,
       easeIdx,
-      fields: { patternGauge, patternRowGauge, sizesText, yardsText, bust, myGauge, myRowGauge, perSkein, skeins },
+      fields: {
+        patternGauge,
+        patternRowGauge,
+        sizesText,
+        yardsText,
+        bust,
+        myGauge,
+        myRowGauge,
+        perSkein,
+        skeins,
+      },
     });
     try {
       await navigator.clipboard.writeText(url);
@@ -377,7 +414,15 @@ export default function NanaKnows() {
       bust: b,
       easeIdx,
       size,
-      yarn: adviseYarn({ yards, sizes, bestIdx: size.bestIdx, perSkein, skeins, patternGauge, myGauge }),
+      yarn: adviseYarn({
+        yards,
+        sizes,
+        bestIdx: size.bestIdx,
+        perSkein,
+        skeins,
+        patternGauge,
+        myGauge,
+      }),
       gauge: adviseGauge({ patternGauge, myGauge, best: size.best }),
       row: adviseRows({ patternRowGauge, myRowGauge, swatchSpan }),
       /* Null when there is only one size — nothing to compare. The best and
@@ -419,7 +464,12 @@ export default function NanaKnows() {
 
       <main className="max-w-2xl mx-auto px-5 py-7 flex flex-col gap-5">
         <Toggles t={t} craft={craft} setCraft={setCraft} units={units} switchUnits={switchUnits} />
-        <ProjectPicker t={t} pages={notebook ? notebook.pages : []} openName={openName} openProject={openProject} />
+        <ProjectPicker
+          t={t}
+          pages={notebook ? notebook.pages : []}
+          openName={openName}
+          openProject={openProject}
+        />
 
         {/* Everything from here to the Ask button is one form, so that pressing
             Enter in any field asks Nana, as a visitor would expect. */}
@@ -430,16 +480,36 @@ export default function NanaKnows() {
           }}
           className="flex flex-col gap-5"
         >
-
           <PatternCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} />
-          <YouCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} easeOptions={easeOptions} />
-          <BasketCard t={t} fields={fields} setters={setters} labels={labels} ph={ph} craft={craft} results={results} />
+          <YouCard
+            t={t}
+            fields={fields}
+            setters={setters}
+            labels={labels}
+            ph={ph}
+            easeOptions={easeOptions}
+          />
+          <BasketCard
+            t={t}
+            fields={fields}
+            setters={setters}
+            labels={labels}
+            ph={ph}
+            craft={craft}
+            results={results}
+          />
 
           {/* ask button */}
           <button
             type="submit"
             className="nk-noprint nk-focus w-full py-4 rounded-2xl text-xl transition-transform active:scale-[0.99]"
-            style={{ fontFamily: SERIF, fontWeight: 900, background: C.rose, color: C.onAccent, boxShadow: `0 4px 0 ${C.roseDark}` }}
+            style={{
+              fontFamily: SERIF,
+              fontWeight: 900,
+              background: C.rose,
+              color: C.onAccent,
+              boxShadow: `0 4px 0 ${C.roseDark}`,
+            }}
           >
             {t("button.ask")}
           </button>

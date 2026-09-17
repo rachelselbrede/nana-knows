@@ -56,7 +56,10 @@ export function readShareLink(search) {
   return {
     units: u === "cm" ? "cm" : u === "in" ? "in" : null,
     craft: c ? (c === "crochet" ? "crochet" : "knit") : null,
-    easeIdx: e != null && e !== "" && Number.isInteger(easeIdx) && easeIdx >= 0 && easeIdx <= 4 ? easeIdx : null,
+    easeIdx:
+      e != null && e !== "" && Number.isInteger(easeIdx) && easeIdx >= 0 && easeIdx <= 4
+        ? easeIdx
+        : null,
     fields,
     hasPersonal: keys.some((k) => PERSONAL_KEYS.has(k)),
   };

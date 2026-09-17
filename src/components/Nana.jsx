@@ -15,10 +15,7 @@ export function Nana({ size = 150, bob = true, label }) {
       className={bob ? "nk-bob" : ""}
     >
       {/* cardigan body */}
-      <path
-        d="M52 208 L52 152 Q52 122 100 122 Q148 122 148 152 L148 208 Z"
-        fill={ART.sage}
-      />
+      <path d="M52 208 L52 152 Q52 122 100 122 Q148 122 148 152 L148 208 Z" fill={ART.sage} />
       {/* collar */}
       <path d="M84 124 L100 146 L116 124 Q100 132 84 124 Z" fill={ART.oat} />
       {/* buttons */}
@@ -34,7 +31,15 @@ export function Nana({ size = 150, bob = true, label }) {
         strokeLinecap="round"
       />
       {/* knitting needle through the bun */}
-      <line x1="66" y1="20" x2="134" y2="36" stroke={ART.butter} strokeWidth="4" strokeLinecap="round" />
+      <line
+        x1="66"
+        y1="20"
+        x2="134"
+        y2="36"
+        stroke={ART.butter}
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
       <circle cx="64" cy="19.5" r="4.5" fill={ART.roseDark} />
       {/* hair */}
       <circle cx="100" cy="76" r="47" fill={ART.hair} />

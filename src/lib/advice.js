@@ -157,10 +157,7 @@ export function adviseGauge({ patternGauge, myGauge, best }) {
   }
 
   const tighter = ug > pg;
-  const toolSizes = Math.max(
-    0.5,
-    Math.round((Math.abs(ug - pg) / STITCHES_PER_TOOL_SIZE) * 2) / 2
-  );
+  const toolSizes = Math.max(0.5, Math.round((Math.abs(ug - pg) / STITCHES_PER_TOOL_SIZE) * 2) / 2);
   return {
     kind: "off",
     tone: "warn",

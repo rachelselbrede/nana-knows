@@ -140,8 +140,7 @@ export default {
 
   share: {
     button: "Copy a link to these numbers",
-    copied:
-      "Link copied. Send it to a friend and Nana will greet them with the very same numbers.",
+    copied: "Link copied. Send it to a friend and Nana will greet them with the very same numbers.",
     failed: "Nana put the link in your address bar, dear. Copy it from there to share.",
     loaded: "Nana opened this from a shared link.",
     loadedRemembered:
@@ -220,7 +219,8 @@ export default {
     remembered: "Nana remembered you from last time.",
     rememberedAs: ({ name }) => `Nana remembered “${name}” from last time.`,
     written: "Written in Nana's notebook. Saved just for you, in this browser.",
-    writtenAs: ({ name }) => `Written in Nana's notebook as “${name}”. Saved just for you, in this browser.`,
+    writtenAs: ({ name }) =>
+      `Written in Nana's notebook as “${name}”. Saved just for you, in this browser.`,
     opened: ({ name }) => `Nana opened “${name}” from her notebook.`,
     notHandy:
       "Nana's notebook is not handy right now, dear. Your numbers still work for this visit.",
@@ -233,7 +233,8 @@ export default {
   /* The one sentence a screen reader hears when Nana answers. The cards are
      read on demand from the focused heading; this only says that they exist. */
   status: {
-    answer: ({ best }) => `Nana has your answer, dear: the size ${best}. The details are just below.`,
+    answer: ({ best }) =>
+      `Nana has your answer, dear: the size ${best}. The details are just below.`,
   },
 
   advice: {
@@ -328,15 +329,9 @@ export default {
     short: ({ shortAmt, yarnU }) => `short ${shortAmt} ${yarnU}`,
     note: ({ gaugeAdjusted, hasVerdicts, yarnAdjusted }) =>
       [
-        gaugeAdjusted
-          ? "“Comes out” is what each size would really measure in your hands."
-          : "",
-        yarnAdjusted
-          ? "The yarn column is scaled for your gauge too, as a rough guide."
-          : "",
-        hasVerdicts
-          ? "The basket column already includes Nana's 10% just-in-case cushion."
-          : "",
+        gaugeAdjusted ? "“Comes out” is what each size would really measure in your hands." : "",
+        yarnAdjusted ? "The yarn column is scaled for your gauge too, as a rough guide." : "",
+        hasVerdicts ? "The basket column already includes Nana's 10% just-in-case cushion." : "",
       ]
         .filter(Boolean)
         .join(" "),
@@ -403,10 +398,8 @@ export default {
 
   math: {
     summary: "How does Nana figure it out?",
-    size:
-      "your body measurement plus your chosen ease gives a target. Nana picks the pattern size whose finished measurement lands closest to it. If you gave her your own gauge, she first adjusts each size to how it would really come out in your hands.",
-    yarn:
-      "she reads the yardage for your size — scaled for your gauge if she has it, since smaller stitches take less yarn and bigger ones more — adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.",
+    size: "your body measurement plus your chosen ease gives a target. Nana picks the pattern size whose finished measurement lands closest to it. If you gave her your own gauge, she first adjusts each size to how it would really come out in your hands.",
+    yarn: "she reads the yardage for your size — scaled for your gauge if she has it, since smaller stitches take less yarn and bigger ones more — adds a 10% cushion because running out at the second sleeve is heartbreak, and compares it with skeins times yardage in your basket.",
     tension:
       "finished width is stitch count divided by gauge. If your gauge differs from the pattern's, the same instructions produce a different size, so she does that arithmetic for you.",
     length:

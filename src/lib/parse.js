@@ -73,9 +73,7 @@ function splitCommas(token, issues) {
   const leads = parts.filter((_, i) => i % 2 === 0);
   const tails = parts.filter((_, i) => i % 2 === 1);
   const looksThousands =
-    even &&
-    leads.every((p) => /^\d{1,2}$/.test(p)) &&
-    tails.every((p) => /^\d{3}$/.test(p));
+    even && leads.every((p) => /^\d{1,2}$/.test(p)) && tails.every((p) => /^\d{3}$/.test(p));
 
   if (looksThousands) {
     issues.push("thousands");
@@ -87,8 +85,15 @@ function splitCommas(token, issues) {
 /* Knitters write half sizes as fractions. The unicode ones can be turned into
    decimals in place; "1/2" needs handling at the token level below. */
 const VULGAR = {
-  "\u00bd": ".5", "\u00bc": ".25", "\u00be": ".75", "\u2153": ".33", "\u2154": ".67",
-  "\u215b": ".125", "\u215c": ".375", "\u215d": ".625", "\u215e": ".875",
+  "\u00bd": ".5",
+  "\u00bc": ".25",
+  "\u00be": ".75",
+  "\u2153": ".33",
+  "\u2154": ".67",
+  "\u215b": ".125",
+  "\u215c": ".375",
+  "\u215d": ".625",
+  "\u215e": ".875",
 };
 const VULGAR_RE = /[\u00bd\u00bc\u00be\u2153\u2154\u215b\u215c\u215d\u215e]/;
 

@@ -12,7 +12,17 @@ import { said } from "../lib/words.js";
    pattern's. The ball count comes from the yarn card's own cushioned need,
    so the two cannot disagree — and it can only be counted once Nana has
    been asked, because before that there is no size to count for. */
-export function SubstituteHelper({ t, units, gaugeLabel, yarnU, craft, patternGauge, perSkein, results, ph }) {
+export function SubstituteHelper({
+  t,
+  units,
+  gaugeLabel,
+  yarnU,
+  craft,
+  patternGauge,
+  perSkein,
+  results,
+  ph,
+}) {
   const [bandGauge, setBandGauge] = useState("");
   useUnitFlip(units, (toMetric) => {
     setBandGauge((v) => convertOne(v, toMetric ? gaugePer4inToPer10cm : gaugePer10cmToPer4in));
@@ -24,7 +34,12 @@ export function SubstituteHelper({ t, units, gaugeLabel, yarnU, craft, patternGa
   const ballsText = () => {
     if (verdict === null || verdict.kind === "askPattern") return "";
     if (balls !== null) {
-      return t("substitute.balls", { balls, best: results.size.best, buffered: need, yarnU: said(t, results).yarnU });
+      return t("substitute.balls", {
+        balls,
+        best: results.size.best,
+        buffered: need,
+        yarnU: said(t, results).yarnU,
+      });
     }
     if (need === null) return t("substitute.askFirst");
     return t("substitute.needPerSkein", { yarnU });
@@ -37,18 +52,39 @@ export function SubstituteHelper({ t, units, gaugeLabel, yarnU, craft, patternGa
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
           <label className="flex flex-col gap-1.5">
             <span style={labelStyle}>{t("substitute.bandGauge", { gaugeLabel })}</span>
-            <input inputMode="decimal" autoComplete="off" enterKeyHint="done" style={inputStyle} className="mt-auto px-3 py-2 text-sm" value={bandGauge} onChange={(e) => setBandGauge(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") e.preventDefault(); }} placeholder={ph.bandGauge} />
+            <input
+              inputMode="decimal"
+              autoComplete="off"
+              enterKeyHint="done"
+              style={inputStyle}
+              className="mt-auto px-3 py-2 text-sm"
+              value={bandGauge}
+              onChange={(e) => setBandGauge(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
+              }}
+              placeholder={ph.bandGauge}
+            />
           </label>
         </div>
         {/* Two live lines: the verdict, then the ball count. Warn-toned
             verdicts wear the rose, like the cards. */}
-        <p className="mt-2 text-sm" role="status" style={{ minHeight: "1.2em", color: verdict && verdict.tone === "warn" ? C.roseText : C.sageText }}>
+        <p
+          className="mt-2 text-sm"
+          role="status"
+          style={{
+            minHeight: "1.2em",
+            color: verdict && verdict.tone === "warn" ? C.roseText : C.sageText,
+          }}
+        >
           {verdict ? t(`substitute.${verdict.kind}`, { ...verdict, gaugeLabel, craft }) : ""}
         </p>
         <p className="mt-1 text-xs" role="status" style={{ minHeight: "1.2em", color: C.sageText }}>
           {ballsText()}
         </p>
-        <p className="mt-3 text-xs" style={{ color: C.sageText }}>{t("substitute.tip")}</p>
+        <p className="mt-3 text-xs" style={{ color: C.sageText }}>
+          {t("substitute.tip")}
+        </p>
       </div>
     </Disclosure>
   );

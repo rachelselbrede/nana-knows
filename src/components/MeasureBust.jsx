@@ -27,13 +27,7 @@ const cablePath = (cx) => {
 
 export function MeasureBust({ size = 132, label }) {
   return (
-    <svg
-      width={size}
-      height={size * 1.07}
-      viewBox="0 0 140 150"
-      role="img"
-      aria-label={label}
-    >
+    <svg width={size} height={size * 1.07} viewBox="0 0 140 150" role="img" aria-label={label}>
       {/* sweater body + sleeves, the sleeves curving gently steeper as they
           fall so they run long beside the body instead of stopping at the ribs */}
       <path
@@ -53,8 +47,20 @@ export function MeasureBust({ size = 132, label }) {
         opacity="0.5"
       />
       {/* ribbed crew neckline */}
-      <path d="M56 28 Q70 40 84 28" fill="none" stroke={ART.oat} strokeWidth="5" strokeLinecap="round" />
-      <path d="M56 28 Q70 40 84 28" fill="none" stroke={ART.sageDark} strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M56 28 Q70 40 84 28"
+        fill="none"
+        stroke={ART.oat}
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M56 28 Q70 40 84 28"
+        fill="none"
+        stroke={ART.sageDark}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
       {/* ribbed hem */}
       <path d="M37 123 L103 123" stroke={ART.sageDark} strokeWidth="2.5" strokeLinecap="round" />
       <g stroke={ART.sageDark} strokeWidth="1.4" strokeLinecap="round" opacity="0.65">
@@ -67,7 +73,12 @@ export function MeasureBust({ size = 132, label }) {
       </g>
       {/* ribbed cuffs */}
       <path d="M6 100.5 L21 108.5" stroke={ART.sageDark} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M134 100.5 L119 108.5" stroke={ART.sageDark} strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M134 100.5 L119 108.5"
+        stroke={ART.sageDark}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
 
       {/* tape measure across the bust, side seam to side seam and a little past */}
       <path
@@ -87,7 +98,15 @@ export function MeasureBust({ size = 132, label }) {
         <line x1="92" y1="73.2" x2="92" y2="78.7" />
       </g>
       {/* metal tab capping the tape's end, tilted to match its slope */}
-      <rect x="102" y="67.5" width="8" height="11" rx="1.5" fill={ART.roseDark} transform="rotate(-12 106 73)" />
+      <rect
+        x="102"
+        y="67.5"
+        width="8"
+        height="11"
+        rx="1.5"
+        fill={ART.roseDark}
+        transform="rotate(-12 106 73)"
+      />
     </svg>
   );
 }

@@ -8,7 +8,18 @@ import { MAX_NAME } from "../lib/notebook.js";
    land in. The name and the remember button are a small form of their own,
    so Enter in the name field saves; it has to be its own form, because the
    Ask form ends just above this row. */
-export function RememberRow({ t, pageName, setPageName, ph, rememberMe, forgetMe, forgetThis, canForgetThis, shareLink, saveMsg }) {
+export function RememberRow({
+  t,
+  pageName,
+  setPageName,
+  ph,
+  rememberMe,
+  forgetMe,
+  forgetThis,
+  canForgetThis,
+  shareLink,
+  saveMsg,
+}) {
   /* The status span holds a key — or a key and its parameters — never a
      sentence, so the little confirmations follow a language switch like the
      advice cards do. A page with no name is named here, at render time, for
@@ -21,7 +32,10 @@ export function RememberRow({ t, pageName, setPageName, ph, rememberMe, forgetMe
   const link = "nk-focus font-bold underline decoration-2 underline-offset-2";
   return (
     <>
-      <div className="nk-noprint flex flex-wrap items-center gap-3 text-sm" style={{ fontFamily: SANS }}>
+      <div
+        className="nk-noprint flex flex-wrap items-center gap-3 text-sm"
+        style={{ fontFamily: SANS }}
+      >
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -61,7 +75,9 @@ export function RememberRow({ t, pageName, setPageName, ph, rememberMe, forgetMe
             message lands — a region that appears with its text is skipped by
             some screen readers. The id is for the smoke run, which reads this
             one status apart from the parse echoes. */}
-        <span id="nk-save-status" role="status" style={{ color: C.label }}>{status}</span>
+        <span id="nk-save-status" role="status" style={{ color: C.label }}>
+          {status}
+        </span>
       </div>
       <p className="nk-noprint text-xs -mt-2" style={{ fontFamily: SANS, color: C.muted }}>
         {t("share.note")}

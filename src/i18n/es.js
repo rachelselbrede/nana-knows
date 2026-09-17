@@ -58,7 +58,8 @@ export default {
 
   field: {
     patternGauge: ({ gaugeLabel }) => `Muestra del patrón (${gaugeLabel})`,
-    patternRowGauge: ({ rowGaugeLabel }) => `Muestra de filas del patrón, opcional (${rowGaugeLabel})`,
+    patternRowGauge: ({ rowGaugeLabel }) =>
+      `Muestra de filas del patrón, opcional (${rowGaugeLabel})`,
     finishedSizes: ({ lenU }) => `Tallas terminadas, de la más chica a la más grande (${lenU})`,
     yarnNeeded: ({ yarnU }) => `Lana que pide cada talla, en el mismo orden (${yarnU})`,
     bust: ({ lenU }) => `Tu busto / pecho (${lenU})`,
@@ -135,8 +136,7 @@ export default {
 
   share: {
     button: "Copiar un enlace con estos números",
-    copied:
-      "Enlace copiado. Envíaselo a alguien y Nana lo recibirá con los mismísimos números.",
+    copied: "Enlace copiado. Envíaselo a alguien y Nana lo recibirá con los mismísimos números.",
     failed:
       "Nana puso el enlace en tu barra de direcciones, mi vida. Cópialo de ahí para compartir.",
     loaded: "Nana abrió esto desde un enlace compartido.",
@@ -217,7 +217,8 @@ export default {
     remembered: "Nana te recordó de la vez pasada.",
     rememberedAs: ({ name }) => `Nana se acordó de «${name}» de la vez pasada.`,
     written: "Anotado en el cuaderno de Nana. Guardado solo para ti, en este navegador.",
-    writtenAs: ({ name }) => `Anotado en el cuaderno de Nana como «${name}». Guardado solo para ti, en este navegador.`,
+    writtenAs: ({ name }) =>
+      `Anotado en el cuaderno de Nana como «${name}». Guardado solo para ti, en este navegador.`,
     opened: ({ name }) => `Nana abrió «${name}» de su cuaderno.`,
     notHandy:
       "El cuaderno de Nana no está a la mano ahora, mi vida. Tus números siguen sirviendo para esta visita.",
@@ -231,7 +232,8 @@ export default {
      tarjetas se leen a su ritmo desde el encabezado enfocado; esto solo avisa
      de que existen. */
   status: {
-    answer: ({ best }) => `Nana ya tiene tu respuesta, mi vida: la talla ${best}. Los detalles vienen justo abajo.`,
+    answer: ({ best }) =>
+      `Nana ya tiene tu respuesta, mi vida: la talla ${best}. Los detalles vienen justo abajo.`,
   },
 
   advice: {
@@ -259,8 +261,7 @@ export default {
     },
 
     yarn: {
-      needSizes:
-        "Agrega la cantidad de lana que pide cada talla y Nana te contará las madejas.",
+      needSizes: "Agrega la cantidad de lana que pide cada talla y Nana te contará las madejas.",
       listShort:
         "Tu lista de tallas es más larga que la de lana, así que Nana no ve la cantidad para tu talla. Revisa que las dos listas coincidan, mi vida.",
       askBasket: ({ need, yarnU }) =>
@@ -326,9 +327,7 @@ export default {
     short: ({ shortAmt, yarnU }) => `faltan ${shortAmt} ${yarnU}`,
     note: ({ gaugeAdjusted, hasVerdicts, yarnAdjusted }) =>
       [
-        gaugeAdjusted
-          ? "«Te saldría» es lo que cada talla mediría de verdad en tus manos."
-          : "",
+        gaugeAdjusted ? "«Te saldría» es lo que cada talla mediría de verdad en tus manos." : "",
         yarnAdjusted
           ? "La columna de lana también está ajustada a tu muestra, como cálculo aproximado."
           : "",
@@ -349,7 +348,8 @@ export default {
     intro:
       "¿El patrón pide una lana que no tienes? Lee la muestra en la etiqueta de la que sí tienes, y Nana te dirá qué tan cerca queda y, cuando ya haya elegido tu talla, cuántos ovillos necesitarías.",
     bandGauge: ({ gaugeLabel }) => `La etiqueta dice (${gaugeLabel})`,
-    askPattern: "Pon primero la muestra del patrón en la primera tarjeta, mi vida, y Nana podrá comparar las dos.",
+    askPattern:
+      "Pon primero la muestra del patrón en la primera tarjeta, mi vida, y Nana podrá comparar las dos.",
     match: ({ bg, pg, gaugeLabel }) =>
       `La etiqueta coincide con la muestra del patrón (${bg} contra ${pg} ${gaugeLabel}). Un sustituto prometedor; haz la muestra para estar segura.`,
     close: ({ away, finer, craft }) =>
@@ -402,10 +402,8 @@ export default {
 
   math: {
     summary: "¿Cómo lo calcula Nana?",
-    size:
-      "tu medida del cuerpo más la holgura que elegiste dan un objetivo. Nana elige la talla del patrón cuya medida terminada quede más cerca. Si le diste tu propia muestra, primero ajusta cada talla a cómo saldría de verdad en tus manos.",
-    yarn:
-      "lee la cantidad de lana de tu talla (ajustada a tu muestra si se la diste, porque los puntos más chicos llevan menos lana y los más grandes, más), le suma un colchón del 10 % porque quedarse sin lana en la segunda manga parte el alma, y lo compara con las madejas por su metraje en tu canasta.",
+    size: "tu medida del cuerpo más la holgura que elegiste dan un objetivo. Nana elige la talla del patrón cuya medida terminada quede más cerca. Si le diste tu propia muestra, primero ajusta cada talla a cómo saldría de verdad en tus manos.",
+    yarn: "lee la cantidad de lana de tu talla (ajustada a tu muestra si se la diste, porque los puntos más chicos llevan menos lana y los más grandes, más), le suma un colchón del 10 % porque quedarse sin lana en la segunda manga parte el alma, y lo compara con las madejas por su metraje en tu canasta.",
     tension:
       "el ancho terminado es la cantidad de puntos dividida entre la muestra. Si tu muestra difiere de la del patrón, las mismas instrucciones dan otra talla, así que ella te hace esa cuenta.",
     length:

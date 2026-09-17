@@ -6,7 +6,10 @@ import { SERIF } from "../type.js";
    and whatever the card asks about. */
 export function FormCard({ title, children }) {
   return (
-    <section className="nk-noprint rounded-2xl p-5" style={{ background: C.card, border: `2px dashed ${C.line}` }}>
+    <section
+      className="nk-noprint rounded-2xl p-5"
+      style={{ background: C.card, border: `2px dashed ${C.line}` }}
+    >
       <div className="flex items-center gap-2 mb-4">
         <GrannySquare />
         <h2 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 22 }}>{title}</h2>

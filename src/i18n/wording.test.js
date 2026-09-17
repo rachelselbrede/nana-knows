@@ -16,14 +16,20 @@ import assert from "node:assert/strict";
 
 import en from "./en.js";
 import es from "./es.js";
-import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute } from "../lib/advice.js";
+import {
+  adviseSize,
+  adviseYarn,
+  adviseGauge,
+  adviseRows,
+  sizeTable,
+  adviseSubstitute,
+} from "../lib/advice.js";
 import { swatchToGauge, gramsToSkeins, ballsToYardage } from "../lib/parse.js";
 
 const DICTS = { en, es };
 
 /* The same walk the provider does, minus React. */
-const lookup = (dict, key) =>
-  key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
+const lookup = (dict, key) => key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
 
 /* Deliberately stricter than the app's `t`: no falling back to English, so a
    missing Spanish key fails here instead of silently shipping in English. */
@@ -46,19 +52,46 @@ function assertSentence(text, where) {
 const LANGS = ["en", "es"];
 const SIZES = [32, 36, 40, 44, 48, 52];
 const YARDS = [900, 1000, 1100, 1250, 1400, 1550];
-const UNITS = { lenU: "in", yarnU: "yds", gaugeLabel: "stitches per 4 in", rowGaugeLabel: "rows per 4 in" };
+const UNITS = {
+  lenU: "in",
+  yarnU: "yds",
+  gaugeLabel: "stitches per 4 in",
+  rowGaugeLabel: "rows per 4 in",
+};
 
 for (const lang of LANGS) {
   describe(`${lang}: every advice branch has words`, () => {
     /* ---------- the size card ---------- */
     test("size, plain and gauge-adjusted, with and without a runner-up", () => {
       const cases = {
-        plain: adviseSize({ sizes: SIZES, bust: 38, ease: 2, patternGauge: null, myGauge: null, closeGap: 1 }),
-        adjusted: adviseSize({ sizes: SIZES, bust: 38, ease: 2, patternGauge: 18, myGauge: 21, closeGap: 1 }),
-        runnerUp: adviseSize({ sizes: [36, 40], bust: 38, ease: 0, patternGauge: null, myGauge: null, closeGap: 1 }),
+        plain: adviseSize({
+          sizes: SIZES,
+          bust: 38,
+          ease: 2,
+          patternGauge: null,
+          myGauge: null,
+          closeGap: 1,
+        }),
+        adjusted: adviseSize({
+          sizes: SIZES,
+          bust: 38,
+          ease: 2,
+          patternGauge: 18,
+          myGauge: 21,
+          closeGap: 1,
+        }),
+        runnerUp: adviseSize({
+          sizes: [36, 40],
+          bust: 38,
+          ease: 0,
+          patternGauge: null,
+          myGauge: null,
+          closeGap: 1,
+        }),
       };
       for (const [name, s] of Object.entries(cases)) {
-        const key = s.gaugeAdjusted && s.actual !== s.best ? "result.size.mainAdjusted" : "result.size.main";
+        const key =
+          s.gaugeAdjusted && s.actual !== s.best ? "result.size.mainAdjusted" : "result.size.main";
         let text = say(lang, key, {
           best: s.best,
           actual: s.actual,
@@ -67,7 +100,8 @@ for (const lang of LANGS) {
           easeLabel: say(lang, "ease.labels", { inch: true })[2].toLowerCase(),
           target: s.target,
         });
-        if (s.runnerUp !== null) text += say(lang, "result.size.runnerUp", { runnerUp: s.runnerUp });
+        if (s.runnerUp !== null)
+          text += say(lang, "result.size.runnerUp", { runnerUp: s.runnerUp });
         assertSentence(text, `${lang} size/${name}`);
       }
       /* The adjusted case must actually be reached, or this test proves nothing. */
@@ -86,7 +120,14 @@ for (const lang of LANGS) {
     };
     for (const [expected, over] of Object.entries(yarnCases)) {
       test(`yarn: ${expected}`, () => {
-        const y = adviseYarn({ yards: YARDS, sizes: SIZES, bestIdx: 2, perSkein: 220, skeins: 6, ...over });
+        const y = adviseYarn({
+          yards: YARDS,
+          sizes: SIZES,
+          bestIdx: 2,
+          perSkein: 220,
+          skeins: 6,
+          ...over,
+        });
         assert.equal(y.kind, expected, "the fixture no longer produces the branch it names");
         const text = say(lang, `result.yarn.${y.kind}`, { ...y, best: 40, yarnU: UNITS.yarnU });
         assertSentence(text, `${lang} yarn/${y.kind}`);
@@ -94,10 +135,17 @@ for (const lang of LANGS) {
     }
 
     test("yarn: the mismatch postscript", () => {
-      const y = adviseYarn({ yards: [900, 1000, 1100], sizes: SIZES, bestIdx: 2, perSkein: 220, skeins: 6 });
+      const y = adviseYarn({
+        yards: [900, 1000, 1100],
+        sizes: SIZES,
+        bestIdx: 2,
+        perSkein: 220,
+        skeins: 6,
+      });
       assert.equal(y.mismatch, true);
-      const text = say(lang, `result.yarn.${y.kind}`, { ...y, best: 40, yarnU: UNITS.yarnU })
-        + say(lang, "result.yarn.mismatch");
+      const text =
+        say(lang, `result.yarn.${y.kind}`, { ...y, best: 40, yarnU: UNITS.yarnU }) +
+        say(lang, "result.yarn.mismatch");
       assertSentence(text, `${lang} yarn/mismatch`);
     });
 
@@ -122,7 +170,10 @@ for (const lang of LANGS) {
     test("gauge: a looser knitter is told to go the other way", () => {
       const g = adviseGauge({ patternGauge: 18, myGauge: 16, best: 40 });
       assert.equal(g.tighter, false);
-      assertSentence(say(lang, "result.gauge.off", { ...g, ...UNITS, craft: "knit" }), `${lang} gauge/looser`);
+      assertSentence(
+        say(lang, "result.gauge.off", { ...g, ...UNITS, craft: "knit" }),
+        `${lang} gauge/looser`,
+      );
     });
 
     test("gauge: one tool size reads as words, not as the number 1", () => {
@@ -144,7 +195,10 @@ for (const lang of LANGS) {
       test(`rows: ${expected}`, () => {
         const r = adviseRows({ ...args, swatchSpan: 4 });
         assert.equal(r.kind, expected);
-        assertSentence(say(lang, `result.row.${r.kind}`, { ...r, ...UNITS }), `${lang} row/${r.kind}`);
+        assertSentence(
+          say(lang, `result.row.${r.kind}`, { ...r, ...UNITS }),
+          `${lang} row/${r.kind}`,
+        );
       });
     }
 
@@ -154,9 +208,16 @@ for (const lang of LANGS) {
          against the yardage as scaled for a 21-against-18 knitter, which is
          what the table now shows. */
       const tbl = sizeTable({
-        sizes: SIZES, yards: YARDS, bust: 38, ease: 2,
-        patternGauge: 18, myGauge: 21, perSkein: 220, skeins: 5,
-        bestIdx: 4, runnerUp: 44,
+        sizes: SIZES,
+        yards: YARDS,
+        bust: 38,
+        ease: 2,
+        patternGauge: 18,
+        myGauge: 21,
+        perSkein: 220,
+        skeins: 5,
+        bestIdx: 4,
+        runnerUp: 44,
       });
       assert.ok(tbl.gaugeAdjusted && tbl.hasVerdicts, "the fixture went quiet");
       const seen = new Set(tbl.rows.map((r) => r.stash));
@@ -185,7 +246,7 @@ for (const lang of LANGS) {
 
       assertSentence(
         say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true }),
-        `${lang} table/note`
+        `${lang} table/note`,
       );
       /* With nothing to explain, the note must vanish rather than mumble. */
       assert.equal(say(lang, "table.note", { gaugeAdjusted: false, hasVerdicts: false }), "");
@@ -203,11 +264,12 @@ for (const lang of LANGS) {
     });
 
     test("the parse echo, for each thing the parser might have assumed", () => {
-      const text = say(lang, "echo.read", { list: "32, 36, 40" })
-        + say(lang, "echo.range")
-        + say(lang, "echo.thousands")
-        + say(lang, "echo.fraction")
-        + say(lang, "echo.label");
+      const text =
+        say(lang, "echo.read", { list: "32, 36, 40" }) +
+        say(lang, "echo.range") +
+        say(lang, "echo.thousands") +
+        say(lang, "echo.fraction") +
+        say(lang, "echo.label");
       assertSentence(text, `${lang} echo`);
     });
 
@@ -255,7 +317,7 @@ describe("the two dictionaries stay level with each other", () => {
     Object.entries(o).flatMap(([k, v]) =>
       v && typeof v === "object" && !Array.isArray(v)
         ? shape(v, `${prefix}${k}.`)
-        : [[`${prefix}${k}`, Array.isArray(v) ? "array" : typeof v]]
+        : [[`${prefix}${k}`, Array.isArray(v) ? "array" : typeof v]],
     );
 
   const enShape = new Map(shape(en));
@@ -289,12 +351,21 @@ for (const lang of LANGS) {
       const rows = swatchToGauge("30", "4.5", 4);
       assert.equal(sts, 20.7);
       assertSentence(say(lang, "swatch.intro", { spanLabel: "4 in" }), `${lang} swatch/intro`);
-      assertSentence(say(lang, "swatch.stitchesOut", { gauge: sts, gaugeLabel: UNITS.gaugeLabel }), `${lang} swatch/stitchesOut`);
-      assertSentence(say(lang, "swatch.rowsOut", { gauge: rows, rowGaugeLabel: UNITS.rowGaugeLabel }), `${lang} swatch/rowsOut`);
+      assertSentence(
+        say(lang, "swatch.stitchesOut", { gauge: sts, gaugeLabel: UNITS.gaugeLabel }),
+        `${lang} swatch/stitchesOut`,
+      );
+      assertSentence(
+        say(lang, "swatch.rowsOut", { gauge: rows, rowGaugeLabel: UNITS.rowGaugeLabel }),
+        `${lang} swatch/rowsOut`,
+      );
       assertSentence(say(lang, "swatch.used"), `${lang} swatch/used`);
       assertSentence(say(lang, "swatch.tip"), `${lang} swatch/tip`);
       for (const key of ["summary", "stitches", "rows", "use"]) {
-        assert.ok(say(lang, `swatch.${key}`).length > 3, `${lang} swatch/${key} is too short to be a label`);
+        assert.ok(
+          say(lang, `swatch.${key}`).length > 3,
+          `${lang} swatch/${key} is too short to be a label`,
+        );
       }
       /* The width labels carry the unit, like every other field label. */
       assert.ok(say(lang, "swatch.across", { lenU: "in" }).includes("(in)"));
@@ -320,10 +391,16 @@ for (const lang of LANGS) {
       assertSentence(say(lang, "balls.used"), `${lang} balls/used`);
       assertSentence(say(lang, "balls.tip"), `${lang} balls/tip`);
       for (const key of ["summary", "countsIn", "inBalls", "inGrams", "perSizeBalls", "use"]) {
-        assert.ok(say(lang, `balls.${key}`).length > 3, `${lang} balls/${key} is too short to be a label`);
+        assert.ok(
+          say(lang, `balls.${key}`).length > 3,
+          `${lang} balls/${key} is too short to be a label`,
+        );
       }
       /* Grams say so in the label; what a ball holds carries the unit. */
-      assert.ok(say(lang, "balls.perSizeGrams").includes("(g)") && say(lang, "balls.ballWeighs").includes("(g)"));
+      assert.ok(
+        say(lang, "balls.perSizeGrams").includes("(g)") &&
+          say(lang, "balls.ballWeighs").includes("(g)"),
+      );
       assert.ok(say(lang, "balls.ballHolds", { yarnU: "m" }).includes("(m)"));
       const ph = say(lang, "ph", { inch: true });
       for (const key of ["ballsList", "gramsList", "ballLength", "ballGrams"]) {
@@ -331,7 +408,10 @@ for (const lang of LANGS) {
       }
       /* The smoke run finds fields by placeholder, so these two must differ. */
       assert.notEqual(ph.ballLength, ph.perSkein);
-      assert.notEqual(say(lang, "ph", { inch: false }).ballLength, say(lang, "ph", { inch: false }).perSkein);
+      assert.notEqual(
+        say(lang, "ph", { inch: false }).ballLength,
+        say(lang, "ph", { inch: false }).perSkein,
+      );
     });
   });
 }
@@ -345,7 +425,12 @@ for (const lang of LANGS) {
         assertSentence(text, `${lang} save/${key}`);
         assert.ok(text.includes("the blue cardigan"), `${lang} save/${key} lost the name: ${text}`);
       }
-      for (const key of ["notebook.label", "notebook.unnamed", "remember.name", "remember.forgetOne"]) {
+      for (const key of [
+        "notebook.label",
+        "notebook.unnamed",
+        "remember.name",
+        "remember.forgetOne",
+      ]) {
         assert.ok(say(lang, key).length > 3, `${lang} ${key} is too short to be a label`);
       }
       assert.ok(say(lang, "ph", { inch: true }).projectName, `${lang} ph.projectName is missing`);
@@ -358,7 +443,15 @@ for (const lang of LANGS) {
   describe(`${lang}: the gauge postscript on the yarn card`, () => {
     test("tight and loose, on a kind that quotes the figure", () => {
       for (const myGauge of [21, 16]) {
-        const y = adviseYarn({ yards: YARDS, sizes: SIZES, bestIdx: 4, perSkein: 220, skeins: 7, patternGauge: 18, myGauge });
+        const y = adviseYarn({
+          yards: YARDS,
+          sizes: SIZES,
+          bestIdx: 4,
+          perSkein: 220,
+          skeins: 7,
+          patternGauge: 18,
+          myGauge,
+        });
         assert.equal(y.gaugeAdjusted, true, "the fixture did not adjust");
         const text =
           say(lang, `result.yarn.${y.kind}`, { ...y, best: 48, yarnU: UNITS.yarnU }) +
@@ -370,8 +463,16 @@ for (const lang of LANGS) {
     });
 
     test("the table note mentions the yarn column only when it was scaled", () => {
-      const scaled = say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true, yarnAdjusted: true });
-      const plain = say(lang, "table.note", { gaugeAdjusted: true, hasVerdicts: true, yarnAdjusted: false });
+      const scaled = say(lang, "table.note", {
+        gaugeAdjusted: true,
+        hasVerdicts: true,
+        yarnAdjusted: true,
+      });
+      const plain = say(lang, "table.note", {
+        gaugeAdjusted: true,
+        hasVerdicts: true,
+        yarnAdjusted: false,
+      });
       assertSentence(scaled, `${lang} table/note/scaled`);
       assert.ok(scaled.length > plain.length && scaled.startsWith(plain.split(" ")[0]));
     });
@@ -385,15 +486,24 @@ for (const lang of LANGS) {
       const skeins = gramsToSkeins("350", "100");
       assert.equal(skeins, 3.5);
       assertSentence(say(lang, "weigh.intro"), `${lang} weigh/intro`);
-      assertSentence(say(lang, "weigh.out", { skeins, yards: 770, yarnU: UNITS.yarnU }), `${lang} weigh/out`);
-      assertSentence(say(lang, "weigh.out", { skeins, yards: null, yarnU: UNITS.yarnU }), `${lang} weigh/out/noYards`);
+      assertSentence(
+        say(lang, "weigh.out", { skeins, yards: 770, yarnU: UNITS.yarnU }),
+        `${lang} weigh/out`,
+      );
+      assertSentence(
+        say(lang, "weigh.out", { skeins, yards: null, yarnU: UNITS.yarnU }),
+        `${lang} weigh/out/noYards`,
+      );
       /* "1 skeins' worth" is the sort of thing that makes an app feel unloved. */
       const one = say(lang, "weigh.out", { skeins: 1, yards: null, yarnU: UNITS.yarnU });
       assert.ok(!/\b1 /.test(one), `one skein should read as words: ${one}`);
       assertSentence(say(lang, "weigh.used"), `${lang} weigh/used`);
       assertSentence(say(lang, "weigh.tip"), `${lang} weigh/tip`);
       for (const key of ["summary", "use"]) assert.ok(say(lang, `weigh.${key}`).length > 3);
-      assert.ok(say(lang, "weigh.skeinWeighs").includes("(g)") && say(lang, "weigh.haveWeighs").includes("(g)"));
+      assert.ok(
+        say(lang, "weigh.skeinWeighs").includes("(g)") &&
+          say(lang, "weigh.haveWeighs").includes("(g)"),
+      );
       const ph = say(lang, "ph", { inch: true });
       assert.ok(ph.weighSkein && ph.weighHave, `${lang} ph.weigh* missing`);
     });
@@ -429,13 +539,22 @@ for (const lang of LANGS) {
 /* ---------- the substitution helper ---------- */
 for (const lang of LANGS) {
   describe(`${lang}: the substitution helper has words`, () => {
-    const bands = { askPattern: ["20", ""], match: ["18", 18], close: ["19", 18], stretch: ["15", 18], no: ["22", 18] };
+    const bands = {
+      askPattern: ["20", ""],
+      match: ["18", 18],
+      close: ["19", 18],
+      stretch: ["15", 18],
+      no: ["22", 18],
+    };
     for (const [expected, [band, pg]] of Object.entries(bands)) {
       for (const craft of ["knit", "crochet"]) {
         test(`${expected} (${craft})`, () => {
           const r = adviseSubstitute({ patternGauge: pg, bandGauge: band });
           assert.equal(r.kind, expected, "the fixture no longer produces the branch it names");
-          assertSentence(say(lang, `substitute.${r.kind}`, { ...r, gaugeLabel: UNITS.gaugeLabel, craft }), `${lang} substitute/${r.kind}/${craft}`);
+          assertSentence(
+            say(lang, `substitute.${r.kind}`, { ...r, gaugeLabel: UNITS.gaugeLabel, craft }),
+            `${lang} substitute/${r.kind}/${craft}`,
+          );
         });
       }
     }
@@ -449,14 +568,29 @@ for (const lang of LANGS) {
     });
 
     test("balls, one and many, and the two waiting lines", () => {
-      assertSentence(say(lang, "substitute.balls", { balls: 8, best: 48, buffered: 1541, yarnU: UNITS.yarnU }), `${lang} substitute/balls`);
-      const one = say(lang, "substitute.balls", { balls: 1, best: 32, buffered: 200, yarnU: UNITS.yarnU });
+      assertSentence(
+        say(lang, "substitute.balls", { balls: 8, best: 48, buffered: 1541, yarnU: UNITS.yarnU }),
+        `${lang} substitute/balls`,
+      );
+      const one = say(lang, "substitute.balls", {
+        balls: 1,
+        best: 32,
+        buffered: 200,
+        yarnU: UNITS.yarnU,
+      });
       assert.ok(!/\b1 (balls|ovillos)\b/.test(one), one);
       assertSentence(say(lang, "substitute.askFirst"), `${lang} substitute/askFirst`);
-      assertSentence(say(lang, "substitute.needPerSkein", { yarnU: UNITS.yarnU }), `${lang} substitute/needPerSkein`);
+      assertSentence(
+        say(lang, "substitute.needPerSkein", { yarnU: UNITS.yarnU }),
+        `${lang} substitute/needPerSkein`,
+      );
       assertSentence(say(lang, "substitute.intro"), `${lang} substitute/intro`);
       assertSentence(say(lang, "substitute.tip"), `${lang} substitute/tip`);
-      assert.ok(say(lang, "substitute.bandGauge", { gaugeLabel: UNITS.gaugeLabel }).includes(UNITS.gaugeLabel));
+      assert.ok(
+        say(lang, "substitute.bandGauge", { gaugeLabel: UNITS.gaugeLabel }).includes(
+          UNITS.gaugeLabel,
+        ),
+      );
       assert.ok(say(lang, "ph", { inch: true }).bandGauge);
     });
   });

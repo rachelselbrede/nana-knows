@@ -8,7 +8,17 @@ import assert from "node:assert/strict";
 import en from "../i18n/en.js";
 import es from "../i18n/es.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable } from "./advice.js";
-import { said, sizeText, yarnText, gaugeText, rowText, signed, tableNote, tableLine, adviceAsText } from "./words.js";
+import {
+  said,
+  sizeText,
+  yarnText,
+  gaugeText,
+  rowText,
+  signed,
+  tableNote,
+  tableLine,
+  adviceAsText,
+} from "./words.js";
 
 const DICTS = { en, es };
 const makeT = (dict) => (key, params) => {
@@ -23,7 +33,14 @@ const YARDS = [900, 1000, 1100, 1250, 1400, 1550];
 /* A tight knitter with a shortish basket, asked in inches: every card has
    something to say and the table reaches every verdict. */
 const results = (inch = true) => {
-  const size = adviseSize({ sizes: SIZES, bust: 38, ease: 2, patternGauge: 18, myGauge: 21, closeGap: 1 });
+  const size = adviseSize({
+    sizes: SIZES,
+    bust: 38,
+    ease: 2,
+    patternGauge: 18,
+    myGauge: 21,
+    closeGap: 1,
+  });
   const stash = { perSkein: 220, skeins: 5, patternGauge: 18, myGauge: 21 };
   return {
     error: false,
@@ -34,14 +51,23 @@ const results = (inch = true) => {
     yarn: adviseYarn({ yards: YARDS, sizes: SIZES, bestIdx: size.bestIdx, ...stash }),
     gauge: adviseGauge({ patternGauge: 18, myGauge: 21, best: size.best }),
     row: adviseRows({ patternRowGauge: 24, myRowGauge: 26, swatchSpan: 4 }),
-    table: sizeTable({ sizes: SIZES, yards: YARDS, bust: 38, ease: 2, ...stash, bestIdx: size.bestIdx, runnerUp: size.runnerUp }),
+    table: sizeTable({
+      sizes: SIZES,
+      yards: YARDS,
+      bust: 38,
+      ease: 2,
+      ...stash,
+      bestIdx: size.bestIdx,
+      runnerUp: size.runnerUp,
+    }),
   };
 };
 
 const clean = (text, where) => {
   assert.equal(typeof text, "string", where);
   assert.ok(text.length > 20, `${where}: ${text}`);
-  for (const ghost of ["undefined", "NaN", "[object Object]"]) assert.ok(!text.includes(ghost), `${where} leaked ${ghost}: ${text}`);
+  for (const ghost of ["undefined", "NaN", "[object Object]"])
+    assert.ok(!text.includes(ghost), `${where} leaked ${ghost}: ${text}`);
 };
 
 for (const lang of ["en", "es"]) {
@@ -65,7 +91,10 @@ for (const lang of ["en", "es"]) {
       const text = yarnText(t, r);
       clean(text, `${lang} yarn`);
       assert.ok(r.yarn.gaugeAdjusted);
-      assert.ok(text.includes(String(r.yarn.patternNeed)) && text.includes(String(r.yarn.need)), text);
+      assert.ok(
+        text.includes(String(r.yarn.patternNeed)) && text.includes(String(r.yarn.need)),
+        text,
+      );
     });
 
     test("the tension card speaks of needles for knitting and hooks for crochet", () => {
@@ -89,7 +118,13 @@ for (const lang of ["en", "es"]) {
     test("the copied advice carries every card and the whole table", () => {
       const text = adviceAsText(t, r, "knit", t("proverbs.knit")[0]);
       clean(text, `${lang} copy`);
-      for (const key of ["advice.size", "advice.yarn", "advice.tension", "advice.length", "table.title"]) {
+      for (const key of [
+        "advice.size",
+        "advice.yarn",
+        "advice.tension",
+        "advice.length",
+        "table.title",
+      ]) {
         assert.ok(text.includes(t(key)), `copied text is missing ${key}`);
       }
       assert.equal(text.split("\n").filter((l) => l.includes(" · ")).length, 6);

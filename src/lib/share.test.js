@@ -13,7 +13,12 @@ describe("readShareLink: what a link says, and what it does not", () => {
 
   test("a person's project: fields, units, craft, ease, and hasPersonal", () => {
     const r = readShareLink("?s=32,36,40&y=900,1000,1100&b=38&mg=21&u=cm&c=crochet&e=3&lang=es");
-    assert.deepEqual(r.fields, { sizesText: "32,36,40", yardsText: "900,1000,1100", bust: "38", myGauge: "21" });
+    assert.deepEqual(r.fields, {
+      sizesText: "32,36,40",
+      yardsText: "900,1000,1100",
+      bust: "38",
+      myGauge: "21",
+    });
     assert.equal(r.units, "cm");
     assert.equal(r.craft, "crochet");
     assert.equal(r.easeIdx, 3);
@@ -24,7 +29,12 @@ describe("readShareLink: what a link says, and what it does not", () => {
     const r = readShareLink("?s=32,36,40&y=900,1000,1100&pg=18&prg=24&u=in&c=knit");
     assert.equal(r.hasPersonal, false);
     assert.equal(r.easeIdx, null);
-    assert.deepEqual(Object.keys(r.fields), ["patternGauge", "patternRowGauge", "sizesText", "yardsText"]);
+    assert.deepEqual(Object.keys(r.fields), [
+      "patternGauge",
+      "patternRowGauge",
+      "sizesText",
+      "yardsText",
+    ]);
   });
 
   test("ease alone counts as personal", () => {
@@ -49,10 +59,22 @@ describe("readShareLink: what a link says, and what it does not", () => {
 });
 
 describe("buildShareUrl: the link Nana hands out", () => {
-  const fields = { patternGauge: "18", patternRowGauge: "", sizesText: "32, 36", yardsText: "", bust: "38", myGauge: "", myRowGauge: "", perSkein: "", skeins: "" };
+  const fields = {
+    patternGauge: "18",
+    patternRowGauge: "",
+    sizesText: "32, 36",
+    yardsText: "",
+    bust: "38",
+    myGauge: "",
+    myRowGauge: "",
+    perSkein: "",
+    skeins: "",
+  };
 
   test("carries language, units and craft, and only the filled fields", () => {
-    const url = new URL(buildShareUrl(HREF, { lang: "es", units: "in", craft: "knit", easeIdx: 2, fields }));
+    const url = new URL(
+      buildShareUrl(HREF, { lang: "es", units: "in", craft: "knit", easeIdx: 2, fields }),
+    );
     assert.equal(url.searchParams.get("lang"), "es");
     assert.equal(url.searchParams.get("u"), "in");
     assert.equal(url.searchParams.get("c"), "knit");
@@ -63,12 +85,28 @@ describe("buildShareUrl: the link Nana hands out", () => {
   });
 
   test("the default ease is left out; any other rides along", () => {
-    assert.equal(new URL(buildShareUrl(HREF, { lang: "en", units: "in", craft: "knit", easeIdx: 2, fields })).searchParams.has("e"), false);
-    assert.equal(new URL(buildShareUrl(HREF, { lang: "en", units: "in", craft: "knit", easeIdx: 4, fields })).searchParams.get("e"), "4");
+    assert.equal(
+      new URL(
+        buildShareUrl(HREF, { lang: "en", units: "in", craft: "knit", easeIdx: 2, fields }),
+      ).searchParams.has("e"),
+      false,
+    );
+    assert.equal(
+      new URL(
+        buildShareUrl(HREF, { lang: "en", units: "in", craft: "knit", easeIdx: 4, fields }),
+      ).searchParams.get("e"),
+      "4",
+    );
   });
 
   test("what is built can be read back", () => {
-    const url = buildShareUrl(HREF, { lang: "en", units: "cm", craft: "crochet", easeIdx: 0, fields });
+    const url = buildShareUrl(HREF, {
+      lang: "en",
+      units: "cm",
+      craft: "crochet",
+      easeIdx: 0,
+      fields,
+    });
     const r = readShareLink(new URL(url).search);
     assert.deepEqual(r.fields, { patternGauge: "18", sizesText: "32, 36", bust: "38" });
     assert.equal(r.units, "cm");

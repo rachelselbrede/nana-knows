@@ -25,25 +25,24 @@ export const sizeText = (t, results) => {
   const s = results.size;
   const u = said(t, results);
   const easeLabel = t("ease.labels", { inch: results.inch })[results.easeIdx].toLowerCase();
-  const base = s.gaugeAdjusted && s.actual !== s.best
-    ? t("result.size.mainAdjusted", {
-        best: s.best,
-        actual: s.actual,
-        lenU: u.lenU,
-        b: results.bust,
-        easeLabel,
-        target: s.target,
-      })
-    : t("result.size.main", {
-        best: s.best,
-        lenU: u.lenU,
-        b: results.bust,
-        easeLabel,
-        target: s.target,
-      });
-  return s.runnerUp !== null
-    ? base + t("result.size.runnerUp", { runnerUp: s.runnerUp })
-    : base;
+  const base =
+    s.gaugeAdjusted && s.actual !== s.best
+      ? t("result.size.mainAdjusted", {
+          best: s.best,
+          actual: s.actual,
+          lenU: u.lenU,
+          b: results.bust,
+          easeLabel,
+          target: s.target,
+        })
+      : t("result.size.main", {
+          best: s.best,
+          lenU: u.lenU,
+          b: results.bust,
+          easeLabel,
+          target: s.target,
+        });
+  return s.runnerUp !== null ? base + t("result.size.runnerUp", { runnerUp: s.runnerUp }) : base;
 };
 
 export const yarnText = (t, results) => {
@@ -94,17 +93,12 @@ export const tableNote = (t, results) =>
 export const tableLine = (t, results, r) => {
   const u = said(t, results);
   const head =
-    `${r.size} ${u.lenU}` +
-    (results.table.gaugeAdjusted ? ` → ${r.actual} ${u.lenU}` : "");
+    `${r.size} ${u.lenU}` + (results.table.gaugeAdjusted ? ` → ${r.actual} ${u.lenU}` : "");
   const rest = [
     r.need !== null ? `${r.need} ${u.yarnU}` : "",
     r.stash ? t(`table.${r.stash}`, { shortAmt: r.shortAmt, yarnU: u.yarnU }) : "",
   ].filter(Boolean);
-  const badge = r.best
-    ? ` — ${t("table.pick")}`
-    : r.runnerUp
-      ? ` — ${t("table.closeCall")}`
-      : "";
+  const badge = r.best ? ` — ${t("table.pick")}` : r.runnerUp ? ` — ${t("table.closeCall")}` : "";
   return [head, ...rest].join(" · ") + badge;
 };
 

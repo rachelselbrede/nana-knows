@@ -15,7 +15,10 @@ const ratio = (a, b) => {
 };
 
 let failures = 0;
-for (const [name, palette] of [["light", LIGHT], ["dark", DARK]]) {
+for (const [name, palette] of [
+  ["light", LIGHT],
+  ["dark", DARK],
+]) {
   console.log(`--- ${name} ---`);
   for (const [text, backgrounds] of Object.entries(TEXT_ON)) {
     const cells = backgrounds.map((bg) => {
@@ -34,5 +37,9 @@ for (const [name, palette] of [["light", LIGHT], ["dark", DARK]]) {
     console.log(`${text.padEnd(12)} ${cells.join("   ")}`);
   }
 }
-console.log(failures ? `${failures} pairing(s) under 4.5:1` : "every text role clears 4.5:1 on every background it sits on");
+console.log(
+  failures
+    ? `${failures} pairing(s) under 4.5:1`
+    : "every text role clears 4.5:1 on every background it sits on",
+);
 process.exit(failures ? 1 : 0);
