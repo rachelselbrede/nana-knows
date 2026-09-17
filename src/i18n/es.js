@@ -101,6 +101,10 @@ export default {
     weighHave: "p. ej. 350",
     bandGauge: "p. ej. 20",
     projectName: "p. ej. la chaqueta azul",
+    ballsList: "p. ej. 7 (8, 9, 10, 11, 12)",
+    gramsList: "p. ej. 350 (400, 450, 500, 550, 600)",
+    ballLength: inch ? "p. ej. 137" : "p. ej. 125",
+    ballGrams: "p. ej. 50",
   }),
 
   button: { ask: "Pregúntale a Nana" },
@@ -172,6 +176,26 @@ export default {
     use: "Usar estos números",
     used: "Nana ya los anotó arriba, en los campos de tu muestra.",
     tip: "Mide en el centro de la muestra, lejos de los bordes, y cuenta también los medios puntos. Si la prenda terminada se va a lavar, lava y deja reposar la muestra antes.",
+  },
+
+  /* La ayuda con los ovillos. Un patrón que cuenta su lana en ovillos o en
+     gramos se convierte en la lista que pide el campo de arriba, con la
+     etiqueta de la lana que nombra el patrón. */
+  balls: {
+    summary: "¿El patrón cuenta en ovillos o en gramos?",
+    intro:
+      "Algunos patrones dicen «7 (8, 9) ovillos» o «350 (400, 450) g» y nunca mencionan un largo. Dile a Nana cuánto pide cada talla y cuánto trae un ovillo de la lana del patrón, y ella saca el largo para cada talla, mija.",
+    countsIn: "El patrón cuenta en",
+    inBalls: "ovillos",
+    inGrams: "gramos",
+    perSizeBalls: "Ovillos por talla, en el mismo orden que las tallas",
+    perSizeGrams: "Gramos por talla, en el mismo orden que las tallas (g)",
+    ballHolds: ({ yarnU }) => `Un ovillo trae (${yarnU})`,
+    ballWeighs: "Un ovillo pesa (g)",
+    out: ({ list, yarnU }) => `Eso da ${list} ${yarnU}.`,
+    use: "Usar estos números",
+    used: "Nana los anotó en «Lana que pide cada talla».",
+    tip: "Lee el largo en la etiqueta de la lana que nombra el patrón, no en la de tu canasta.",
   },
 
   /* La ayuda con la báscula. Una báscula de cocina sabe cuánto queda de un

@@ -54,8 +54,8 @@ errors: none
    "96.5",
    "20.7",
    "25.6",
-   "",
-   ""
+   "201.2",
+   "6"
   ],
   "message": "Nana redid your numbers in centimetres and metres, dear."
  },
@@ -191,6 +191,83 @@ errors: none
 }
 errors: none
 
+=== the balls helper ===
+{
+ "labels": [
+  "Balls per size, same order as the sizes",
+  "One ball holds (yds)"
+ ],
+ "noLength": {
+  "statuses": [
+   "Nana read: 7, 8, 9, 10, 11, 12.",
+   "",
+   ""
+  ],
+  "disabled": true
+ },
+ "balls": {
+  "statuses": [
+   "Nana read: 7, 8, 9, 10, 11, 12.",
+   "That makes 959, 1096, 1233, 1370, 1507, 1644 yds.",
+   ""
+  ]
+ },
+ "afterUse": {
+  "yards": "959, 1096, 1233, 1370, 1507, 1644",
+  "used": "Nana wrote those into “Yarn needed per size”.",
+  "echo": "Nana read: 959, 1096, 1233, 1370, 1507, 1644."
+ },
+ "gramsMode": {
+  "labels": [
+   "Grams per size, same order as the sizes (g)",
+   "One ball holds (yds)",
+   "One ball weighs (g)"
+  ],
+  "statuses": [
+   "Nana read: 7, 8, 9, 10, 11, 12.",
+   "",
+   ""
+  ]
+ },
+ "grams": {
+  "statuses": [
+   "Nana read: 350, 400, 450.",
+   "That makes 959, 1096, 1233 yds.",
+   ""
+  ]
+ },
+ "afterEnter": {
+  "yards": "959, 1096, 1233",
+  "used": "Nana wrote those into “Yarn needed per size”.",
+  "askedNana": false
+ },
+ "es": {
+  "summary": "¿El patrón cuenta en ovillos o en gramos?",
+  "labels": [
+   "Gramos por talla, en el mismo orden que las tallas (g)",
+   "Un ovillo trae (yds)",
+   "Un ovillo pesa (g)"
+  ],
+  "statuses": [
+   "Nana leyó: 350, 400, 450.",
+   "Eso da 959, 1096, 1233 yds.",
+   "Nana los anotó en «Lana que pide cada talla»."
+  ]
+ },
+ "cm": {
+  "statuses": [
+   "Nana leyó: 350, 400, 450.",
+   "Eso da 877, 1002, 1128 m.",
+   ""
+  ],
+  "ballLength": "125.3",
+  "ballGrams": "50",
+  "perSize": "350 (400, 450)",
+  "yards": "876.9, 1002.2, 1127.5"
+ }
+}
+errors: none
+
 === the substitution helper ===
 {
  "noPatternGauge": [
@@ -291,6 +368,7 @@ errors: none
   "Length: stitch gauge only ever decides how wide a thing comes out. Row gauge decides how long. Nana works out how far the pattern's row counts would actually take you, and how many rows you would need instead to land at the length it intended."
  ],
  "order": [
+  "Pattern counts in balls or grams instead?",
   "Help me count my swatch",
   "How do I measure myself?",
   "Weighing your yarn instead?",
@@ -299,6 +377,7 @@ errors: none
   "Are you a designer?"
  ],
  "es": [
+  "¿El patrón cuenta en ovillos o en gramos?",
   "Ayúdame a contar mi muestra",
   "¿Cómo me mido?",
   "¿Pesas tu lana en vez de contarla?",
@@ -415,8 +494,8 @@ errors: none
    "38",
    "21",
    "26",
-   "",
-   ""
+   "220",
+   "6"
   ],
   "msg": "Nana remembered you from last time.",
   "answered": false,
@@ -436,8 +515,8 @@ errors: none
    "38",
    "21",
    "26",
-   "",
-   ""
+   "220",
+   "6"
   ],
   "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
   "answered": true,
@@ -457,8 +536,8 @@ errors: none
    "96.5",
    "20.7",
    "25.6",
-   "",
-   ""
+   "201.2",
+   "6"
   ],
   "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
   "answered": true,
@@ -503,8 +582,8 @@ errors: none
    "38",
    "21",
    "26",
-   "",
-   ""
+   "220",
+   "6"
   ],
   "msg": "Nana remembered “the blue cardigan” from last time.",
   "answered": false,
@@ -525,8 +604,8 @@ errors: none
    "38",
    "21",
    "26",
-   "",
-   ""
+   "220",
+   "6"
   ],
   "msg": "Nana opened this pattern from a link and filled in your own numbers from her notebook.",
   "answered": true,

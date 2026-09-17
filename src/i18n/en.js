@@ -102,6 +102,12 @@ export default {
     weighHave: "e.g. 350",
     bandGauge: "e.g. 20",
     projectName: "e.g. the blue cardigan",
+    /* The ball's length must not share a placeholder with the basket's
+       per-skein field: the smoke run finds fields by what they suggest. */
+    ballsList: "e.g. 7 (8, 9, 10, 11, 12)",
+    gramsList: "e.g. 350 (400, 450, 500, 550, 600)",
+    ballLength: inch ? "e.g. 137" : "e.g. 125",
+    ballGrams: "e.g. 50",
   }),
 
   button: { ask: "Ask Nana" },
@@ -173,6 +179,26 @@ export default {
     use: "Use these numbers",
     used: "Nana popped those into your swatch fields above.",
     tip: "Measure in the middle of the swatch, away from the edges, and count the half stitches too. If the finished piece will be washed, wash and rest the swatch first.",
+  },
+
+  /* The balls helper. A pattern that counts its yarn in balls or grams
+     becomes the list the yardage field wants, from the band of the yarn the
+     pattern names. */
+  balls: {
+    summary: "Pattern counts in balls or grams instead?",
+    intro:
+      "Some patterns say “7 (8, 9) balls” or “350 (400, 450) g” and never mention a length. Tell Nana what it asks for in each size and what one ball of the pattern's yarn holds, and she will work out the length for each size, dear.",
+    countsIn: "The pattern counts in",
+    inBalls: "balls",
+    inGrams: "grams",
+    perSizeBalls: "Balls per size, same order as the sizes",
+    perSizeGrams: "Grams per size, same order as the sizes (g)",
+    ballHolds: ({ yarnU }) => `One ball holds (${yarnU})`,
+    ballWeighs: "One ball weighs (g)",
+    out: ({ list, yarnU }) => `That makes ${list} ${yarnU}.`,
+    use: "Use these numbers",
+    used: "Nana wrote those into “Yarn needed per size”.",
+    tip: "Read the length off the band of the yarn the pattern names, not the yarn in your basket.",
   },
 
   /* The weighing helper. A kitchen scale knows what is left of a part-used

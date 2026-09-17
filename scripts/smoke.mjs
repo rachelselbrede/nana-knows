@@ -62,6 +62,10 @@ const enter = (el) => el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Ente
 const answered = () => /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText);
 const openDetails = (re) => { const d = Array.from(document.querySelectorAll('summary')).find(s => re.test(s.textContent)).closest('details'); d.open = true; return d; };
 const statusesIn = (d) => Array.from(d.querySelectorAll('[role="status"]')).map(s => s.textContent.trim());
+/* The nine fields of the three cards. The helpers' scratch inputs live inside
+   the same form, folded away in <details>, and a new helper must not shift
+   which input a scenario thinks is the bust. */
+const mainFields = () => Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9).map(i => i.value);
 const pills = () => Array.from(document.querySelectorAll('[aria-labelledby="nk-notebook-label"] button')).map(b => b.textContent.trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : ''));
 const fillFixture = () => {
   fill(byPh('e.g. 18'), '18'); fill(byPh('e.g. 24'), '24');
@@ -106,7 +110,7 @@ fillFixture(); await sleep(100);
 clickBtn(/^Ask Nana$/); await sleep(400);
 const out = { asked: answered() };
 clickBtn(/^cm \/ m$/); await sleep(300);
-out.afterFlip = { answered: answered(), fields: Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value), message: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).find(t => /Nana redid/.test(t)) };
+out.afterFlip = { answered: answered(), fields: mainFields(), message: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).find(t => /Nana redid/.test(t)) };
 clickBtn(/^Ask Nana$/); await sleep(400);
 const tbl = document.querySelector('table');
 out.metric = { headers: Array.from(tbl.querySelectorAll('thead th')).map(t => t.textContent.trim()), pick: Array.from(tbl.querySelectorAll('tbody tr')).map(tr => tr.textContent.trim()).find(t => /Nana's pick/.test(t)) };
@@ -158,6 +162,34 @@ clickBtn(/^ES$/); await sleep(200);
 out.es = { summary: det.querySelector('summary').textContent.trim(), statuses: statusesIn(det) };
 clickBtn(/^cm \/ m$/); await sleep(300);
 out.cm = { statuses: statusesIn(det), perSkein: byPh('p. ej. 200').value, grams: [hin()[0].value, hin()[1].value] };
+clickBtn(/^in \/ yds$/); await sleep(100); clickBtn(/^EN$/); await sleep(150);
+return out;`,
+  },
+  {
+    name: "the balls helper",
+    js: String.raw`
+const det = openDetails(/balls or grams/i);
+const hin = () => Array.from(det.querySelectorAll('input'));
+const yardsField = () => document.querySelector('#nk-yards');
+const labels = () => Array.from(det.querySelectorAll('label')).map(l => l.textContent.trim());
+const out = {};
+out.labels = labels();
+fill(hin()[0], '7 (8, 9, 10, 11, 12)'); await sleep(100);
+out.noLength = { statuses: statusesIn(det), disabled: det.querySelector('button[type="button"]:not([aria-pressed])').disabled };
+fill(hin()[1], '137'); await sleep(150);
+out.balls = { statuses: statusesIn(det) };
+det.querySelector('button[type="button"]:not([aria-pressed])').click(); await sleep(150);
+out.afterUse = { yards: yardsField().value, used: statusesIn(det)[2], echo: document.querySelector('#nk-yards-echo').textContent.trim() };
+Array.from(det.querySelectorAll('button')).find(b => /^grams$/.test(b.textContent.trim())).click(); await sleep(150);
+out.gramsMode = { labels: labels(), statuses: statusesIn(det) };
+fill(hin()[0], '350 (400, 450)'); fill(hin()[2], '50'); await sleep(150);
+out.grams = { statuses: statusesIn(det) };
+enter(hin()[2]); await sleep(150);
+out.afterEnter = { yards: yardsField().value, used: statusesIn(det)[2], askedNana: answered() };
+clickBtn(/^ES$/); await sleep(200);
+out.es = { summary: det.querySelector('summary').textContent.trim(), labels: labels(), statuses: statusesIn(det) };
+clickBtn(/^cm \/ m$/); await sleep(300);
+out.cm = { statuses: statusesIn(det), ballLength: hin()[1].value, ballGrams: hin()[2].value, perSize: hin()[0].value, yards: yardsField().value };
 clickBtn(/^in \/ yds$/); await sleep(100); clickBtn(/^EN$/); await sleep(150);
 return out;`,
   },
@@ -243,7 +275,6 @@ fill(byPh('e.g. 18'), '18'); fill(document.querySelector('#nk-sizes'), '32, 36')
 const msg = () => document.querySelector('#nk-save-status').textContent.trim();
 const nb = () => JSON.parse(localStorage.getItem('nana-notebook'));
 const nameField = () => document.querySelector('input[placeholder="e.g. the blue cardigan"]');
-const fields = () => Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value);
 const out = {};
 clickBtn(/Copy a link/); await sleep(200);
 out.link = { search: new URL(window.__copied).search, message: msg() };
@@ -256,7 +287,7 @@ fill(nameField(), 'the green blanket'); fill(document.querySelector('#nk-sizes')
 clickBtn(/remember my numbers/); await sleep(150);
 out.second = { pages: nb().pages.map(p => p.name), open: nb().open, pills: pills(), forgetThis: Array.from(document.querySelectorAll('button')).some(b => /Forget this project/.test(b.textContent)), message: msg() };
 clickBtn(/^the blue cardigan$/); await sleep(200);
-out.opened = { fields: fields(), name: nameField().value, open: nb().open, pills: pills(), message: msg() };
+out.opened = { fields: mainFields(), name: nameField().value, open: nb().open, pills: pills(), message: msg() };
 clickBtn(/Forget this project/); await sleep(150);
 out.forgotThis = { pages: nb().pages.map(p => p.name), pills: pills(), forgetThis: Array.from(document.querySelectorAll('button')).some(b => /Forget this project/.test(b.textContent)), message: msg() };
 clickBtn(/^Forget me$/); await sleep(150);
@@ -267,7 +298,7 @@ return out;`,
 
 /* Load paths need more than one navigation, and a seeded notebook, so they
    are written against the page directly rather than as one script. */
-const READ = String.raw`JSON.stringify({ bust: document.querySelectorAll('form input')[4].value, units: Array.from(document.querySelectorAll('button')).find(b => /in \/ yds|cm \/ m/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true').textContent.trim(), fields: Array.from(document.querySelectorAll('form input')).slice(0, 9).map(i => i.value), msg: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).filter(Boolean).find(t => /Nana (opened|remembered|abrió)/.test(t)) || '', answered: /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText), size: (document.body.innerText.match(/(?:Follow|Make) the size (\d+)/) || [])[1] || null, pills: Array.from(document.querySelectorAll('[aria-labelledby="nk-notebook-label"] button')).map(b => b.textContent.trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')) })`;
+const READ = String.raw`JSON.stringify({ bust: Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9)[4].value, units: Array.from(document.querySelectorAll('button')).find(b => /in \/ yds|cm \/ m/.test(b.textContent) && b.getAttribute('aria-pressed') === 'true').textContent.trim(), fields: Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9).map(i => i.value), msg: Array.from(document.querySelectorAll('[role="status"]')).map(s => s.textContent.trim()).filter(Boolean).find(t => /Nana (opened|remembered|abrió)/.test(t)) || '', answered: /Here is what Nana thinks|Esto es lo que piensa/.test(document.body.innerText), size: (document.body.innerText.match(/(?:Follow|Make) the size (\d+)/) || [])[1] || null, pills: Array.from(document.querySelectorAll('[aria-labelledby="nk-notebook-label"] button')).map(b => b.textContent.trim() + (b.getAttribute('aria-pressed') === 'true' ? ' *' : '')) })`;
 
 async function loadPaths(page) {
   await page.go(BASE + "?lang=en");
@@ -279,7 +310,7 @@ async function loadPaths(page) {
   await page.go(BASE + "?s=81,91,102,112,122,132&y=825,915,1005,1145,1280,1420&pg=17.7&prg=23.6&u=cm&c=knit&lang=en"); out.designerLinkCentimetres = await read();
   await page.go(BASE + "?s=32,36,40,44,48,52&b=40&u=in&lang=en"); out.personalLink = await read();
   await page.go(BASE + "?s=32,36,40&b=" + "9".repeat(5000) + "&lang=en");
-  out.longParam = { bustLength: await page.eval("document.querySelectorAll('form input')[4].value.length"), answered: await page.eval("/Here is what Nana thinks/.test(document.body.innerText)") };
+  out.longParam = { bustLength: await page.eval("Array.from(document.querySelectorAll('form input')).filter(i => !i.closest('details')).slice(0, 9)[4].value.length"), answered: await page.eval("/Here is what Nana thinks/.test(document.body.innerText)") };
 
   /* A notebook of two pages, the second one open and holding a pattern. On a
      plain visit it comes back whole; under a designer's link only its

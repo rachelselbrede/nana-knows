@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import en from "./en.js";
 import es from "./es.js";
 import { adviseSize, adviseYarn, adviseGauge, adviseRows, sizeTable, adviseSubstitute, ballsFor } from "../lib/advice.js";
-import { swatchToGauge, gramsToSkeins } from "../lib/parse.js";
+import { swatchToGauge, gramsToSkeins, ballsToYardage } from "../lib/parse.js";
 
 const DICTS = { en, es };
 
@@ -303,6 +303,35 @@ for (const lang of LANGS) {
       for (const key of ["swatchStitches", "swatchAcross", "swatchRows", "swatchTall"]) {
         assert.ok(ph[key], `${lang} ph.${key} is missing`);
       }
+    });
+  });
+}
+
+/* ---------- the balls helper ---------- */
+for (const lang of LANGS) {
+  describe(`${lang}: the balls helper has words`, () => {
+    test("intro, the answer, the confirmation, the tip, and every label", () => {
+      const list = ballsToYardage("7 (8, 9)", "137");
+      assert.deepEqual(list, [959, 1096, 1233]);
+      assertSentence(say(lang, "balls.intro"), `${lang} balls/intro`);
+      const out = say(lang, "balls.out", { list: list.join(", "), yarnU: UNITS.yarnU });
+      assertSentence(out, `${lang} balls/out`);
+      assert.ok(out.includes("959, 1096, 1233") && out.includes("yds"), out);
+      assertSentence(say(lang, "balls.used"), `${lang} balls/used`);
+      assertSentence(say(lang, "balls.tip"), `${lang} balls/tip`);
+      for (const key of ["summary", "countsIn", "inBalls", "inGrams", "perSizeBalls", "use"]) {
+        assert.ok(say(lang, `balls.${key}`).length > 3, `${lang} balls/${key} is too short to be a label`);
+      }
+      /* Grams say so in the label; what a ball holds carries the unit. */
+      assert.ok(say(lang, "balls.perSizeGrams").includes("(g)") && say(lang, "balls.ballWeighs").includes("(g)"));
+      assert.ok(say(lang, "balls.ballHolds", { yarnU: "m" }).includes("(m)"));
+      const ph = say(lang, "ph", { inch: true });
+      for (const key of ["ballsList", "gramsList", "ballLength", "ballGrams"]) {
+        assert.ok(ph[key], `${lang} ph.${key} is missing`);
+      }
+      /* The smoke run finds fields by placeholder, so these two must differ. */
+      assert.notEqual(ph.ballLength, ph.perSkein);
+      assert.notEqual(say(lang, "ph", { inch: false }).ballLength, say(lang, "ph", { inch: false }).perSkein);
     });
   });
 }

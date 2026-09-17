@@ -14,6 +14,7 @@ import {
   gaugePer10cmToPer4in,
   swatchToGauge,
   gramsToSkeins,
+  ballsToYardage,
   r1,
 } from "./parse.js";
 
@@ -371,5 +372,40 @@ describe("parseNumberList: a line pasted straight from the pattern", () => {
 
   test("letter sizes on their own are nothing to Nana", () => {
     assert.deepEqual(parseList("XS (S, M, L, XL)"), []);
+  });
+});
+
+describe("ballsToYardage: a pattern that counts in balls or grams", () => {
+  test("balls times what one ball holds, in the pattern's own notation", () => {
+    assert.deepEqual(ballsToYardage("7 (8, 9, 10)", "137"), [959, 1096, 1233, 1370]);
+  });
+
+  test("the order of the sizes is the order of the answer", () => {
+    assert.deepEqual(ballsToYardage("9, 7, 8", "100"), [900, 700, 800]);
+  });
+
+  test("grams per size over grams per ball, then the same multiplication", () => {
+    assert.deepEqual(ballsToYardage("350 (400, 450)", "137", "50"), [959, 1096, 1233]);
+  });
+
+  test("a European band reads 137,5 as a hundred and thirty-seven and a half", () => {
+    assert.deepEqual(ballsToYardage("7, 8", "137,5"), [963, 1100]);
+  });
+
+  test("the answer is whole yards or metres, like every other yardage", () => {
+    assert.deepEqual(ballsToYardage("375", "125", "50"), [938]);
+    assert.deepEqual(ballsToYardage("2.5", "109.4"), [274]);
+  });
+
+  test("nothing until there is a list and a length", () => {
+    assert.equal(ballsToYardage("", "137"), null);
+    assert.equal(ballsToYardage("7, 8", ""), null);
+    assert.equal(ballsToYardage("7, 8", "lots"), null);
+    assert.equal(ballsToYardage("7, 8", "0"), null);
+  });
+
+  test("counting in grams waits for the weight of a ball", () => {
+    assert.equal(ballsToYardage("350, 400", "137", ""), null);
+    assert.equal(ballsToYardage("350, 400", "137", "0"), null);
   });
 });

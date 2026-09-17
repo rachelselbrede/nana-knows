@@ -11,7 +11,7 @@ Read `HANDOFF.md` next for project history, current state and the roadmap.
 ```bash
 npm run dev      # Vite dev server (PWA enabled in dev, so what you test matches what ships)
 npm run build    # production build into dist/
-npm test         # node --test "src/**/*.test.js"  — 299 tests, ~75ms, zero dependencies
+npm test         # node --test "src/**/*.test.js"  — 308 tests, ~75ms, zero dependencies
 npm run build && npm run smoke   # drive the built site through headless Chrome and
                                  # diff what it saw against scripts/smoke.golden.txt
 npm run smoke:update             # re-record the golden after a deliberate change
@@ -50,16 +50,16 @@ src/
                       old single page is migrated in unnamed), openPage,
                       personalOnly, convert into the link's units, writePage,
                       forgetPage, clear. Takes the storage as an arg.
-  components/         Header, Toggles, PatternCard, YouCard (SwatchHelper,
+  components/         Header, Toggles, PatternCard (BallsHelper), YouCard (SwatchHelper,
                       MeasureGuide), BasketCard (WeighHelper, SubstituteHelper),
                       ProjectPicker, RememberRow, Results, SizeTable, MathNote, DesignersNote,
                       Footer, GlobalStyle; and the small pieces they share:
                       FormCard, Disclosure, AdviceCard, Toggle, ParseEcho, Nana,
                       GrannySquare, MeasureBust, fieldStyles, scratch
   i18n/index.jsx      I18nProvider / useI18n / t(). ~90 lines.
-  i18n/en.js          152 keys
-  i18n/es.js          152 keys, same shape
-  *.test.js           parse 77, advice 78, words 15, share 10, notebook 26, wording 93
+  i18n/en.js          173 keys
+  i18n/es.js          173 keys, same shape
+  *.test.js           parse 84, advice 78, words 15, share 10, notebook 26, wording 95
 ```
 
 ### The load-bearing idea

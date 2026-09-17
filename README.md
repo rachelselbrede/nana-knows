@@ -32,6 +32,9 @@ Free forever. No account. Nothing collected. Knit and crochet both welcome.
 - **Weighs your stash, too.** Tell her what a full skein weighs and what your
   yarn weighs on the kitchen scale, part-used balls and all, and she turns it
   into skeins for the basket.
+- **Reads a pattern that counts in balls.** "7 (8, 9) balls" or "350 (400,
+  450) g" and no length anywhere? Tell her what one ball of the pattern's yarn
+  holds and she fills in the yardage for every size.
 - **Says whether another yarn will do.** Read the gauge off the band of the
   yarn you have; Nana says how close it comes to the pattern's, what a needle
   change could coax, and how many balls you would need for your size.
@@ -71,7 +74,7 @@ Then open the local address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the arithmetic suite — 299 tests on Node's built-in runner, no test
+runs the arithmetic suite — 308 tests on Node's built-in runner, no test
 dependencies at all. Everything Nana computes is pure functions in `src/lib/`.
 
 ```bash
@@ -125,14 +128,10 @@ nothing to record it with.
 
 ## Someday
 
-Ideas worth doing, not built yet. Nothing here is promised, and none of it
-should break the "no backend, nothing collected" rule.
+Nothing is queued right now: everything that was on this list has shipped.
+Whatever comes next should not break the "no backend, nothing collected" rule.
 
-- **A pattern that counts in balls or grams** — turning "7 (8, 9) balls of
-  50 g" into yardage per size from the band's numbers, so the yardage field is
-  not the only way in.
-
-Got another idea? Open an issue: "Tell Nana what to learn next" in the footer.
+Got an idea? Open an issue: "Tell Nana what to learn next" in the footer.
 
 ## Privacy
 

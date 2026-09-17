@@ -80,6 +80,14 @@ merged and deployed on 31 August 2026, and since then:
   read, and naming it renames it rather than copying it. With no link the last
   page opens whole; with a designer's link only its personal fields chip in,
   as before, so the precedence rules in `CLAUDE.md` still hold.
+- **The balls helper** (16 September 2026) — "Pattern counts in balls or
+  grams instead?" under the yardage field: `ballsToYardage()` in `parse.js`
+  turns "7 (8, 9) balls" or "350 (400, 450) g", with what one ball of the
+  pattern's yarn holds, into the yardage list, and a button writes it into
+  the field above. Same disclosure pattern as the other helpers; the ball's
+  length follows the unit toggle. The smoke run now reads the nine card
+  fields by skipping anything inside `<details>`, so a new helper can no
+  longer shift which input a scenario thinks is the bust.
 
 For the record, the `nana-upgrades` branch was the dependency bumps — React
 19, Vite 8, plugin-react 6, Tailwind 4.3 — installed fresh, built, tested and
@@ -204,7 +212,7 @@ near-zero value. Still open if you disagree.
 
 ## Where it stands
 
-- 299 tests, 50 suites, all passing, ~75 ms, zero dependencies.
+- 308 tests, 53 suites, all passing, ~75 ms, zero dependencies.
 - CI: `test.yml` runs the suite on pull requests; `deploy.yml` runs it before
   building, so a red suite blocks the live site.
 - Both dictionaries at 152 keys, parity enforced by test in both directions,
@@ -256,10 +264,10 @@ Ordered by value per hour. All respect the no-backend rule.
    pattern's number beside Nana's and calls it a rough guide.
 4. ~~**Multiple saved projects.**~~ Shipped 15 September 2026; see the top of
    this file. `lib/notebook.js` holds the pages, `ProjectPicker` the pills.
-5. **Grams as well as yards.** Half shipped 1 September 2026: the basket can
-   be weighed ("Weighing your yarn instead?", backed by `gramsToSkeins()` in
-   `parse.js`) and the result lands in the skeins field. Still open: a
-   pattern that quotes its yarn in balls or grams per size rather than length.
+5. ~~**Grams as well as yards.**~~ Shipped in two halves: the basket can be
+   weighed (1 September 2026, `gramsToSkeins()`), and a pattern that quotes
+   its yarn in balls or grams per size becomes yardage (16 September 2026,
+   `ballsToYardage()`, the balls helper in the pattern card).
 
 ### Structure
 

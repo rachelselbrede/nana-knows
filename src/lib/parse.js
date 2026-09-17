@@ -238,3 +238,21 @@ export const gramsToSkeins = (grams, gramsPerSkein) => {
   if (g === null || per === null) return null;
   return r1(g / per);
 };
+
+/* Plenty of patterns never quote a length at all: "7 (8, 9) balls", or
+   "350 (400, 450) g", of a yarn they name. The band of that yarn says what
+   one ball holds, and the length per size is one multiplication away — or,
+   for grams, the same rule of three as the scale. The result is the list the
+   yardage field wants, in the pattern's order, in whole yards or metres like
+   every other yardage Nana handles. `gramsPerBall` is passed only when the
+   pattern counts in grams; left undefined, the list is balls. Returns null
+   while anything it needs is empty or unreadable. */
+export const ballsToYardage = (perSize, lengthPerBall, gramsPerBall) => {
+  const counts = parseList(perSize);
+  const len = parseOne(lengthPerBall);
+  if (counts.length === 0 || len === null) return null;
+  if (gramsPerBall === undefined) return counts.map((c) => Math.round(c * len));
+  const g = parseOne(gramsPerBall);
+  if (g === null) return null;
+  return counts.map((c) => Math.round((c / g) * len));
+};

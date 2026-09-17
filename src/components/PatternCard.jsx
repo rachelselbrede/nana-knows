@@ -1,12 +1,15 @@
 import { labelStyle, inputStyle } from "./fieldStyles.js";
 import { FormCard } from "./FormCard.jsx";
 import { ParseEcho } from "./ParseEcho.jsx";
+import { BallsHelper } from "./BallsHelper.jsx";
 
 /* ---------- the pattern card ----------
-   What the pattern says: its gauges, its sizes, the yarn each size needs.
-   `fields` and `setters` are the parent's state; the card only draws it. */
+   What the pattern says: its gauges, its sizes, the yarn each size needs —
+   with the balls helper folded underneath, for the pattern that counts its
+   yarn in balls or grams. `fields` and `setters` are the parent's state; the
+   card only draws it. */
 export function PatternCard({ t, fields, setters, labels, ph }) {
-  const { lenU, yarnU, gaugeLabel, rowGaugeLabel } = labels;
+  const { units, lenU, yarnU, gaugeLabel, rowGaugeLabel } = labels;
   return (
     <FormCard title={t("card.pattern")}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -35,6 +38,7 @@ export function PatternCard({ t, fields, setters, labels, ph }) {
           <ParseEcho id="nk-yards-echo" text={fields.yardsText} t={t} />
         </div>
       </div>
+      <BallsHelper t={t} units={units} yarnU={yarnU} ph={ph} setYardsText={setters.yardsText} />
     </FormCard>
   );
 }
